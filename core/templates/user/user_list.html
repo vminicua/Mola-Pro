@@ -16,7 +16,7 @@
         <div class="card-body px-0 pb-2">
           <div class="p-4">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
               <div>
                 <h6 class="mb-0">Gestão de Utilizadores</h6>
                 <p class="text-sm text-muted mb-0">
@@ -138,50 +138,54 @@
 <!-- MODAL: Novo Utilizador -->
 <div class="modal fade" id="newUserModal" tabindex="-1" aria-labelledby="newUserModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
+    <div class="modal-content user-modal-content">
+      <div class="modal-header border-0 pb-0">
         <h6 class="modal-title" id="newUserModalLabel">Novo Utilizador</h6>
         <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body pt-3">
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Username *</label>
-            <input type="text" id="new-username" class="form-control" placeholder="username">
+            <input type="text" id="new-username" class="form-control rounded-field" placeholder="username">
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Email</label>
-            <input type="email" id="new-email" class="form-control">
+            <input type="email" id="new-email" class="form-control rounded-field">
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Primeiro Nome</label>
-            <input type="text" id="new-first-name" class="form-control">
+            <input type="text" id="new-first-name" class="form-control rounded-field">
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Apelido</label>
-            <input type="text" id="new-last-name" class="form-control">
+            <input type="text" id="new-last-name" class="form-control rounded-field">
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Palavra-passe *</label>
-            <input type="password" id="new-password1" class="form-control">
+            <input type="password" id="new-password1" class="form-control rounded-field">
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Confirmar Palavra-passe *</label>
-            <input type="password" id="new-password2" class="form-control">
+            <input type="password" id="new-password2" class="form-control rounded-field">
           </div>
 
           <div class="col-md-4">
-            <div class="form-check mt-4">
+            <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="new-is-staff">
               <label class="form-check-label" for="new-is-staff">
                 Staff
               </label>
             </div>
           </div>
+
           <div class="col-md-4">
-            <div class="form-check mt-4">
+            <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="new-is-superuser">
               <label class="form-check-label" for="new-is-superuser">
                 Superuser
@@ -190,19 +194,31 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label">Grupos</label>
-            <select id="new-groups-select" class="form-select" multiple>
-              {% for g in groups %}
-                <option value="{{ g.id }}">{{ g.name }}</option>
-              {% endfor %}
-            </select>
+            <label class="form-label mb-2">Grupos</label>
+            <div class="group-checkbox-wrapper rounded-field">
+              <div class="row">
+                {% for g in groups %}
+                <div class="col-md-6 col-lg-4 mb-2">
+                  <div class="form-check group-check-item">
+                    <input class="form-check-input new-group-checkbox"
+                           type="checkbox"
+                           value="{{ g.id }}"
+                           id="new-group-{{ g.id }}">
+                    <label class="form-check-label" for="new-group-{{ g.id }}">
+                      {{ g.name }}
+                    </label>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
             <small class="text-xs text-muted">
-              Pode atribuir um ou mais grupos ao novo utilizador.
+              Pode seleccionar um ou mais grupos.
             </small>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer border-0 pt-2">
         <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-success btn-sm" id="btn-save-new-user">
           Gravar Utilizador
@@ -215,65 +231,71 @@
 <!-- MODAL: Editar Utilizador -->
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
+    <div class="modal-content user-modal-content">
+      <div class="modal-header border-0 pb-0">
         <h6 class="modal-title" id="editUserModalLabel">Editar Utilizador</h6>
         <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Fechar"></button>
       </div>
-      <div class="modal-body">
+      <div class="modal-body pt-3">
         <input type="hidden" id="edit-user-id">
 
-        <div class="alert alert-light border text-sm mb-3">
-          Está a editar o utilizador: <strong id="edit-user-display-name"></strong>
+        <div class="alert alert-light border mb-3 rounded-4">
+          Está a editar o utilizador:
+          <strong id="edit-user-display-name"></strong>
         </div>
 
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Username *</label>
-            <input type="text" id="edit-username" class="form-control">
+            <input type="text" id="edit-username" class="form-control rounded-field">
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Email</label>
-            <input type="email" id="edit-email" class="form-control">
+            <input type="email" id="edit-email" class="form-control rounded-field">
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Primeiro Nome</label>
-            <input type="text" id="edit-first-name" class="form-control">
+            <input type="text" id="edit-first-name" class="form-control rounded-field">
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Apelido</label>
-            <input type="text" id="edit-last-name" class="form-control">
+            <input type="text" id="edit-last-name" class="form-control rounded-field">
           </div>
 
           <div class="col-md-6">
             <label class="form-label">Nova Palavra-passe</label>
-            <input type="password" id="edit-password1" class="form-control">
+            <input type="password" id="edit-password1" class="form-control rounded-field">
             <small class="text-xs text-muted">Deixe vazio para não alterar.</small>
           </div>
+
           <div class="col-md-6">
             <label class="form-label">Confirmar Nova Palavra-passe</label>
-            <input type="password" id="edit-password2" class="form-control">
+            <input type="password" id="edit-password2" class="form-control rounded-field">
           </div>
 
           <div class="col-md-4">
-            <div class="form-check mt-4">
+            <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="edit-is-staff">
               <label class="form-check-label" for="edit-is-staff">
                 Staff
               </label>
             </div>
           </div>
+
           <div class="col-md-4">
-            <div class="form-check mt-4">
+            <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="edit-is-superuser">
               <label class="form-check-label" for="edit-is-superuser">
                 Superuser
               </label>
             </div>
           </div>
+
           <div class="col-md-4">
-            <div class="form-check mt-4">
+            <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="edit-is-active">
               <label class="form-check-label" for="edit-is-active">
                 Activo
@@ -282,19 +304,31 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label">Grupos</label>
-            <select id="edit-groups-select" class="form-select" multiple>
-              {% for g in groups %}
-                <option value="{{ g.id }}">{{ g.name }}</option>
-              {% endfor %}
-            </select>
+            <label class="form-label mb-2">Grupos</label>
+            <div class="group-checkbox-wrapper rounded-field">
+              <div class="row">
+                {% for g in groups %}
+                <div class="col-md-6 col-lg-4 mb-2">
+                  <div class="form-check group-check-item">
+                    <input class="form-check-input edit-group-checkbox"
+                           type="checkbox"
+                           value="{{ g.id }}"
+                           id="edit-group-{{ g.id }}">
+                    <label class="form-check-label" for="edit-group-{{ g.id }}">
+                      {{ g.name }}
+                    </label>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
             <small class="text-xs text-muted">
-              Os grupos seleccionados substituem os grupos actuais.
+              Marque ou desmarque os grupos que deseja associar ao utilizador.
             </small>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer border-0 pt-2">
         <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-primary btn-sm" id="btn-save-edit-user">
           Gravar Alterações
@@ -306,6 +340,65 @@
 {% endblock content %}
 
 {% block extra_js %}
+<style>
+  .user-modal-content{
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+
+  .rounded-field{
+    border-radius: 16px !important;
+  }
+
+  .rounded-field.form-control,
+  .rounded-field.form-select{
+    border-radius: 16px !important;
+    border: 1px solid #d2d6da !important;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .rounded-field.form-control:focus,
+  .rounded-field.form-select:focus{
+    border-color: #064E3B !important;
+    box-shadow: 0 0 0 0.15rem rgba(6, 78, 59, 0.12) !important;
+  }
+
+  .group-checkbox-wrapper{
+    border: 1px solid #d2d6da;
+    background: #fff;
+    padding: 14px 16px;
+    min-height: 90px;
+  }
+
+  .group-check-item{
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    padding: 10px 12px;
+    margin: 0;
+    transition: all 0.2s ease;
+  }
+
+  .group-check-item:hover{
+    background: #f1f3f5;
+    border-color: #cfd4da;
+  }
+
+  .group-check-item .form-check-input{
+    margin-top: 0.2rem;
+  }
+
+  .group-check-item .form-check-label{
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  #users-table td,
+  #users-table th{
+    vertical-align: middle;
+  }
+</style>
+
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -318,7 +411,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const table = $('#users-table').DataTable({
+  $('#users-table').DataTable({
     pageLength: 10,
     lengthMenu: [[10, 25, 50, -1],[10, 25, 50, "Todos"]],
     order: [[1, 'asc']],
@@ -337,7 +430,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const editUserModal = new bootstrap.Modal(document.getElementById('editUserModal'));
 
-  // ==================== TOGGLE ACTIVE ====================
+  function getCheckedValues(selector) {
+    const values = [];
+    document.querySelectorAll(selector + ':checked').forEach(function(el) {
+      values.push(el.value);
+    });
+    return values;
+  }
+
+  function uncheckAll(selector) {
+    document.querySelectorAll(selector).forEach(function(el) {
+      el.checked = false;
+    });
+  }
+
+  function checkSelectedGroups(selector, groupIds) {
+    uncheckAll(selector);
+
+    groupIds.forEach(function(groupId) {
+      const checkbox = document.querySelector(selector + '[value="' + groupId + '"]');
+      if (checkbox) {
+        checkbox.checked = true;
+      }
+    });
+  }
+
   $(document).on('click', '.btn-toggle-active', function () {
     const tr = $(this).closest('tr');
     const userId = tr.data('id');
@@ -377,7 +494,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ==================== ABRIR MODAL EDITAR ====================
   $(document).on('click', '.btn-edit-user', function () {
     const tr = $(this).closest('tr');
     const userId = tr.data('id');
@@ -389,7 +505,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const isStaff = tr.data('is-staff') == 1 || tr.data('is-staff') === '1';
     const isSuperuser = tr.data('is-superuser') == 1 || tr.data('is-superuser') === '1';
     const isActive = tr.data('is-active') == 1 || tr.data('is-active') === '1';
-    const groupIdsStr = (tr.data('group-ids') || '').toString();
+    const groupIdsStr = (tr.data('group-ids') || '').toString().trim();
     const groupIds = groupIdsStr ? groupIdsStr.split(',') : [];
 
     $('#edit-user-id').val(userId);
@@ -403,12 +519,12 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#edit-is-staff').prop('checked', isStaff);
     $('#edit-is-superuser').prop('checked', isSuperuser);
     $('#edit-is-active').prop('checked', isActive);
-    $('#edit-groups-select').val(groupIds);
+
+    checkSelectedGroups('.edit-group-checkbox', groupIds);
 
     editUserModal.show();
   });
 
-  // ==================== GRAVAR EDIÇÃO ====================
   $('#btn-save-edit-user').on('click', function () {
     const userId = $('#edit-user-id').val();
 
@@ -422,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function () {
       is_staff: $('#edit-is-staff').is(':checked') ? '1' : '0',
       is_superuser: $('#edit-is-superuser').is(':checked') ? '1' : '0',
       is_active: $('#edit-is-active').is(':checked') ? '1' : '0',
-      'groups[]': $('#edit-groups-select').val() || [],
+      'groups[]': getCheckedValues('.edit-group-checkbox')
     };
 
     $.ajax({
@@ -450,7 +566,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // ==================== NOVO UTILIZADOR ====================
   const newUserModal = document.getElementById('newUserModal');
   newUserModal.addEventListener('show.bs.modal', function () {
     $('#new-username').val('');
@@ -461,7 +576,8 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#new-password2').val('');
     $('#new-is-staff').prop('checked', true);
     $('#new-is-superuser').prop('checked', false);
-    $('#new-groups-select').val([]);
+
+    uncheckAll('.new-group-checkbox');
   });
 
   $('#btn-save-new-user').on('click', function () {
@@ -474,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function () {
       password2: $('#new-password2').val(),
       is_staff: $('#new-is-staff').is(':checked') ? '1' : '0',
       is_superuser: $('#new-is-superuser').is(':checked') ? '1' : '0',
-      'groups[]': $('#new-groups-select').val() || [],
+      'groups[]': getCheckedValues('.new-group-checkbox')
     };
 
     $.ajax({
