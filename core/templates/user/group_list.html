@@ -1,0 +1,229 @@
+{% extends "layouts/sl_base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <div class="row">
+    <div class="col-12 col-xl-11 mx-auto">
+
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
+            <h6 class="text-white text-capitalize ps-3">Permissões</h6>
+          </div>
+        </div>
+
+        <div class="card-body px-0 pb-2">
+          <div class="p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+              <div>
+                <h6 class="mb-0">Grupos de Utilizadores</h6>
+                <p class="text-sm text-muted mb-0">
+                  Veja os grupos existentes e crie novos grupos. A associação de utilizadores é feita em "Todos os Utilizadores".
+                </p>
+              </div>
+              <div>
+                <button type="button"
+                        class="btn btn-sm btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#newGroupModal">
+                  <i class="material-symbols-rounded me-1" style="font-size:18px;">group_add</i>
+                  Novo Grupo
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table id="groups-table" class="table table-bordered table-striped align-items-center mb-0" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Grupo</th>
+                    <th>Utilizadores Associados</th>
+                    <th>Qtd. de Permissões</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for g in groups %}
+                  <tr>
+                    <td>{{ g.id }}</td>
+                    <td>
+                      <strong>{{ g.name }}</strong>
+                    </td>
+                    <td>
+                      {% if g.managed_members %}
+                        {% for user in g.managed_members %}
+                          <span class="badge {% if user.is_active %}bg-light text-dark border{% else %}bg-secondary{% endif %} mb-1">
+                            {{ user.get_full_name|default:user.username }}{% if not user.is_active %} (inactivo){% endif %}
+                          </span>
+                        {% endfor %}
+                      {% else %}
+                        <span class="text-xs text-muted">Sem utilizadores associados</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <span class="badge bg-gradient-info">{{ g.permission_count }}</span>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% include "includes/sl_footer.html" %}
+</div>
+
+<div class="modal fade" id="newGroupModal" tabindex="-1" aria-labelledby="newGroupModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content permissions-modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title" id="newGroupModalLabel">Novo Grupo</h6>
+        <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <div class="mb-3">
+          <label class="form-label">Nome do Grupo *</label>
+          <input type="text"
+                 id="new-group-name"
+                 class="form-control rounded-field"
+                 maxlength="150"
+                 placeholder="Ex.: Gestores de Crédito">
+        </div>
+        <div class="alert alert-light border rounded-4 py-2 px-3 mb-0">
+          <small class="text-muted">
+            Depois de criar o grupo, poderá associar um ou vários utilizadores a ele na tela "Todos os Utilizadores".
+          </small>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-2">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-success btn-sm" id="btn-save-new-group">
+          Gravar Grupo
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<style>
+  .permissions-modal-content{
+    border-radius: 1.25rem;
+    overflow: hidden;
+  }
+
+  .rounded-field{
+    border-radius: 16px !important;
+  }
+
+  .rounded-field.form-control{
+    border-radius: 16px !important;
+    border: 1px solid #d2d6da !important;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .rounded-field.form-control:focus{
+    border-color: var(--mola-pro-primary) !important;
+    box-shadow: 0 0 0 0.15rem rgba(var(--mola-pro-primary-rgb), 0.12) !important;
+  }
+
+  #groups-table td,
+  #groups-table th{
+    vertical-align: middle;
+  }
+
+  .btn-loading-disabled{
+    pointer-events: none;
+    opacity: 0.7;
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  $('#groups-table').DataTable({
+    pageLength: 10,
+    lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+    order: [[1, 'asc']],
+    language: {
+      url: "https://cdn.datatables.net/plug-ins/1.13.8/i18n/pt-PT.json"
+    }
+  });
+
+  const newGroupModal = document.getElementById('newGroupModal');
+
+  function disableButton($btn, processingText) {
+    $btn.prop('disabled', true);
+    $btn.addClass('btn-loading-disabled');
+    $btn.data('original-html', $btn.html());
+    $btn.html(`
+      <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+      ${processingText}
+    `);
+  }
+
+  function enableButton($btn) {
+    $btn.prop('disabled', false);
+    $btn.removeClass('btn-loading-disabled');
+    const originalHtml = $btn.data('original-html');
+    if (originalHtml) {
+      $btn.html(originalHtml);
+    }
+  }
+
+  if (newGroupModal) {
+    newGroupModal.addEventListener('show.bs.modal', function () {
+      $('#new-group-name').val('');
+    });
+  }
+
+  $('#btn-save-new-group').on('click', function () {
+    const $btn = $(this);
+    const name = $('#new-group-name').val().trim();
+
+    if ($btn.prop('disabled')) return;
+
+    if (!name) {
+      Swal.fire('Validação', 'O nome do grupo é obrigatório.', 'warning');
+      return;
+    }
+
+    disableButton($btn, 'A gravar...');
+
+    $.ajax({
+      url: "{% url 'core:create_group' %}",
+      type: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      data: { name: name },
+      success: function (resp) {
+        enableButton($btn);
+
+        if (resp.success) {
+          Swal.fire({
+            icon: "success",
+            title: "Grupo criado",
+            text: resp.message,
+            timer: 1800,
+            showConfirmButton: false
+          }).then(() => window.location.reload());
+        } else {
+          Swal.fire("Erro", resp.message || "Falha ao criar grupo.", "error");
+        }
+      },
+      error: function (xhr) {
+        enableButton($btn);
+        Swal.fire("Erro", xhr.responseJSON?.message || "Falha ao criar grupo.", "error");
+      }
+    });
+  });
+});
+</script>
+{% endblock extra_js %}

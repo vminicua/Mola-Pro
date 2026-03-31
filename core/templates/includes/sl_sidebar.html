@@ -289,6 +289,13 @@
                                 <span class="sidenav-normal ms-2 ps-1"> Todos os Utilizadores </span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'user_permissions' %}active fw-bold text-primary{% endif %}"
+                            href="{% url 'core:group_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">admin_panel_settings</i>
+                                <span class="sidenav-normal ms-2 ps-1"> Permissões </span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>

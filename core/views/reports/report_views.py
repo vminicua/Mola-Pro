@@ -33,7 +33,7 @@ def report_filters(request):
     Página onde o utilizador escolhe o tipo de relatório, intervalos de datas e filtros.
     """
     members = Member.objects.filter(is_active=True).order_by("first_name", "last_name")
-    users = User.objects.filter(is_active=True).order_by("username")
+    users = User.objects.filter(is_active=True, is_superuser=False).order_by("username")
     company_accounts = CompanyAccount.objects.filter(is_active=True).order_by("name")
 
     context = {

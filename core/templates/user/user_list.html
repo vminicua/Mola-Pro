@@ -17,12 +17,12 @@
           <div class="p-4">
 
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-              <div>
-                <h6 class="mb-0">Gestão de Utilizadores</h6>
-                <p class="text-sm text-muted mb-0">
-                  Veja todos os utilizadores, estado de acesso, grupos e super permissões.
-                </p>
-              </div>
+                <div>
+                  <h6 class="mb-0">Gestão de Utilizadores</h6>
+                  <p class="text-sm text-muted mb-0">
+                  Associe utilizadores a um ou vários grupos. Contas superuser não aparecem nesta lista.
+                  </p>
+                </div>
               <div>
                 <button type="button"
                         class="btn btn-sm btn-success"
@@ -41,7 +41,7 @@
                     <th>ID</th>
                     <th>Utilizador</th>
                     <th>Email</th>
-                    <th>Superuser</th>
+                    <th>Perfil</th>
                     <th>Status</th>
                     <th>Grupos</th>
                     <th style="width: 260px;">Ações</th>
@@ -56,7 +56,6 @@
                       data-fullname="{{ u.get_full_name|default:u.username }}"
                       data-email="{{ u.email|default:'' }}"
                       data-is-staff="{% if u.is_staff %}1{% else %}0{% endif %}"
-                      data-is-superuser="{% if u.is_superuser %}1{% else %}0{% endif %}"
                       data-is-active="{% if u.is_active %}1{% else %}0{% endif %}"
                       data-group-ids="{% for g in u.groups.all %}{{ g.id }}{% if not forloop.last %},{% endif %}{% endfor %}">
                     <td>{{ u.id }}</td>
@@ -66,10 +65,10 @@
                     </td>
                     <td>{{ u.email|default:"—" }}</td>
                     <td>
-                      {% if u.is_superuser %}
-                        <span class="badge bg-gradient-danger">Superuser</span>
+                      {% if u.is_staff %}
+                        <span class="badge bg-gradient-info">Staff</span>
                       {% else %}
-                        <span class="badge bg-secondary">Normal</span>
+                        <span class="badge bg-secondary">Utilizador</span>
                       {% endif %}
                     </td>
                     <td>
@@ -175,7 +174,7 @@
             <input type="password" id="new-password2" class="form-control rounded-field">
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="new-is-staff">
               <label class="form-check-label" for="new-is-staff">
@@ -184,12 +183,11 @@
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-check mt-3">
-              <input class="form-check-input" type="checkbox" id="new-is-superuser">
-              <label class="form-check-label" for="new-is-superuser">
-                Superuser
-              </label>
+          <div class="col-md-6">
+            <div class="alert alert-light border rounded-4 py-2 px-3 mt-2 mb-0">
+              <small class="text-muted">
+                Contas superuser são geridas fora desta tela e não entram na listagem normal.
+              </small>
             </div>
           </div>
 
@@ -276,7 +274,7 @@
             <input type="password" id="edit-password2" class="form-control rounded-field">
           </div>
 
-          <div class="col-md-4">
+          <div class="col-md-6">
             <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="edit-is-staff">
               <label class="form-check-label" for="edit-is-staff">
@@ -285,16 +283,7 @@
             </div>
           </div>
 
-          <div class="col-md-4">
-            <div class="form-check mt-3">
-              <input class="form-check-input" type="checkbox" id="edit-is-superuser">
-              <label class="form-check-label" for="edit-is-superuser">
-                Superuser
-              </label>
-            </div>
-          </div>
-
-          <div class="col-md-4">
+          <div class="col-md-6">
             <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="edit-is-active">
               <label class="form-check-label" for="edit-is-active">
@@ -542,7 +531,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const fullName = tr.data('fullname') || username;
     const email = tr.data('email') || '';
     const isStaff = tr.data('is-staff') == 1 || tr.data('is-staff') === '1';
-    const isSuperuser = tr.data('is-superuser') == 1 || tr.data('is-superuser') === '1';
     const isActive = tr.data('is-active') == 1 || tr.data('is-active') === '1';
     const groupIdsStr = (tr.data('group-ids') || '').toString().trim();
     const groupIds = groupIdsStr ? groupIdsStr.split(',') : [];
@@ -556,7 +544,6 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#edit-password1').val('');
     $('#edit-password2').val('');
     $('#edit-is-staff').prop('checked', isStaff);
-    $('#edit-is-superuser').prop('checked', isSuperuser);
     $('#edit-is-active').prop('checked', isActive);
 
     checkSelectedGroups('.edit-group-checkbox', groupIds);
@@ -578,7 +565,6 @@ document.addEventListener('DOMContentLoaded', function () {
       password1: $('#edit-password1').val(),
       password2: $('#edit-password2').val(),
       is_staff: $('#edit-is-staff').is(':checked') ? '1' : '0',
-      is_superuser: $('#edit-is-superuser').is(':checked') ? '1' : '0',
       is_active: $('#edit-is-active').is(':checked') ? '1' : '0',
       'groups[]': getCheckedValues('.edit-group-checkbox')
     };
@@ -623,7 +609,6 @@ document.addEventListener('DOMContentLoaded', function () {
     $('#new-password1').val('');
     $('#new-password2').val('');
     $('#new-is-staff').prop('checked', true);
-    $('#new-is-superuser').prop('checked', false);
 
     uncheckAll('.new-group-checkbox');
   });
@@ -641,7 +626,6 @@ document.addEventListener('DOMContentLoaded', function () {
       password1: $('#new-password1').val(),
       password2: $('#new-password2').val(),
       is_staff: $('#new-is-staff').is(':checked') ? '1' : '0',
-      is_superuser: $('#new-is-superuser').is(':checked') ? '1' : '0',
       'groups[]': getCheckedValues('.new-group-checkbox')
     };
 

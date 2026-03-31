@@ -16,7 +16,7 @@ from core.views.payments.loan_disbursement_views import loan_disbursement_list, 
 from core.views.loan.active_loan import active_loans_list, active_loan_details
 from core.views.payments.loan_repayment_views import loan_repayment_list, register_repayment
 from core.views.loan.all_loan_list_views import loan_list_all, loan_details_any_status
-from core.views.user.user_views import user_list, toggle_user_active, update_user_groups, create_user,update_user
+from core.views.user.user_views import user_list, group_list, toggle_user_active, update_user_groups, create_user, update_user, create_group
 from core.views.reports.report_views import report_filters, generate_report_pdf
 from core.views.preferences_view import preferences_view, update_brand_preferences
 
@@ -115,6 +115,8 @@ urlpatterns = [
     
     # UTILIZADORES
     path("users/", user_list, name="user_list"),
+    path("users/permissions/", group_list, name="group_list"),
+    path("users/permissions/create/", create_group, name="create_group"),
     path("users/create/", create_user, name="create_user"),
     path("users/<int:user_id>/toggle-active/", toggle_user_active, name="toggle_user_active"),
     path("users/<int:user_id>/update-groups/", update_user_groups, name="update_user_groups"),

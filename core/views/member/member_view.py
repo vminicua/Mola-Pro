@@ -8,7 +8,7 @@ from datetime import datetime
 
 def add_member(request):
     User = get_user_model()
-    gestores = User.objects.filter(is_active=True).order_by("first_name", "last_name")
+    gestores = User.objects.filter(is_active=True, is_superuser=False).order_by("first_name", "last_name")
 
     errors = {}
     form_data = {}
@@ -102,7 +102,7 @@ def add_member(request):
 #============================================================================================================
 def member_list(request):
     User = get_user_model()
-    gestores = User.objects.filter(is_active=True).order_by("first_name", "last_name")
+    gestores = User.objects.filter(is_active=True, is_superuser=False).order_by("first_name", "last_name")
     members = (
         Member.objects.filter(is_active=True)
         .select_related("manager")
@@ -132,7 +132,7 @@ def update_member(request, member_id):
         return JsonResponse({"success": False, "message": "Membro não encontrado."}, status=404)
 
     User = get_user_model()
-    gestores = User.objects.filter(is_active=True)
+    gestores = User.objects.filter(is_active=True, is_superuser=False)
 
     first_name = request.POST.get("first_name", "").strip()
     last_name = request.POST.get("last_name", "").strip()
