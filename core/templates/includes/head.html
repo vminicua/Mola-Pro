@@ -1,0 +1,48 @@
+{% load static %}
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="apple-touch-icon" sizes="76x76" href="{% static "assets/img/apple-icon.png" %}">
+<link rel="icon" type="image/png" href="{% static "assets/img/favicon.png" %}">
+
+<title>
+  {{ brand_preferences.brand_name }}
+</title>
+
+<!--     Fonts and icons     -->
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700,900" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- Nucleo Icons -->
+<link href="{% static "assets/css/nucleo-icons.css" %}" rel="stylesheet" />
+<link href="{% static "assets/css/nucleo-svg.css" %}" rel="stylesheet" />
+
+<!-- Font Awesome Icons -->
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.0/js/all.min.js" crossorigin="anonymous"></script>
+
+<!-- Material Icons -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" />
+
+<!-- CSS Files -->
+<link id="pagestyle" href="{% static "assets/css/material-dashboard.css" %}?v=3.2.0" rel="stylesheet" />
+<link href="{% static "assets/css/mola-pro-brand.css" %}" rel="stylesheet" />
+
+<script defer src="{% static "assets/js/mola-pro-processing.js" %}"></script>
+
+<style>
+    :root {
+        --mola-pro-primary: {{ brand_preferences.palette.primary }};
+        --mola-pro-primary-rgb: {{ brand_preferences.palette.primary_rgb }};
+        --mola-pro-primary-hover: {{ brand_preferences.palette.primary_hover }};
+        --mola-pro-primary-hover-rgb: {{ brand_preferences.palette.primary_hover_rgb }};
+        --mola-pro-primary-active: {{ brand_preferences.palette.primary_active }};
+        --mola-pro-primary-active-rgb: {{ brand_preferences.palette.primary_active_rgb }};
+        --mola-pro-primary-strong: {{ brand_preferences.palette.primary_strong }};
+        --mola-pro-primary-strong-rgb: {{ brand_preferences.palette.primary_strong_rgb }};
+        --mola-pro-primary-soft: {{ brand_preferences.palette.primary_soft }};
+        --mola-pro-primary-soft-2: {{ brand_preferences.palette.primary_soft_2 }};
+        --mola-pro-primary-light: {{ brand_preferences.palette.primary_light }};
+        --mola-pro-primary-light-2: {{ brand_preferences.palette.primary_light_2 }};
+    }
+</style>

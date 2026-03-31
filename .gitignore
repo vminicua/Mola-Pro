@@ -27,3 +27,11 @@ local_settings.py
 # Sistema operativo
 .DS_Store
 Thumbs.db
+
+.env
+.htaccess
+passenger_wsgi.py
+tmp/
+staticfiles/
+media/
+stderr.log
