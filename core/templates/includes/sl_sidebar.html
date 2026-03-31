@@ -55,14 +55,14 @@
             {# ========= EMPRÉSTIMOS ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark
-                   {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' or segment == 'loan_types' %}active{% endif %}"
+                   {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' %}active{% endif %}"
                    data-bs-toggle="collapse" href="#menu-emprestimos" role="button"
                    aria-expanded="false" aria-controls="menu-emprestimos">
                     <i class="material-symbols-rounded opacity-5">request_quote</i>
                     <span class="nav-link-text ms-2 ps-1">Empréstimos</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' or segment == 'loan_types' %}show{% endif %}"
+                    {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' %}show{% endif %}"
                      id="menu-emprestimos">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -91,13 +91,6 @@
                                href="{% url 'core:loan_list_all' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">view_list</i>
                                 <span class="sidenav-normal ms-2 ps-1"> Todos os Empréstimos </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'loan_types' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:loan_type_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">category</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Empréstimos </span>
                             </a>
                         </li>
                     </ul>
@@ -138,14 +131,14 @@
             {# ========= CONTAS ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark
-                   {% if segment == 'client_accounts' or segment == 'company_accounts' or segment == 'account_types' %}active{% endif %}"
+                   {% if segment == 'client_accounts' or segment == 'company_accounts' %}active{% endif %}"
                    data-bs-toggle="collapse" href="#menu-contas" role="button"
                    aria-expanded="false" aria-controls="menu-contas">
                     <i class="material-symbols-rounded opacity-5">account_balance_wallet</i>
                     <span class="nav-link-text ms-2 ps-1">Contas</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'client_accounts' or segment == 'company_accounts' or segment == 'account_types' %}show{% endif %}"
+                    {% if segment == 'client_accounts' or segment == 'company_accounts' %}show{% endif %}"
                      id="menu-contas">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -162,13 +155,6 @@
                                 <span class="sidenav-normal ms-2 ps-1"> Conta da Empresa </span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'account_types' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:account_type_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">category</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Contas </span>
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </li>
@@ -176,14 +162,14 @@
             {# ========= JUROS ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark
-                   {% if segment == 'interest_calculator' or segment == 'interest_types' %}active{% endif %}"
+                   {% if segment == 'interest_calculator' %}active{% endif %}"
                    data-bs-toggle="collapse" href="#menu-juros" role="button"
                    aria-expanded="false" aria-controls="menu-juros">
                     <i class="material-symbols-rounded opacity-5">percent</i>
                     <span class="nav-link-text ms-2 ps-1">Juros</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'interest_calculator' or segment == 'interest_types' %}show{% endif %}"
+                    {% if segment == 'interest_calculator' %}show{% endif %}"
                      id="menu-juros">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -191,13 +177,6 @@
                                href="{% url 'core:interest_calculator' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">calculate</i>
                                 <span class="sidenav-normal ms-2 ps-1"> Cálculo de Juros </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'interest_types' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:interest_type_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">category</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Juros </span>
                             </a>
                         </li>
                     </ul>
@@ -294,6 +273,44 @@
                             href="{% url 'core:group_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">admin_panel_settings</i>
                                 <span class="sidenav-normal ms-2 ps-1"> Permissões </span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+
+            {# ========= CONFIGURAÇÕES ========= #}
+            <li class="nav-item">
+                <a class="nav-link text-dark
+                {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' %}active{% endif %}"
+                data-bs-toggle="collapse" href="#menu-configuracoes" role="button"
+                aria-expanded="false" aria-controls="menu-configuracoes">
+                    <i class="material-symbols-rounded opacity-5">tune</i>
+                    <span class="nav-link-text ms-2 ps-1">Configurações</span>
+                </a>
+                <div class="collapse
+                    {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' %}show{% endif %}"
+                    id="menu-configuracoes">
+                    <ul class="nav ms-4">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'loan_types' %}active fw-bold text-primary{% endif %}"
+                            href="{% url 'core:loan_type_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">category</i>
+                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Empréstimos </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'account_types' %}active fw-bold text-primary{% endif %}"
+                            href="{% url 'core:account_type_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">account_balance</i>
+                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Contas </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'interest_types' %}active fw-bold text-primary{% endif %}"
+                            href="{% url 'core:interest_type_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">percent</i>
+                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Juros </span>
                             </a>
                         </li>
                     </ul>
