@@ -1,5 +1,5 @@
 {% extends "layouts/sl_base.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block content %}
 <div class="container-fluid py-2">
@@ -15,9 +15,9 @@
         <div class="card-body px-0 pb-2">
           <div class="p-4">
             <div class="mb-4">
-              <h6 class="mb-1">Branding do sistema</h6>
+              <h6 class="mb-1">{% trans "Preferências da aplicação" %}</h6>
               <p class="text-sm text-muted mb-0">
-                Defina a cor primária, o logotipo e o favicon. Depois de guardar, o site passa a usar estas preferências.
+                {% trans "Defina a língua, a cor primária, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências." %}
               </p>
             </div>
 
@@ -39,8 +39,8 @@
                         <i class="material-symbols-rounded">palette</i>
                       </span>
                       <span>
-                        <span class="preferences-title">Cor primária</span>
-                        <span class="preferences-description">Escolha no selector ou introduza um código hexadecimal.</span>
+                        <span class="preferences-title">{% trans "Cor primária" %}</span>
+                        <span class="preferences-description">{% trans "Escolha no selector ou introduza um código hexadecimal." %}</span>
                       </span>
                     </span>
 
@@ -57,17 +57,17 @@
                     <div class="preferences-body">
                       <div class="row g-3 align-items-end">
                         <div class="col-sm-4">
-                          <label class="form-label">Selector</label>
+                          <label class="form-label">{% trans "Selector" %}</label>
                           <input
                             type="color"
                             id="id_primary_color_picker"
                             class="form-control form-control-color w-100"
                             value="{{ brand_preferences.primary_color }}"
-                            title="Escolher cor primária"
+                            title="{% trans 'Escolher cor primária' %}"
                           >
                         </div>
                         <div class="col-sm-8">
-                          <label class="form-label">Código HEX</label>
+                          <label class="form-label">{% trans "Código HEX" %}</label>
                           <input
                             type="text"
                             class="form-control"
@@ -81,22 +81,71 @@
                       </div>
 
                       <div class="text-xs text-muted mt-2">
-                        Exemplo: <code>#064E3B</code>, <code>#2196F3</code>, <code>FF5722</code>.
+                        {% trans "Exemplo:" %} <code>#064E3B</code>, <code>#2196F3</code>, <code>FF5722</code>.
                       </div>
 
                       <div class="preview-panel mt-4">
                         <div class="preview-sidebar mb-3">
                           <div class="preview-sidebar-badge">
                             <i class="material-symbols-rounded">palette</i>
-                            <span>Sidebar activa</span>
+                            <span>{% trans "Sidebar activa" %}</span>
                           </div>
                         </div>
 
                         <div class="d-flex flex-wrap gap-2 align-items-center">
-                          <button type="button" class="btn btn-sm bg-gradient-primary mb-0">Botão principal</button>
-                          <button type="button" class="btn btn-sm btn-outline-primary mb-0">Botão contornado</button>
-                          <span class="badge bg-primary">Etiqueta</span>
+                          <button type="button" class="btn btn-sm bg-gradient-primary mb-0">{% trans "Botão principal" %}</button>
+                          <button type="button" class="btn btn-sm btn-outline-primary mb-0">{% trans "Botão contornado" %}</button>
+                          <span class="badge bg-primary">{% trans "Etiqueta" %}</span>
                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="preferences-item">
+                  <button
+                    class="preferences-toggle collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#preferenceLanguage"
+                    aria-expanded="false"
+                    aria-controls="preferenceLanguage"
+                  >
+                    <span class="preferences-title-group">
+                      <span class="preferences-icon">
+                        <i class="material-symbols-rounded">translate</i>
+                      </span>
+                      <span>
+                        <span class="preferences-title">{% trans "Idioma da aplicação" %}</span>
+                        <span class="preferences-description">{% trans "Escolha entre Português de Moçambique e English para toda a aplicação." %}</span>
+                      </span>
+                    </span>
+
+                    <span class="preferences-meta">
+                      <span class="preferences-value" id="languageValue">{{ brand_preferences.language_label }}</span>
+                      <span class="preferences-chevron">
+                        <i class="material-symbols-rounded">expand_more</i>
+                      </span>
+                    </span>
+                  </button>
+
+                  <div class="collapse" id="preferenceLanguage">
+                    <div class="preferences-body">
+                      <div class="row g-3">
+                        <div class="col-12">
+                          <label class="form-label" for="id_language">{% trans "Idioma" %}</label>
+                          <select class="form-select" name="language" id="id_language">
+                            {% for language in brand_preferences.available_languages %}
+                              <option value="{{ language.code }}" {% if language.code == brand_preferences.language %}selected{% endif %}>
+                                {{ language.label }}
+                              </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="text-xs text-muted mt-2">
+                        {% trans "Por predefinição a aplicação usa Português (Moçambique). Ao guardar, todos os ecrãs passam para a língua seleccionada." %}
                       </div>
                     </div>
                   </div>
@@ -116,8 +165,8 @@
                         <i class="material-symbols-rounded">image</i>
                       </span>
                       <span>
-                        <span class="preferences-title">Logotipo</span>
-                        <span class="preferences-description">Upload do logo usado no sidebar, login e relatórios.</span>
+                        <span class="preferences-title">{% trans "Logotipo" %}</span>
+                        <span class="preferences-description">{% trans "Upload do logo usado no sidebar, login e relatórios." %}</span>
                       </span>
                     </span>
 
@@ -126,7 +175,7 @@
                         <img id="logoPreviewMini" src="{{ brand_preferences.logo_url }}" alt="{{ brand_preferences.brand_name }}">
                       </span>
                       <span class="preferences-value" id="logoModeLabel">
-                        {% if brand_preferences.has_custom_logo %}Personalizado{% else %}Padrão{% endif %}
+                        {% if brand_preferences.has_custom_logo %}{% trans "Personalizado" %}{% else %}{% trans "Padrão" %}{% endif %}
                       </span>
                       <span class="preferences-chevron">
                         <i class="material-symbols-rounded">expand_more</i>
@@ -147,7 +196,7 @@
                       </div>
 
                       <div class="mb-3">
-                        <label class="form-label">Novo ficheiro</label>
+                        <label class="form-label">{% trans "Novo ficheiro" %}</label>
                         <input
                           type="file"
                           class="form-control"
@@ -155,7 +204,7 @@
                           id="id_logo"
                           accept=".png,.jpg,.jpeg,.svg,.webp,image/png,image/jpeg,image/svg+xml,image/webp"
                         >
-                        <small class="text-muted">Formatos aceites: PNG, JPG, JPEG, SVG e WEBP.</small>
+                        <small class="text-muted">{% trans "Formatos aceites: PNG, JPG, JPEG, SVG e WEBP." %}</small>
                       </div>
 
                       <div class="form-check">
@@ -167,7 +216,7 @@
                           name="remove_logo"
                         >
                         <label class="form-check-label" for="id_remove_logo">
-                          Remover logotipo personalizado e voltar ao padrão
+                          {% trans "Remover logotipo personalizado e voltar ao padrão" %}
                         </label>
                       </div>
                     </div>
@@ -188,17 +237,17 @@
                         <i class="material-symbols-rounded">tab</i>
                       </span>
                       <span>
-                        <span class="preferences-title">Favicon</span>
-                        <span class="preferences-description">Ícone mostrado no separador do navegador e atalhos da aplicação.</span>
+                        <span class="preferences-title">{% trans "Favicon" %}</span>
+                        <span class="preferences-description">{% trans "Ícone mostrado no separador do navegador e atalhos da aplicação." %}</span>
                       </span>
                     </span>
 
                     <span class="preferences-meta">
                       <span class="favicon-mini">
-                        <img id="faviconPreviewMini" src="{{ brand_preferences.favicon_url }}" alt="Favicon {{ brand_preferences.brand_name }}">
+                        <img id="faviconPreviewMini" src="{{ brand_preferences.favicon_url }}" alt="{% blocktrans with brand_name=brand_preferences.brand_name %}Favicon {{ brand_name }}{% endblocktrans %}">
                       </span>
                       <span class="preferences-value" id="faviconModeLabel">
-                        {% if brand_preferences.has_custom_favicon %}Personalizado{% else %}Padrão{% endif %}
+                        {% if brand_preferences.has_custom_favicon %}{% trans "Personalizado" %}{% else %}{% trans "Padrão" %}{% endif %}
                       </span>
                       <span class="preferences-chevron">
                         <i class="material-symbols-rounded">expand_more</i>
@@ -214,12 +263,12 @@
                           src="{{ brand_preferences.favicon_url }}"
                           data-current-src="{{ brand_preferences.favicon_url }}"
                           data-default-src="{{ brand_preferences.default_favicon_url }}"
-                          alt="Favicon {{ brand_preferences.brand_name }}"
+                          alt="{% blocktrans with brand_name=brand_preferences.brand_name %}Favicon {{ brand_name }}{% endblocktrans %}"
                         >
                       </div>
 
                       <div class="mb-3">
-                        <label class="form-label">Novo ficheiro</label>
+                        <label class="form-label">{% trans "Novo ficheiro" %}</label>
                         <input
                           type="file"
                           class="form-control"
@@ -227,7 +276,7 @@
                           id="id_favicon"
                           accept=".png,.jpg,.jpeg,.svg,.webp,.ico,image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon,image/vnd.microsoft.icon"
                         >
-                        <small class="text-muted">Formatos aceites: PNG, JPG, JPEG, SVG, WEBP e ICO.</small>
+                        <small class="text-muted">{% trans "Formatos aceites: PNG, JPG, JPEG, SVG, WEBP e ICO." %}</small>
                       </div>
 
                       <div class="form-check">
@@ -239,7 +288,7 @@
                           name="remove_favicon"
                         >
                         <label class="form-check-label" for="id_remove_favicon">
-                          Remover favicon personalizado e voltar ao padrão
+                          {% trans "Remover favicon personalizado e voltar ao padrão" %}
                         </label>
                       </div>
                     </div>
@@ -249,10 +298,10 @@
 
               <div class="d-flex justify-content-end gap-2 mt-4">
                 <button type="button" class="btn btn-outline-secondary mb-0" id="btnResetPreview">
-                  Repor visualização
+                  {% trans "Repor visualização" %}
                 </button>
                 <button type="submit" class="btn bg-gradient-primary mb-0">
-                  Guardar preferências
+                  {% trans "Guardar preferências" %}
                 </button>
               </div>
             </form>
@@ -528,11 +577,24 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const uiText = {
+      custom: "{% trans 'Personalizado' %}",
+      default: "{% trans 'Padrão' %}",
+      preview: "{% trans 'Pré-visualização' %}",
+      validationTitle: "{% trans 'Validação' %}",
+      invalidColorMessage: "{% trans 'Introduza uma cor hexadecimal válida, por exemplo #064E3B.' %}",
+      successTitle: "{% trans 'Preferências guardadas' %}",
+      errorTitle: "{% trans 'Erro' %}",
+      saveErrorMessage: "{% trans 'Não foi possível guardar as preferências.' %}"
+    };
+
     const form = document.getElementById('brandPreferencesForm');
     const colorInput = document.getElementById('id_primary_color');
     const colorPicker = document.getElementById('id_primary_color_picker');
     const colorSwatch = document.getElementById('primaryColorSwatch');
     const primaryColorValue = document.getElementById('primaryColorValue');
+    const languageSelect = document.getElementById('id_language');
+    const languageValue = document.getElementById('languageValue');
     const logoInput = document.getElementById('id_logo');
     const removeLogoInput = document.getElementById('id_remove_logo');
     const logoPreview = document.getElementById('logoPreview');
@@ -553,6 +615,11 @@
     }
 
     const initialColor = normalizeHex(colorInput.value) || '#064E3B';
+    const initialLanguage = languageSelect.value;
+    const languageLabels = Array.from(languageSelect.options).reduce(function (labels, option) {
+      labels[option.value] = option.textContent.trim();
+      return labels;
+    }, {});
     const initialLogoSrc = logoPreview.dataset.currentSrc;
     const defaultLogoSrc = logoPreview.dataset.defaultSrc;
     const initialLogoMode = logoModeLabel.textContent.trim();
@@ -619,6 +686,10 @@
       logoModeLabel.textContent = modeLabel;
     }
 
+    function updateLanguageLabel() {
+      languageValue.textContent = languageLabels[languageSelect.value] || languageSelect.value;
+    }
+
     function setFaviconPreview(src, modeLabel) {
       faviconPreview.src = src;
       faviconPreviewMini.src = src;
@@ -628,12 +699,14 @@
     function resetPreview() {
       colorInput.value = initialColor;
       colorPicker.value = initialColor;
+      languageSelect.value = initialLanguage;
       removeLogoInput.checked = false;
       removeFaviconInput.checked = false;
       logoInput.value = '';
       faviconInput.value = '';
       setLogoPreview(initialLogoSrc, initialLogoMode);
       setFaviconPreview(initialFaviconSrc, initialFaviconMode);
+      updateLanguageLabel();
       applyPreviewColor(initialColor);
     }
 
@@ -651,11 +724,13 @@
       }
     });
 
+    languageSelect.addEventListener('change', updateLanguageLabel);
+
     logoInput.addEventListener('change', function () {
       const [file] = this.files;
       if (!file) {
         if (removeLogoInput.checked) {
-          setLogoPreview(defaultLogoSrc, 'Padrão');
+          setLogoPreview(defaultLogoSrc, uiText.default);
         } else {
           setLogoPreview(initialLogoSrc, initialLogoMode);
         }
@@ -665,7 +740,7 @@
       removeLogoInput.checked = false;
       const reader = new FileReader();
       reader.onload = function (event) {
-        setLogoPreview(event.target.result, 'Pré-visualização');
+        setLogoPreview(event.target.result, uiText.preview);
       };
       reader.readAsDataURL(file);
     });
@@ -673,7 +748,7 @@
     removeLogoInput.addEventListener('change', function () {
       if (this.checked) {
         logoInput.value = '';
-        setLogoPreview(defaultLogoSrc, 'Padrão');
+        setLogoPreview(defaultLogoSrc, uiText.default);
       } else {
         setLogoPreview(initialLogoSrc, initialLogoMode);
       }
@@ -683,7 +758,7 @@
       const [file] = this.files;
       if (!file) {
         if (removeFaviconInput.checked) {
-          setFaviconPreview(defaultFaviconSrc, 'Padrão');
+          setFaviconPreview(defaultFaviconSrc, uiText.default);
         } else {
           setFaviconPreview(initialFaviconSrc, initialFaviconMode);
         }
@@ -693,7 +768,7 @@
       removeFaviconInput.checked = false;
       const reader = new FileReader();
       reader.onload = function (event) {
-        setFaviconPreview(event.target.result, 'Pré-visualização');
+        setFaviconPreview(event.target.result, uiText.preview);
       };
       reader.readAsDataURL(file);
     });
@@ -701,7 +776,7 @@
     removeFaviconInput.addEventListener('change', function () {
       if (this.checked) {
         faviconInput.value = '';
-        setFaviconPreview(defaultFaviconSrc, 'Padrão');
+        setFaviconPreview(defaultFaviconSrc, uiText.default);
       } else {
         setFaviconPreview(initialFaviconSrc, initialFaviconMode);
       }
@@ -716,7 +791,7 @@
 
       const normalizedColor = normalizeHex(colorInput.value);
       if (!normalizedColor) {
-        Swal.fire('Validação', 'Introduza uma cor hexadecimal válida, por exemplo #064E3B.', 'warning');
+        Swal.fire(uiText.validationTitle, uiText.invalidColorMessage, 'warning');
         return;
       }
 
@@ -735,7 +810,7 @@
         success: function (response) {
           Swal.fire({
             icon: 'success',
-            title: 'Preferências guardadas',
+            title: uiText.successTitle,
             text: response.message,
             timer: 1800,
             showConfirmButton: false
@@ -745,14 +820,15 @@
         },
         error: function (xhr) {
           Swal.fire(
-            'Erro',
-            xhr.responseJSON?.message || 'Não foi possível guardar as preferências.',
+            uiText.errorTitle,
+            xhr.responseJSON?.message || uiText.saveErrorMessage,
             'error'
           );
         }
       });
     });
 
+    updateLanguageLabel();
     applyPreviewColor(initialColor);
   });
 </script>

@@ -4,6 +4,7 @@ from core.models import Member, Loan
 from django.urls import reverse
 from django.http import JsonResponse
 from datetime import datetime
+from django.utils.translation import gettext as _
 
 
 def add_member(request):
@@ -49,20 +50,20 @@ def add_member(request):
         }
 
         if not first_name:
-            errors["first_name"] = "Nome é obrigatório."
+            errors["first_name"] = _("Nome é obrigatório.")
         if not last_name:
-            errors["last_name"] = "Apelido é obrigatório."
+            errors["last_name"] = _("Apelido é obrigatório.")
         if not phone:
-            errors["phone"] = "Telefone é obrigatório."
+            errors["phone"] = _("Telefone é obrigatório.")
         if not manager_id:
-            errors["manager"] = "Selecione o gestor responsável."
+            errors["manager"] = _("Selecione o gestor responsável.")
 
         manager = None
         if manager_id:
             try:
                 manager = gestores.get(pk=manager_id)
             except User.DoesNotExist:
-                errors["manager"] = "Gestor inválido."
+                errors["manager"] = _("Gestor inválido.")
 
         if not errors and manager is not None:
             Member.objects.create(
@@ -124,12 +125,12 @@ def member_list(request):
 #============================================================================================================
 def update_member(request, member_id):
     if request.method != "POST":
-        return JsonResponse({"success": False, "message": "Método inválido."}, status=405)
+        return JsonResponse({"success": False, "message": _("Método inválido.")}, status=405)
 
     try:
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Membro não encontrado."}, status=404)
+        return JsonResponse({"success": False, "message": _("Membro não encontrado.")}, status=404)
 
     User = get_user_model()
     gestores = User.objects.filter(is_active=True, is_superuser=False)
@@ -160,7 +161,7 @@ def update_member(request, member_id):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Nome, apelido, telefone e gestor são obrigatórios.",
+                "message": _("Nome, apelido, telefone e gestor são obrigatórios."),
             },
             status=400,
         )
@@ -168,7 +169,7 @@ def update_member(request, member_id):
     try:
         manager = gestores.get(pk=manager_id)
     except User.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Gestor inválido."}, status=400)
+        return JsonResponse({"success": False, "message": _("Gestor inválido.")}, status=400)
 
     # Parse datas KYC (se vierem)
     id_issue_date = None
@@ -230,7 +231,7 @@ def update_member(request, member_id):
         ]
     )
 
-    return JsonResponse({"success": True, "message": "Membro actualizado com sucesso."})
+    return JsonResponse({"success": True, "message": _("Membro actualizado com sucesso.")})
 
 
 
@@ -239,17 +240,17 @@ def update_member(request, member_id):
 #============================================================================================================
 def deactivate_member(request, member_id):
     if request.method != "POST":
-        return JsonResponse({"success": False, "message": "Método inválido."}, status=405)
+        return JsonResponse({"success": False, "message": _("Método inválido.")}, status=405)
 
     try:
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Membro não encontrado."}, status=404)
+        return JsonResponse({"success": False, "message": _("Membro não encontrado.")}, status=404)
 
     member.is_active = False
     member.save(update_fields=["is_active"])
 
-    return JsonResponse({"success": True, "message": "Membro desactivado com sucesso."})
+    return JsonResponse({"success": True, "message": _("Membro desactivado com sucesso.")})
 
 
 
@@ -258,7 +259,7 @@ def deactivate_member(request, member_id):
 #============================================================================================================
 def member_detail_json(request, member_id):
     if not request.user.is_authenticated:
-        return JsonResponse({"success": False, "message": "Não autenticado."}, status=401)
+        return JsonResponse({"success": False, "message": _("Não autenticado.")}, status=401)
 
     try:
         member = (
@@ -267,7 +268,7 @@ def member_detail_json(request, member_id):
             .get(pk=member_id, is_active=True)
         )
     except Member.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Membro não encontrado."}, status=404)
+        return JsonResponse({"success": False, "message": _("Membro não encontrado.")}, status=404)
 
     loans = (
         Loan.objects

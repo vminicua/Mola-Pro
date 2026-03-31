@@ -14,6 +14,7 @@ from django.views.decorators.http import require_POST
 import os
 from django.http import JsonResponse, FileResponse, Http404
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
 
 #============================================================================================================
 #============================================================================================================
@@ -36,7 +37,7 @@ def create_expense_category(request):
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "Nome da categoria é obrigatório."},
+            {"success": False, "message": _("Nome da categoria é obrigatório.")},
             status=400,
         )
 
@@ -47,7 +48,7 @@ def create_expense_category(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Categoria de despesa criada com sucesso."}
+        {"success": True, "message": _("Categoria de despesa criada com sucesso.")}
     )
 
 #============================================================================================================
@@ -61,13 +62,13 @@ def update_expense_category(request):
 
     if not cat_id:
         return JsonResponse(
-            {"success": False, "message": "ID da categoria é obrigatório."},
+            {"success": False, "message": _("ID da categoria é obrigatório.")},
             status=400,
         )
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "Nome da categoria é obrigatório."},
+            {"success": False, "message": _("Nome da categoria é obrigatório.")},
             status=400,
         )
 
@@ -78,7 +79,7 @@ def update_expense_category(request):
     category.save(update_fields=["name", "description"])
 
     return JsonResponse(
-        {"success": True, "message": "Categoria de despesa actualizada com sucesso."}
+        {"success": True, "message": _("Categoria de despesa actualizada com sucesso.")}
     )
 
 
@@ -91,7 +92,7 @@ def deactivate_expense_category(request):
 
     if not cat_id:
         return JsonResponse(
-            {"success": False, "message": "ID da categoria é obrigatório."},
+            {"success": False, "message": _("ID da categoria é obrigatório.")},
             status=400,
         )
 
@@ -101,7 +102,7 @@ def deactivate_expense_category(request):
     category.save(update_fields=["is_active"])
 
     return JsonResponse(
-        {"success": True, "message": "Categoria de despesa desactivada com sucesso."}
+        {"success": True, "message": _("Categoria de despesa desactivada com sucesso.")}
     )
 #============================================================================================================
 #============================================================================================================
@@ -147,7 +148,7 @@ def create_expense(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Categoria, conta da empresa, data, descrição e valor são obrigatórios.",
+                "message": _("Categoria, conta da empresa, data, descrição e valor são obrigatórios."),
             },
             status=400,
         )
@@ -156,7 +157,7 @@ def create_expense(request):
         category = ExpenseCategory.objects.get(pk=category_id, is_active=True)
     except ExpenseCategory.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Categoria inválida."},
+            {"success": False, "message": _("Categoria inválida.")},
             status=400,
         )
 
@@ -164,7 +165,7 @@ def create_expense(request):
         company_account = CompanyAccount.objects.get(pk=company_account_id, is_active=True)
     except CompanyAccount.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Conta da empresa inválida."},
+            {"success": False, "message": _("Conta da empresa inválida.")},
             status=400,
         )
 
@@ -172,7 +173,7 @@ def create_expense(request):
         amount = Decimal(str(amount_raw))
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Valor inválido."},
+            {"success": False, "message": _("Valor inválido.")},
             status=400,
         )
 
@@ -181,7 +182,7 @@ def create_expense(request):
         timezone.datetime.strptime(expense_date, "%Y-%m-%d")
     except ValueError:
         return JsonResponse(
-            {"success": False, "message": "Data inválida."},
+            {"success": False, "message": _("Data inválida.")},
             status=400,
         )
 
@@ -215,7 +216,7 @@ def create_expense(request):
         source_type="expense",
         source_id=expense.id,
         tx_date=expense_date,
-        description=f"Despesa: {description}",
+        description=_("Despesa: {description}").format(description=description),
         amount=amount,
         balance_before=old_balance,
         balance_after=new_balance,
@@ -224,7 +225,7 @@ def create_expense(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Despesa registada, saldo deduzido e transacção criada com sucesso."}
+        {"success": True, "message": _("Despesa registada, saldo deduzido e transacção criada com sucesso.")}
     )
 
 
@@ -239,10 +240,10 @@ def download_expense_attachment(request, expense_id):
     try:
         expense = Expense.objects.get(pk=expense_id, is_active=True)
     except Expense.DoesNotExist:
-        raise Http404("Despesa não encontrada.")
+        raise Http404(_("Despesa não encontrada."))
 
     if not expense.attachment:
-        raise Http404("Nenhum anexo disponível para esta despesa.")
+        raise Http404(_("Nenhum anexo disponível para esta despesa."))
 
     # Usa o storage do próprio FileField
     file_handle = expense.attachment.open("rb")

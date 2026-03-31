@@ -1,0 +1,829 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mola Pro\n"
+"POT-Creation-Date: 2026-03-31 00:00+0000\n"
+"PO-Revision-Date: 2026-03-31 00:00+0000\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Convidado"
+msgstr "Guest"
+
+msgid "Terminar sessão"
+msgstr "Sign out"
+
+msgid "Clientes"
+msgstr "Clients"
+
+msgid "Lista de Membros"
+msgstr "Member List"
+
+msgid "Adicionar Membros"
+msgstr "Add Members"
+
+msgid "Empréstimos"
+msgstr "Loans"
+
+msgid "Novo Empréstimo"
+msgstr "New Loan"
+
+msgid "Empréstimos Activos"
+msgstr "Active Loans"
+
+msgid "Empréstimos Pendentes"
+msgstr "Pending Loans"
+
+msgid "Todos os Empréstimos"
+msgstr "All Loans"
+
+msgid "Pagamentos"
+msgstr "Payments"
+
+msgid "Desembolso"
+msgstr "Disbursement"
+
+msgid "Reembolso"
+msgstr "Repayment"
+
+msgid "Contas"
+msgstr "Accounts"
+
+msgid "Conta dos Clientes"
+msgstr "Client Accounts"
+
+msgid "Conta da Empresa"
+msgstr "Company Account"
+
+msgid "Juros"
+msgstr "Interest"
+
+msgid "Cálculo de Juros"
+msgstr "Interest Calculator"
+
+msgid "Transacções"
+msgstr "Transactions"
+
+msgid "Histórico"
+msgstr "History"
+
+msgid "Despesas & Rendimentos"
+msgstr "Expenses & Income"
+
+msgid "Despesas"
+msgstr "Expenses"
+
+msgid "Rendimentos"
+msgstr "Income"
+
+msgid "Categoria de Despesas"
+msgstr "Expense Categories"
+
+msgid "Categoria de Rendimentos"
+msgstr "Income Categories"
+
+msgid "Utilizadores"
+msgstr "Users"
+
+msgid "Todos os Utilizadores"
+msgstr "All Users"
+
+msgid "Permissões"
+msgstr "Permissions"
+
+msgid "Configurações"
+msgstr "Settings"
+
+msgid "Tipos de Empréstimos"
+msgstr "Loan Types"
+
+msgid "Tipos de Contas"
+msgstr "Account Types"
+
+msgid "Tipos de Juros"
+msgstr "Interest Types"
+
+msgid "Preferências"
+msgstr "Preferences"
+
+msgid "Relatórios"
+msgstr "Reports"
+
+msgid "Gerar"
+msgstr "Generate"
+
+msgid "Preferências da aplicação"
+msgstr "Application preferences"
+
+msgid "Defina a língua, a cor primária, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências."
+msgstr "Set the language, primary color, logo, and favicon. After saving, the application will use these preferences."
+
+msgid "Cor primária"
+msgstr "Primary color"
+
+msgid "Escolha no selector ou introduza um código hexadecimal."
+msgstr "Choose it in the picker or enter a hexadecimal code."
+
+msgid "Selector"
+msgstr "Picker"
+
+msgid "Escolher cor primária"
+msgstr "Choose primary color"
+
+msgid "Código HEX"
+msgstr "HEX code"
+
+msgid "Exemplo:"
+msgstr "Example:"
+
+msgid "Sidebar activa"
+msgstr "Active sidebar"
+
+msgid "Botão principal"
+msgstr "Primary button"
+
+msgid "Botão contornado"
+msgstr "Outline button"
+
+msgid "Etiqueta"
+msgstr "Badge"
+
+msgid "Idioma da aplicação"
+msgstr "Application language"
+
+msgid "Escolha entre Português de Moçambique e English para toda a aplicação."
+msgstr "Choose between Mozambican Portuguese and English for the entire application."
+
+msgid "Idioma"
+msgstr "Language"
+
+msgid "Por predefinição a aplicação usa Português (Moçambique). Ao guardar, todos os ecrãs passam para a língua seleccionada."
+msgstr "By default the application uses Portuguese (Mozambique). After saving, all screens switch to the selected language."
+
+msgid "Logotipo"
+msgstr "Logo"
+
+msgid "Upload do logo usado no sidebar, login e relatórios."
+msgstr "Upload the logo used in the sidebar, login, and reports."
+
+msgid "Personalizado"
+msgstr "Custom"
+
+msgid "Padrão"
+msgstr "Default"
+
+msgid "Novo ficheiro"
+msgstr "New file"
+
+msgid "Formatos aceites: PNG, JPG, JPEG, SVG e WEBP."
+msgstr "Accepted formats: PNG, JPG, JPEG, SVG, and WEBP."
+
+msgid "Remover logotipo personalizado e voltar ao padrão"
+msgstr "Remove custom logo and revert to default"
+
+msgid "Favicon"
+msgstr "Favicon"
+
+msgid "Formatos aceites: PNG, JPG, JPEG, SVG, WEBP e ICO."
+msgstr "Accepted formats: PNG, JPG, JPEG, SVG, WEBP, and ICO."
+
+msgid "Remover favicon personalizado e voltar ao padrão"
+msgstr "Remove custom favicon and revert to default"
+
+msgid "Repor visualização"
+msgstr "Reset preview"
+
+msgid "Guardar preferências"
+msgstr "Save preferences"
+
+msgid "Pré-visualização"
+msgstr "Preview"
+
+msgid "Validação"
+msgstr "Validation"
+
+msgid "Introduza uma cor hexadecimal válida, por exemplo #064E3B."
+msgstr "Enter a valid hexadecimal color, for example #064E3B."
+
+msgid "Preferências guardadas"
+msgstr "Preferences saved"
+
+msgid "Erro"
+msgstr "Error"
+
+msgid "Não foi possível guardar as preferências."
+msgstr "Could not save the preferences."
+
+msgid "Preferências actualizadas com sucesso."
+msgstr "Preferences updated successfully."
+
+msgid "Iniciar sessão"
+msgstr "Sign in"
+
+msgid "Aceda ao painel para gerir empréstimos, contas, despesas e rendimentos da operação de microcrédito."
+msgstr "Access the dashboard to manage loans, accounts, expenses, and income for the microcredit operation."
+
+msgid "Utilizador"
+msgstr "Username"
+
+msgid "Introduza o seu utilizador"
+msgstr "Enter your username"
+
+msgid "Palavra-passe"
+msgstr "Password"
+
+msgid "Manter sessão iniciada nesta máquina"
+msgstr "Keep me signed in on this device"
+
+msgid "Entrar"
+msgstr "Sign in"
+
+msgid "O registo de novos utilizadores é feito apenas pelo administrador no painel /admin."
+msgstr "New users can only be created by the administrator in the /admin panel."
+
+msgid "Visão geral da carteira de empréstimos, reembolsos e fluxo de caixa do microcrédito."
+msgstr "Overview of the loan portfolio, repayments, and microcredit cash flow."
+
+msgid "Últimos 30 dias"
+msgstr "Last 30 days"
+
+msgid "Este mês"
+msgstr "This month"
+
+msgid "Últimos 3 meses"
+msgstr "Last 3 months"
+
+msgid "Desde o início do ano"
+msgstr "Since the start of the year"
+
+msgid "Carteira total (MT)"
+msgstr "Total portfolio (MZN)"
+
+msgid "Principal em dívida"
+msgstr "Outstanding principal"
+
+msgid "Juros a receber"
+msgstr "Interest receivable"
+
+msgid "Reembolsos hoje (MT)"
+msgstr "Repayments today (MZN)"
+
+msgid "Empréstimos pendentes"
+msgstr "Pending loans"
+
+msgid "Saldo contas empresa"
+msgstr "Company account balance"
+
+msgid "Fluxo de Caixa · Empréstimos"
+msgstr "Cash Flow · Loans"
+
+msgid "Desembolsos vs Reembolsos por mês"
+msgstr "Disbursements vs repayments by month"
+
+msgid "Carteira por status"
+msgstr "Portfolio by status"
+
+msgid "Distribuição de empréstimos"
+msgstr "Loan distribution"
+
+msgid "Activos"
+msgstr "Active"
+
+msgid "Pendentes"
+msgstr "Pending"
+
+msgid "Fechados"
+msgstr "Closed"
+
+msgid "Cancelados"
+msgstr "Cancelled"
+
+msgid "Empréstimos recentes"
+msgstr "Recent loans"
+
+msgid "Últimos pedidos registados"
+msgstr "Latest registered requests"
+
+msgid "Ver todos"
+msgstr "View all"
+
+msgid "Cliente"
+msgstr "Client"
+
+msgid "Valor (MT)"
+msgstr "Amount (MZN)"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Criado em"
+msgstr "Created on"
+
+msgid "Pendente"
+msgstr "Pending"
+
+msgid "Aprovado"
+msgstr "Approved"
+
+msgid "Desembolsado"
+msgstr "Disbursed"
+
+msgid "Fechado"
+msgstr "Closed"
+
+msgid "Cancelado"
+msgstr "Cancelled"
+
+msgid "Nenhum empréstimo recente encontrado."
+msgstr "No recent loans found."
+
+msgid "Entradas recentes"
+msgstr "Recent inflows"
+
+msgid "Reembolsos de empréstimos registados recentemente"
+msgstr "Recently registered loan repayments"
+
+msgid "Tipo"
+msgstr "Type"
+
+msgid "Origem"
+msgstr "Source"
+
+msgid "Data"
+msgstr "Date"
+
+msgid "Nenhuma transacção recente encontrada."
+msgstr "No recent transaction found."
+
+msgid "Próximos vencimentos"
+msgstr "Upcoming due dates"
+
+msgid "1ª prestação / validade de empréstimos a expirar"
+msgstr "1st installment / expiring loan due dates"
+
+msgid "Empréstimo"
+msgstr "Loan"
+
+msgid "Dias"
+msgstr "Days"
+
+msgid "Nenhum vencimento próximo."
+msgstr "No upcoming due date."
+
+msgid "Desembolsos"
+msgstr "Disbursements"
+
+msgid "Reembolsos"
+msgstr "Repayments"
+
+msgid "%(brand_name)s · Dashboard"
+msgstr "%(brand_name)s · Dashboard"
+
+msgid "%(days)s dias"
+msgstr "%(days)s days"
+
+msgid "Favicon %(brand_name)s"
+msgstr "%(brand_name)s favicon"
+
+msgid "&copy; %(brand_name)s desenvolvido por <span class=\"font-weight-bold\">Digital Horizon</span>."
+msgstr "&copy; %(brand_name)s powered by <span class=\"font-weight-bold\">Digital Horizon</span>."
+
+msgid "Nome é obrigatório."
+msgstr "First name is required."
+
+msgid "Apelido é obrigatório."
+msgstr "Last name is required."
+
+msgid "Telefone é obrigatório."
+msgstr "Phone number is required."
+
+msgid "Selecione o gestor responsável."
+msgstr "Select the responsible manager."
+
+msgid "Gestor inválido."
+msgstr "Invalid manager."
+
+msgid "Método inválido."
+msgstr "Invalid method."
+
+msgid "Membro não encontrado."
+msgstr "Member not found."
+
+msgid "Nome, apelido, telefone e gestor são obrigatórios."
+msgstr "First name, last name, phone, and manager are required."
+
+msgid "Membro actualizado com sucesso."
+msgstr "Member updated successfully."
+
+msgid "Membro desactivado com sucesso."
+msgstr "Member deactivated successfully."
+
+msgid "Não autenticado."
+msgstr "Not authenticated."
+
+msgid "Categoria e nome são obrigatórios."
+msgstr "Category and name are required."
+
+msgid "Categoria inválida."
+msgstr "Invalid category."
+
+msgid "Tipo de conta criado com sucesso."
+msgstr "Account type created successfully."
+
+msgid "ID do tipo de conta é obrigatório."
+msgstr "Account type ID is required."
+
+msgid "Tipo de conta actualizado com sucesso."
+msgstr "Account type updated successfully."
+
+msgid "activado"
+msgstr "activated"
+
+msgid "desactivado"
+msgstr "deactivated"
+
+msgid "Tipo de conta {status_label} com sucesso."
+msgstr "Account type {status_label} successfully."
+
+msgid "Membro, tipo de conta e identificador são obrigatórios."
+msgstr "Member, account type, and identifier are required."
+
+msgid "Membro inválido."
+msgstr "Invalid member."
+
+msgid "Tipo de conta inválido."
+msgstr "Invalid account type."
+
+msgid "Saldo inválido."
+msgstr "Invalid balance."
+
+msgid "Conta de cliente criada com sucesso."
+msgstr "Client account created successfully."
+
+msgid "ID da conta é obrigatório."
+msgstr "Account ID is required."
+
+msgid "Conta de cliente actualizada com sucesso."
+msgstr "Client account updated successfully."
+
+msgid "activada"
+msgstr "activated"
+
+msgid "desactivada"
+msgstr "deactivated"
+
+msgid "Conta de cliente {status_label} com sucesso."
+msgstr "Client account {status_label} successfully."
+
+msgid "Tipo de conta, nome e identificador são obrigatórios."
+msgstr "Account type, name, and identifier are required."
+
+msgid "Conta da empresa criada com sucesso."
+msgstr "Company account created successfully."
+
+msgid "Conta não encontrada."
+msgstr "Account not found."
+
+msgid "Ajuste manual de saldo (+{amount})"
+msgstr "Manual balance adjustment (+{amount})"
+
+msgid "Ajuste manual de saldo (-{amount})"
+msgstr "Manual balance adjustment (-{amount})"
+
+msgid "Conta actualizada com sucesso."
+msgstr "Account updated successfully."
+
+msgid "Conta desactivada com sucesso."
+msgstr "Account deactivated successfully."
+
+msgid "Nome da categoria é obrigatório."
+msgstr "Category name is required."
+
+msgid "Categoria de despesa criada com sucesso."
+msgstr "Expense category created successfully."
+
+msgid "ID da categoria é obrigatório."
+msgstr "Category ID is required."
+
+msgid "Categoria de despesa actualizada com sucesso."
+msgstr "Expense category updated successfully."
+
+msgid "Categoria de despesa desactivada com sucesso."
+msgstr "Expense category deactivated successfully."
+
+msgid "Categoria, conta da empresa, data, descrição e valor são obrigatórios."
+msgstr "Category, company account, date, description, and amount are required."
+
+msgid "Conta da empresa inválida."
+msgstr "Invalid company account."
+
+msgid "Valor inválido."
+msgstr "Invalid amount."
+
+msgid "Data inválida."
+msgstr "Invalid date."
+
+msgid "Despesa: {description}"
+msgstr "Expense: {description}"
+
+msgid "Despesa registada, saldo deduzido e transacção criada com sucesso."
+msgstr "Expense recorded, balance deducted, and transaction created successfully."
+
+msgid "Despesa não encontrada."
+msgstr "Expense not found."
+
+msgid "Nenhum anexo disponível para esta despesa."
+msgstr "No attachment available for this expense."
+
+msgid "Nome do tipo de rendimento é obrigatório."
+msgstr "Income type name is required."
+
+msgid "Tipo de rendimento criado com sucesso."
+msgstr "Income type created successfully."
+
+msgid "ID do tipo de rendimento é obrigatório."
+msgstr "Income type ID is required."
+
+msgid "Tipo de rendimento actualizado com sucesso."
+msgstr "Income type updated successfully."
+
+msgid "Tipo de rendimento {status_label} com sucesso."
+msgstr "Income type {status_label} successfully."
+
+msgid "Categoria de rendimento inválida."
+msgstr "Invalid income category."
+
+msgid "Rendimento: {description}"
+msgstr "Income: {description}"
+
+msgid "Rendimento registado, saldo creditado e transacção criada com sucesso."
+msgstr "Income recorded, balance credited, and transaction created successfully."
+
+msgid "Rendimento não encontrado."
+msgstr "Income not found."
+
+msgid "Nenhum anexo disponível para este rendimento."
+msgstr "No attachment available for this income."
+
+msgid "Nome, taxa e tipo de período são obrigatórios."
+msgstr "Name, rate, and period type are required."
+
+msgid "Tipo de período inválido."
+msgstr "Invalid period type."
+
+msgid "Taxa de juro inválida."
+msgstr "Invalid interest rate."
+
+msgid "Tipo de juro criado com sucesso."
+msgstr "Interest type created successfully."
+
+msgid "ID do tipo de juro é obrigatório."
+msgstr "Interest type ID is required."
+
+msgid "Tipo de juro actualizado com sucesso."
+msgstr "Interest type updated successfully."
+
+msgid "Tipo de juro {status_label} com sucesso."
+msgstr "Interest type {status_label} successfully."
+
+msgid "Selecione o membro/cliente."
+msgstr "Select the member/client."
+
+msgid "Selecione o tipo de juro."
+msgstr "Select the interest type."
+
+msgid "Tipo de empréstimo inválido."
+msgstr "Invalid loan type."
+
+msgid "Informe o valor do empréstimo."
+msgstr "Enter the loan amount."
+
+msgid "Valor do empréstimo inválido."
+msgstr "Invalid loan amount."
+
+msgid "Informe o número de períodos."
+msgstr "Enter the number of periods."
+
+msgid "Número de períodos inválido."
+msgstr "Invalid number of periods."
+
+msgid "Informe o pagamento por ciclo (pode usar o sugerido)."
+msgstr "Enter the payment per cycle (you can use the suggested amount)."
+
+msgid "Pagamento por ciclo inválido."
+msgstr "Invalid payment per cycle."
+
+msgid "Selecione a conta da empresa usada para desembolso."
+msgstr "Select the company account used for the disbursement."
+
+msgid "Apenas empréstimos pendentes podem ser confirmados."
+msgstr "Only pending loans can be confirmed."
+
+msgid "Empréstimo confirmado. Agora pode ser desembolsado na secção Desembolso."
+msgstr "Loan confirmed. It can now be disbursed in the Disbursement section."
+
+msgid "Apenas empréstimos pendentes podem ser rejeitados."
+msgstr "Only pending loans can be rejected."
+
+msgid "Empréstimo rejeitado com sucesso."
+msgstr "Loan rejected successfully."
+
+msgid "O nome do tipo de empréstimo é obrigatório."
+msgstr "Loan type name is required."
+
+msgid "Tipo de empréstimo criado com sucesso."
+msgstr "Loan type created successfully."
+
+msgid "Tipo de empréstimo actualizado com sucesso."
+msgstr "Loan type updated successfully."
+
+msgid "Tipo de empréstimo {status_label} com sucesso."
+msgstr "Loan type {status_label} successfully."
+
+msgid "Apenas empréstimos aprovados podem ser desembolsados."
+msgstr "Only approved loans can be disbursed."
+
+msgid "Este empréstimo já foi desembolsado."
+msgstr "This loan has already been disbursed."
+
+msgid "Selecione a conta da empresa para o desembolso."
+msgstr "Select the company account for the disbursement."
+
+msgid "Informe a data de desembolso."
+msgstr "Enter the disbursement date."
+
+msgid "Data de desembolso inválida."
+msgstr "Invalid disbursement date."
+
+msgid "Informe o valor de desembolso."
+msgstr "Enter the disbursement amount."
+
+msgid "Valor de desembolso inválido."
+msgstr "Invalid disbursement amount."
+
+msgid "Saldo insuficiente na conta seleccionada para efectuar este desembolso. Por favor registe primeiro uma entrada de saldo (depósito/crédito) na conta da empresa antes de desembolsar."
+msgstr "Insufficient balance in the selected account to make this disbursement. Please register a balance inflow (deposit/credit) in the company account before disbursing."
+
+msgid "Desembolso de empréstimo (Loan #{loan_id}) para {member_name}"
+msgstr "Loan disbursement (Loan #{loan_id}) to {member_name}"
+
+msgid " | Conta cliente: "
+msgstr " | Client account: "
+
+msgid "Desembolso registado com sucesso."
+msgstr "Disbursement recorded successfully."
+
+msgid "Selecione a conta da empresa que recebe o pagamento."
+msgstr "Select the company account receiving the payment."
+
+msgid "Informe a data de pagamento."
+msgstr "Enter the payment date."
+
+msgid "Data de pagamento inválida."
+msgstr "Invalid payment date."
+
+msgid "Informe o valor do pagamento."
+msgstr "Enter the payment amount."
+
+msgid "Valor do pagamento inválido."
+msgstr "Invalid payment amount."
+
+msgid "Este empréstimo não tem saldo de principal em dívida."
+msgstr "This loan has no outstanding principal balance."
+
+msgid "Pagamento apenas de juros"
+msgstr "Interest-only payment"
+
+msgid "Não há juros em falta neste ciclo. Não é possível liquidar apenas juros."
+msgstr "There is no outstanding interest in this cycle. It is not possible to settle interest only."
+
+msgid "Para liquidar apenas os juros deste ciclo o valor deve ser exactamente {interest_remaining}. Introduziu {amount}."
+msgstr "To settle only the interest for this cycle, the amount must be exactly {interest_remaining}. You entered {amount}."
+
+msgid "Liquidação total (juros + principal)"
+msgstr "Full settlement (interest + principal)"
+
+msgid "Para liquidar totalmente este empréstimo deve pagar exactamente {total_to_close} (principal {outstanding_principal} + juros em falta {interest_remaining}). Introduziu {amount}."
+msgstr "To settle this loan in full, you must pay exactly {total_to_close} (principal {outstanding_principal} + outstanding interest {interest_remaining}). You entered {amount}."
+
+msgid "Pagamento parcial (juros + principal)"
+msgstr "Partial payment (interest + principal)"
+
+msgid "Para pagamento parcial neste ciclo deve pagar pelo menos os juros em falta ({interest_remaining}). Introduziu {amount}."
+msgstr "For a partial payment in this cycle, you must pay at least the outstanding interest ({interest_remaining}). You entered {amount}."
+
+msgid "{repayment_type_label} - Reembolso de empréstimo (Loan #{loan_id}) de {member_name} - Juros: {interest_amount} · Principal: {principal_amount}"
+msgstr "{repayment_type_label} - Loan repayment (Loan #{loan_id}) from {member_name} - Interest: {interest_amount} · Principal: {principal_amount}"
+
+msgid "{repayment_type_label} registado com sucesso. Juros pagos: {interest_amount}, principal amortizado: {principal_amount}, saldo de principal em dívida após pagamento: {principal_balance_after}."
+msgstr "{repayment_type_label} recorded successfully. Interest paid: {interest_amount}, principal amortized: {principal_amount}, outstanding principal balance after payment: {principal_balance_after}."
+
+msgid "Tipo de relatório é obrigatório."
+msgstr "Report type is required."
+
+msgid "Data inicial inválida."
+msgstr "Invalid start date."
+
+msgid "Data final inválida."
+msgstr "Invalid end date."
+
+msgid "Saldos por Conta"
+msgstr "Balances by Account"
+
+msgid "Lucros (Rendimentos - Despesas)"
+msgstr "Profit (Income - Expenses)"
+
+msgid "Relatório"
+msgstr "Report"
+
+msgid "Tipo de relatório desconhecido."
+msgstr "Unknown report type."
+
+msgid "Não pode desactivar a sua própria conta."
+msgstr "You cannot deactivate your own account."
+
+msgid "Utilizador activado."
+msgstr "User activated."
+
+msgid "Utilizador desactivado."
+msgstr "User deactivated."
+
+msgid "Grupos actualizados com sucesso."
+msgstr "Groups updated successfully."
+
+msgid "O nome de utilizador é obrigatório."
+msgstr "Username is required."
+
+msgid "Já existe um utilizador com este username."
+msgstr "A user with this username already exists."
+
+msgid "As palavras-passe não coincidem."
+msgstr "Passwords do not match."
+
+msgid "A palavra-passe deve ter pelo menos 6 caracteres."
+msgstr "Password must be at least 6 characters long."
+
+msgid "Email inválido."
+msgstr "Invalid email."
+
+msgid "Utilizador criado com sucesso."
+msgstr "User created successfully."
+
+msgid "Já existe outro utilizador com este username."
+msgstr "Another user with this username already exists."
+
+msgid "Utilizador actualizado com sucesso."
+msgstr "User updated successfully."
+
+msgid "O nome do grupo é obrigatório."
+msgstr "Group name is required."
+
+msgid "O nome do grupo não pode exceder 150 caracteres."
+msgstr "Group name cannot exceed 150 characters."
+
+msgid "Já existe um grupo com este nome."
+msgstr "A group with this name already exists."
+
+msgid "Grupo criado com sucesso."
+msgstr "Group created successfully."
+
+msgid "Reembolso Loan #{loan_id} · {member_name}"
+msgstr "Loan repayment #{loan_id} · {member_name}"
+
+msgid "{change:+.1f}% vs mês anterior"
+msgstr "{change:+.1f}% vs previous month"
+
+msgid "— vs mês anterior"
+msgstr "— vs previous month"
+
+msgid "Conta bancária"
+msgstr "Bank account"
+
+msgid "Carteira móvel"
+msgstr "Mobile wallet"
+
+msgid "Carteira Móvel"
+msgstr "Mobile Wallet"
+
+msgid "Mensal"
+msgstr "Monthly"
+
+msgid "Diário"
+msgstr "Daily"
+
+msgid "Entrada"
+msgstr "Inflow"
+
+msgid "Saída"
+msgstr "Outflow"
+
+msgid "Origem: income, expense, loan_repayment, loan_disbursement, etc."
+msgstr "Source: income, expense, loan_repayment, loan_disbursement, etc."
+
+msgid "Tipo de juro inválido."
+msgstr "Invalid interest type."
+
+msgid "Ícone mostrado no separador do navegador e atalhos da aplicação."
+msgstr "Icon shown in the browser tab and application shortcuts."

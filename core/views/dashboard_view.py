@@ -6,6 +6,7 @@ from decimal import Decimal
 from django.db.models.functions import Coalesce, TruncMonth
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.db.models import (
     Sum,
     Count,
@@ -215,9 +216,9 @@ def dashboard_view(request):
         change = (float(this_month_disb) - float(prev_month_disb)) / float(
             prev_month_disb
         ) * 100.0
-        kpi_portfolio_change_label = f"{change:+.1f}% vs mês anterior"
+        kpi_portfolio_change_label = _("{change:+.1f}% vs mês anterior").format(change=change)
     else:
-        kpi_portfolio_change_label = "— vs mês anterior"
+        kpi_portfolio_change_label = _("— vs mês anterior")
 
     # ==========================
     # Empréstimos recentes
@@ -241,7 +242,10 @@ def dashboard_view(request):
         recent_cash_items.append(
             {
                 "source_type": "loan_repayment",
-                "label": f"Reembolso Loan #{r.loan_id} · {r.member.first_name} {r.member.last_name}",
+                "label": _("Reembolso Loan #{loan_id} · {member_name}").format(
+                    loan_id=r.loan_id,
+                    member_name=f"{r.member.first_name} {r.member.last_name}",
+                ),
                 "amount": r.amount,
                 "tx_date": r.payment_date,
             }
@@ -324,7 +328,12 @@ def dashboard_view(request):
     status_closed_count = status_map.get("closed", 0)
     status_cancelled_count = status_map.get("cancelled", 0)
 
-    chart_loan_status_labels = ["Activos", "Pendentes", "Fechados", "Cancelados"]
+    chart_loan_status_labels = [
+        _("Activos"),
+        _("Pendentes"),
+        _("Fechados"),
+        _("Cancelados"),
+    ]
     chart_loan_status_values = [
         status_active_count,
         status_pending_count,

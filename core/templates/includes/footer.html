@@ -1,9 +1,10 @@
+{% load i18n %}
 <footer class="footer py-4">
     <div class="container-fluid">
       <div class="row align-items-center justify-content-lg-between">
         <div class="col-12">
           <div class="copyright text-center text-sm text-muted text-lg-start">
-            &copy; {{ brand_preferences.brand_name }} coded by <span class="font-weight-bold">Digital horizon</span>.
+            {% blocktrans with brand_name=brand_preferences.brand_name %}&copy; {{ brand_name }} desenvolvido por <span class="font-weight-bold">Digital Horizon</span>.{% endblocktrans %}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
-{% load static %}
+{% load i18n static %}
 
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="{{ brand_preferences.language }}">
 <head>
     {% include "includes/sl_head.html" %}
     <style>
@@ -189,9 +189,9 @@
         <span>{{ brand_preferences.brand_name }}</span>
     </div>
 
-    <h1 class="auth-title">Iniciar sessão</h1>
+    <h1 class="auth-title">{% trans "Iniciar sessão" %}</h1>
     <p class="auth-subtitle">
-        Aceda ao painel para gerir empréstimos, contas, despesas e rendimentos da operação de microcrédito.
+        {% trans "Aceda ao painel para gerir empréstimos, contas, despesas e rendimentos da operação de microcrédito." %}
     </p>
 
     <!-- Mensagens de erro de autenticação -->
@@ -211,13 +211,13 @@
 
         <!-- Username -->
         <div class="mb-3">
-            <label class="field-label" for="id_username">Utilizador</label>
+            <label class="field-label" for="id_username">{% trans "Utilizador" %}</label>
             <input
                 type="text"
                 name="username"
                 id="id_username"
                 class="form-control-auth"
-                placeholder="Introduza o seu utilizador"
+                placeholder="{% trans 'Introduza o seu utilizador' %}"
                 required
                 autofocus
                 value="{{ form.username.value|default:'' }}"
@@ -231,7 +231,7 @@
 
         <!-- Password -->
         <div class="mb-2">
-            <label class="field-label" for="id_password">Palavra-passe</label>
+            <label class="field-label" for="id_password">{% trans "Palavra-passe" %}</label>
             <input
                 type="password"
                 name="password"
@@ -250,7 +250,7 @@
         <div class="auth-footer-row">
             <label class="remember-me-label">
                 <input type="checkbox" name="remember_me" style="width:13px;height:13px;">
-                <span>Manter sessão iniciada nesta máquina</span>
+                <span>{% trans "Manter sessão iniciada nesta máquina" %}</span>
             </label>
             <!-- Se quiseres no futuro: link de recuperar password -->
             {# <a href="{% url 'password_reset' %}" class="small-link">Esqueci a palavra-passe</a> #}
@@ -262,12 +262,12 @@
 
         <button type="submit" class="auth-btn">
             <i class="material-symbols-rounded">login</i>
-            Entrar
+            {% trans "Entrar" %}
         </button>
     </form>
 
     <p class="auth-meta">
-        <span>O registo de novos utilizadores é feito apenas pelo administrador no painel /admin.</span>
+        <span>{% trans "O registo de novos utilizadores é feito apenas pelo administrador no painel /admin." %}</span>
     </p>
 </div>
 </body>

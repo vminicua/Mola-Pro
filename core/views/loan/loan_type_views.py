@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.utils.translation import gettext as _
 
 from core.models import LoanType
 
@@ -27,7 +28,7 @@ def create_loan_type(request):
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "O nome do tipo de empréstimo é obrigatório."},
+            {"success": False, "message": _("O nome do tipo de empréstimo é obrigatório.")},
             status=400,
         )
 
@@ -37,7 +38,7 @@ def create_loan_type(request):
         is_active=True,
     )
 
-    return JsonResponse({"success": True, "message": "Tipo de empréstimo criado com sucesso."})
+    return JsonResponse({"success": True, "message": _("Tipo de empréstimo criado com sucesso.")})
 #============================================================================================================
 #============================================================================================================
 
@@ -50,7 +51,7 @@ def update_loan_type(request, type_id):
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "O nome do tipo de empréstimo é obrigatório."},
+            {"success": False, "message": _("O nome do tipo de empréstimo é obrigatório.")},
             status=400,
         )
 
@@ -58,7 +59,7 @@ def update_loan_type(request, type_id):
     loan_type.description = description or None
     loan_type.save(update_fields=["name", "description"])
 
-    return JsonResponse({"success": True, "message": "Tipo de empréstimo actualizado com sucesso."})
+    return JsonResponse({"success": True, "message": _("Tipo de empréstimo actualizado com sucesso.")})
 
 #============================================================================================================
 #============================================================================================================
@@ -71,9 +72,9 @@ def toggle_loan_type(request, type_id):
     loan_type.is_active = not loan_type.is_active
     loan_type.save(update_fields=["is_active"])
 
-    status_label = "activado" if loan_type.is_active else "desactivado"
+    status_label = _("activado") if loan_type.is_active else _("desactivado")
     return JsonResponse(
-        {"success": True, "message": f"Tipo de empréstimo {status_label} com sucesso."}
+        {"success": True, "message": _("Tipo de empréstimo {status_label} com sucesso.").format(status_label=status_label)}
     )
 #============================================================================================================
 #============================================================================================================

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from core.branding import save_brand_preferences
@@ -27,6 +28,7 @@ def update_brand_preferences(request):
     try:
         preferences = save_brand_preferences(
             primary_color=request.POST.get("primary_color"),
+            language=request.POST.get("language"),
             logo_file=request.FILES.get("logo"),
             remove_logo=request.POST.get("remove_logo") in {"1", "true", "on", "yes"},
             favicon_file=request.FILES.get("favicon"),
@@ -44,8 +46,9 @@ def update_brand_preferences(request):
     return JsonResponse(
         {
             "success": True,
-            "message": "Preferências actualizadas com sucesso.",
+            "message": _("Preferências actualizadas com sucesso."),
             "favicon_url": preferences["favicon_url"],
+            "language": preferences["language"],
             "logo_url": preferences["logo_url"],
             "primary_color": preferences["primary_color"],
         }

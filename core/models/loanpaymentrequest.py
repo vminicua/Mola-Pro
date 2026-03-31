@@ -1,13 +1,14 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from .loan import Loan
 from .member import Member
 from .companyaccount import CompanyAccount
 
 class LoanPaymentRequest(models.Model):
     STATUS_CHOICES = (
-        ("pending", "Pendente"),
-        ("paid", "Pago"),
-        ("cancelled", "Cancelado"),
+        ("pending", _("Pendente")),
+        ("paid", _("Pago")),
+        ("cancelled", _("Cancelado")),
     )
 
     id = models.BigAutoField(primary_key=True)

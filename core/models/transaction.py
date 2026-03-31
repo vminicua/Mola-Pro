@@ -2,6 +2,7 @@
 
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from .companyaccount import CompanyAccount
 
 
@@ -9,8 +10,8 @@ class Transaction(models.Model):
     TX_TYPE_IN = "IN"
     TX_TYPE_OUT = "OUT"
     TX_TYPE_CHOICES = (
-        (TX_TYPE_IN, "Entrada"),
-        (TX_TYPE_OUT, "Saída"),
+        (TX_TYPE_IN, _("Entrada")),
+        (TX_TYPE_OUT, _("Saída")),
     )
 
     id = models.BigAutoField(primary_key=True)
@@ -24,7 +25,7 @@ class Transaction(models.Model):
         max_length=30,     # aumentei um pouco para caber tranquilo
         blank=True,
         null=True,
-        help_text="Origem: income, expense, loan_repayment, loan_disbursement, etc.",
+        help_text=_("Origem: income, expense, loan_repayment, loan_disbursement, etc."),
     )
     source_id = models.BigIntegerField(blank=True, null=True)
     tx_date = models.DateField()

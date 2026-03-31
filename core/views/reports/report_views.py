@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db.models import Sum
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
 from weasyprint import HTML
@@ -55,7 +56,7 @@ def generate_report_pdf(request):
     """
     report_type = request.POST.get("report_type")
     if not report_type:
-        return HttpResponseBadRequest("Tipo de relatório é obrigatório.")
+        return HttpResponseBadRequest(_("Tipo de relatório é obrigatório."))
 
     # Intervalo de datas (compatível com Python < 3.7 — sem fromisoformat)
     start_date_str = (request.POST.get("start_date") or "").strip()
@@ -68,7 +69,7 @@ def generate_report_pdf(request):
         try:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
         except ValueError:
-            return HttpResponseBadRequest("Data inicial inválida.")
+            return HttpResponseBadRequest(_("Data inicial inválida."))
     else:
         # primeiro dia do mês actual
         start_date = today.replace(day=1)
@@ -78,7 +79,7 @@ def generate_report_pdf(request):
         try:
             end_date = datetime.strptime(end_date_str, "%Y-%m-%d").date()
         except ValueError:
-            return HttpResponseBadRequest("Data final inválida.")
+            return HttpResponseBadRequest(_("Data final inválida."))
     else:
         end_date = today
 
@@ -100,16 +101,16 @@ def generate_report_pdf(request):
 
     # Mapeamento de label
     REPORT_LABELS = {
-        "incomes": "Rendimentos",
-        "expenses": "Despesas",
-        "balances": "Saldos por Conta",
-        "loans": "Empréstimos",
-        "disbursements": "Desembolsos",
-        "repayments": "Reembolsos",
-        "transactions": "Transacções",
-        "profits": "Lucros (Rendimentos - Despesas)",
+        "incomes": _("Rendimentos"),
+        "expenses": _("Despesas"),
+        "balances": _("Saldos por Conta"),
+        "loans": _("Empréstimos"),
+        "disbursements": _("Desembolsos"),
+        "repayments": _("Reembolsos"),
+        "transactions": _("Transacções"),
+        "profits": _("Lucros (Rendimentos - Despesas)"),
     }
-    report_title = REPORT_LABELS.get(report_type, "Relatório")
+    report_title = REPORT_LABELS.get(report_type, _("Relatório"))
 
     context = {
         "report_type": report_type,
@@ -251,7 +252,7 @@ def generate_report_pdf(request):
         context["profit"] = profit
 
     else:
-        return HttpResponseBadRequest("Tipo de relatório desconhecido.")
+        return HttpResponseBadRequest(_("Tipo de relatório desconhecido."))
 
     # ===================== GERAR PDF COM WEASYPRINT =====================
     html_string = render_to_string("reports/report_pdf.html", context, request=request)

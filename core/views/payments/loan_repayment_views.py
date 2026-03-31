@@ -5,6 +5,7 @@ from django.db.models import Sum, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 from datetime import datetime, timedelta
 
@@ -154,35 +155,35 @@ def register_repayment(request, loan_id):
     # Conta da empresa
     if not company_account_id:
         return JsonResponse(
-            {"success": False, "message": "Selecione a conta da empresa que recebe o pagamento."},
+            {"success": False, "message": _("Selecione a conta da empresa que recebe o pagamento.")},
             status=400,
         )
     try:
         account = CompanyAccount.objects.get(pk=company_account_id, is_active=True)
     except CompanyAccount.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Conta da empresa inválida."},
+            {"success": False, "message": _("Conta da empresa inválida.")},
             status=400,
         )
 
     # Data
     if not payment_date_str:
         return JsonResponse(
-            {"success": False, "message": "Informe a data de pagamento."},
+            {"success": False, "message": _("Informe a data de pagamento.")},
             status=400,
         )
     try:
         payment_date = datetime.strptime(payment_date_str, "%Y-%m-%d").date()
     except ValueError:
         return JsonResponse(
-            {"success": False, "message": "Data de pagamento inválida."},
+            {"success": False, "message": _("Data de pagamento inválida.")},
             status=400,
         )
 
     # Valor
     if not amount_raw:
         return JsonResponse(
-            {"success": False, "message": "Informe o valor do pagamento."},
+            {"success": False, "message": _("Informe o valor do pagamento.")},
             status=400,
         )
     try:
@@ -191,7 +192,7 @@ def register_repayment(request, loan_id):
             raise ValueError
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Valor do pagamento inválido."},
+            {"success": False, "message": _("Valor do pagamento inválido.")},
             status=400,
         )
 
@@ -203,7 +204,7 @@ def register_repayment(request, loan_id):
     outstanding_principal = loan.principal_amount - principal_paid_total
     if outstanding_principal <= 0:
         return JsonResponse(
-            {"success": False, "message": "Este empréstimo não tem saldo de principal em dívida."},
+            {"success": False, "message": _("Este empréstimo não tem saldo de principal em dívida.")},
             status=400,
         )
 
@@ -249,13 +250,13 @@ def register_repayment(request, loan_id):
     principal_balance_after = outstanding_principal
 
     if repayment_type == "interest_only":
-        repayment_type_label = "Pagamento apenas de juros"
+        repayment_type_label = _("Pagamento apenas de juros")
 
         if interest_remaining <= 0:
             return JsonResponse(
                 {
                     "success": False,
-                    "message": "Não há juros em falta neste ciclo. Não é possível liquidar apenas juros.",
+                    "message": _("Não há juros em falta neste ciclo. Não é possível liquidar apenas juros."),
                 },
                 status=400,
             )
@@ -265,10 +266,10 @@ def register_repayment(request, loan_id):
             return JsonResponse(
                 {
                     "success": False,
-                    "message": (
-                        f"Para liquidar apenas os juros deste ciclo o valor deve ser exactamente "
-                        f"{interest_remaining}. Introduziu {amount}."
-                    ),
+                    "message": _(
+                        "Para liquidar apenas os juros deste ciclo o valor deve ser exactamente "
+                        "{interest_remaining}. Introduziu {amount}."
+                    ).format(interest_remaining=interest_remaining, amount=amount),
                 },
                 status=400,
             )
@@ -278,7 +279,7 @@ def register_repayment(request, loan_id):
         principal_balance_after = outstanding_principal  # não muda
 
     elif repayment_type == "full":
-        repayment_type_label = "Liquidação total (juros + principal)"
+        repayment_type_label = _("Liquidação total (juros + principal)")
 
         total_to_close = outstanding_principal + interest_remaining
 
@@ -286,10 +287,15 @@ def register_repayment(request, loan_id):
             return JsonResponse(
                 {
                     "success": False,
-                    "message": (
-                        f"Para liquidar totalmente este empréstimo deve pagar exactamente "
-                        f"{total_to_close} (principal {outstanding_principal} + juros em falta {interest_remaining}). "
-                        f"Introduziu {amount}."
+                    "message": _(
+                        "Para liquidar totalmente este empréstimo deve pagar exactamente "
+                        "{total_to_close} (principal {outstanding_principal} + juros em falta {interest_remaining}). "
+                        "Introduziu {amount}."
+                    ).format(
+                        total_to_close=total_to_close,
+                        outstanding_principal=outstanding_principal,
+                        interest_remaining=interest_remaining,
+                        amount=amount,
                     ),
                 },
                 status=400,
@@ -302,16 +308,16 @@ def register_repayment(request, loan_id):
     else:
         # partial
         repayment_type = "partial"
-        repayment_type_label = "Pagamento parcial (juros + principal)"
+        repayment_type_label = _("Pagamento parcial (juros + principal)")
 
         if interest_remaining > 0 and amount < interest_remaining:
             return JsonResponse(
                 {
                     "success": False,
-                    "message": (
-                        f"Para pagamento parcial neste ciclo deve pagar pelo menos os juros em falta "
-                        f"({interest_remaining}). Introduziu {amount}."
-                    ),
+                    "message": _(
+                        "Para pagamento parcial neste ciclo deve pagar pelo menos os juros em falta "
+                        "({interest_remaining}). Introduziu {amount}."
+                    ).format(interest_remaining=interest_remaining, amount=amount),
                 },
                 status=400,
             )
@@ -346,10 +352,15 @@ def register_repayment(request, loan_id):
     new_balance = account.balance
 
     # ===== 6) REGISTAR TRANSAÇÃO =====
-    descricao = (
-        f"{repayment_type_label} - Reembolso de empréstimo (Loan #{loan.id}) "
-        f"de {loan.member.first_name} {loan.member.last_name} "
-        f"- Juros: {interest_amount} · Principal: {principal_amount}"
+    descricao = _(
+        "{repayment_type_label} - Reembolso de empréstimo (Loan #{loan_id}) "
+        "de {member_name} - Juros: {interest_amount} · Principal: {principal_amount}"
+    ).format(
+        repayment_type_label=repayment_type_label,
+        loan_id=loan.id,
+        member_name=f"{loan.member.first_name} {loan.member.last_name}",
+        interest_amount=interest_amount,
+        principal_amount=principal_amount,
     )
 
     Transaction.objects.create(
@@ -384,10 +395,15 @@ def register_repayment(request, loan_id):
     return JsonResponse(
         {
             "success": True,
-            "message": (
-                f"{repayment_type_label} registado com sucesso. "
-                f"Juros pagos: {interest_amount}, principal amortizado: {principal_amount}, "
-                f"saldo de principal em dívida após pagamento: {principal_balance_after}."
+            "message": _(
+                "{repayment_type_label} registado com sucesso. "
+                "Juros pagos: {interest_amount}, principal amortizado: {principal_amount}, "
+                "saldo de principal em dívida após pagamento: {principal_balance_after}."
+            ).format(
+                repayment_type_label=repayment_type_label,
+                interest_amount=interest_amount,
+                principal_amount=principal_amount,
+                principal_balance_after=principal_balance_after,
             ),
         }
     )

@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from decimal import Decimal
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
 
 from core.models import InterestType
 
@@ -34,14 +35,14 @@ def create_interest_type(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Nome, taxa e tipo de período são obrigatórios.",
+                "message": _("Nome, taxa e tipo de período são obrigatórios."),
             },
             status=400,
         )
 
     if period_type not in ("monthly", "daily"):
         return JsonResponse(
-            {"success": False, "message": "Tipo de período inválido."},
+            {"success": False, "message": _("Tipo de período inválido.")},
             status=400,
         )
 
@@ -49,7 +50,7 @@ def create_interest_type(request):
         rate = Decimal(str(rate_raw))
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Taxa de juro inválida."},
+            {"success": False, "message": _("Taxa de juro inválida.")},
             status=400,
         )
 
@@ -63,7 +64,7 @@ def create_interest_type(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Tipo de juro criado com sucesso."}
+        {"success": True, "message": _("Tipo de juro criado com sucesso.")}
     )
 
 
@@ -97,7 +98,7 @@ def update_interest_type(request):
 
     if not it_id:
         return JsonResponse(
-            {"success": False, "message": "ID do tipo de juro é obrigatório."},
+            {"success": False, "message": _("ID do tipo de juro é obrigatório.")},
             status=400,
         )
 
@@ -105,14 +106,14 @@ def update_interest_type(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Nome, taxa e tipo de período são obrigatórios.",
+                "message": _("Nome, taxa e tipo de período são obrigatórios."),
             },
             status=400,
         )
 
     if period_type not in ("monthly", "daily"):
         return JsonResponse(
-            {"success": False, "message": "Tipo de período inválido."},
+            {"success": False, "message": _("Tipo de período inválido.")},
             status=400,
         )
 
@@ -120,7 +121,7 @@ def update_interest_type(request):
         rate = Decimal(str(rate_raw))
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Taxa de juro inválida."},
+            {"success": False, "message": _("Taxa de juro inválida.")},
             status=400,
         )
 
@@ -136,7 +137,7 @@ def update_interest_type(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Tipo de juro actualizado com sucesso."}
+        {"success": True, "message": _("Tipo de juro actualizado com sucesso.")}
     )
 
 
@@ -149,7 +150,7 @@ def toggle_interest_type_status(request):
 
     if not it_id:
         return JsonResponse(
-            {"success": False, "message": "ID do tipo de juro é obrigatório."},
+            {"success": False, "message": _("ID do tipo de juro é obrigatório.")},
             status=400,
         )
 
@@ -158,12 +159,12 @@ def toggle_interest_type_status(request):
     interest_type.is_active = not interest_type.is_active
     interest_type.save(update_fields=["is_active"])
 
-    status_label = "activado" if interest_type.is_active else "desactivado"
+    status_label = _("activado") if interest_type.is_active else _("desactivado")
 
     return JsonResponse(
         {
             "success": True,
-            "message": f"Tipo de juro {status_label} com sucesso.",
+            "message": _("Tipo de juro {status_label} com sucesso.").format(status_label=status_label),
             "is_active": interest_type.is_active,
         }
     )

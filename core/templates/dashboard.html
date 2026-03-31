@@ -1,5 +1,5 @@
 {% extends "layouts/sl_base.html" %}
-{% load static %}
+{% load i18n static %}
 
 {% block content %}
 <div class="container-fluid py-2">
@@ -9,22 +9,22 @@
       <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 px-2 px-md-0">
         <div>
           <h3 class="mb-1 h4 fw-bold">
-            {{ brand_preferences.brand_name }} · Dashboard
+            {% blocktrans with brand_name=brand_preferences.brand_name %}{{ brand_name }} · Dashboard{% endblocktrans %}
           </h3>
           <p class="mb-0 text-sm text-muted">
-            Visão geral da carteira de empréstimos, reembolsos e fluxo de caixa do microcrédito.
+            {% trans "Visão geral da carteira de empréstimos, reembolsos e fluxo de caixa do microcrédito." %}
           </p>
         </div>
         <div class="d-flex align-items-center gap-2">
           <select class="form-select form-select-sm" style="max-width: 180px;">
-            <option>Últimos 30 dias</option>
-            <option>Este mês</option>
-            <option>Últimos 3 meses</option>
-            <option>Desde o início do ano</option>
+            <option>{% trans "Últimos 30 dias" %}</option>
+            <option>{% trans "Este mês" %}</option>
+            <option>{% trans "Últimos 3 meses" %}</option>
+            <option>{% trans "Desde o início do ano" %}</option>
           </select>
           <a href="{% url 'core:new_loan' %}" class="btn btn-sm bg-gradient-dark">
             <i class="material-symbols-rounded me-1" style="font-size:18px;">add_circle</i>
-            Novo Empréstimo
+            {% trans "Novo Empréstimo" %}
           </a>
         </div>
       </div>
@@ -38,7 +38,7 @@
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Carteira total (MT)</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">{% trans "Carteira total (MT)" %}</p>
             <span class="icon icon-xs icon-shape bg-gradient-dark text-center border-radius-md">
               <i class="material-symbols-rounded text-white" style="font-size:18px;">account_balance</i>
             </span>
@@ -58,7 +58,7 @@
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Principal em dívida</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">{% trans "Principal em dívida" %}</p>
             <span class="icon icon-xs icon-shape bg-gradient-primary text-center border-radius-md">
               <i class="material-symbols-rounded text-white" style="font-size:18px;">request_quote</i>
             </span>
@@ -78,7 +78,7 @@
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Juros a receber</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">{% trans "Juros a receber" %}</p>
             <span class="icon icon-xs icon-shape bg-gradient-success text-center border-radius-md">
               <i class="material-symbols-rounded text-white" style="font-size:18px;">percent</i>
             </span>
@@ -98,7 +98,7 @@
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Reembolsos hoje (MT)</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">{% trans "Reembolsos hoje (MT)" %}</p>
             <span class="icon icon-xs icon-shape bg-gradient-info text-center border-radius-md">
               <i class="material-symbols-rounded text-white" style="font-size:18px;">download</i>
             </span>
@@ -118,7 +118,7 @@
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Empréstimos pendentes</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">{% trans "Empréstimos pendentes" %}</p>
             <span class="icon icon-xs icon-shape bg-gradient-warning text-center border-radius-md">
               <i class="material-symbols-rounded text-white" style="font-size:18px;">pending_actions</i>
             </span>
@@ -138,7 +138,7 @@
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Saldo contas empresa</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">{% trans "Saldo contas empresa" %}</p>
             <span class="icon icon-xs icon-shape bg-gradient-secondary text-center border-radius-md">
               <i class="material-symbols-rounded text-white" style="font-size:18px;">account_balance_wallet</i>
             </span>
@@ -161,8 +161,8 @@
       <div class="card h-100">
         <div class="card-header pb-0 d-flex justify-content-between align-items-start">
           <div>
-            <h6 class="mb-1">Fluxo de Caixa · Empréstimos</h6>
-            <p class="text-xs text-muted mb-0">Desembolsos vs Reembolsos por mês</p>
+            <h6 class="mb-1">{% trans "Fluxo de Caixa · Empréstimos" %}</h6>
+            <p class="text-xs text-muted mb-0">{% trans "Desembolsos vs Reembolsos por mês" %}</p>
           </div>
         </div>
         <div class="card-body pt-2">
@@ -177,8 +177,8 @@
     <div class="col-xl-4 col-lg-5 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0">
-          <h6 class="mb-1">Carteira por status</h6>
-          <p class="text-xs text-muted mb-0">Distribuição de empréstimos</p>
+          <h6 class="mb-1">{% trans "Carteira por status" %}</h6>
+          <p class="text-xs text-muted mb-0">{% trans "Distribuição de empréstimos" %}</p>
         </div>
         <div class="card-body pt-3">
           <div style="height:230px;">
@@ -187,19 +187,19 @@
           <div class="mt-3">
             <ul class="list-unstyled mb-0 text-xs">
               <li class="d-flex justify-content-between mb-1">
-                <span>Activos</span>
+                <span>{% trans "Activos" %}</span>
                 <strong>{{ kpi_status_active_count|default:0 }}</strong>
               </li>
               <li class="d-flex justify-content-between mb-1">
-                <span>Pendentes</span>
+                <span>{% trans "Pendentes" %}</span>
                 <strong>{{ kpi_status_pending_count|default:0 }}</strong>
               </li>
               <li class="d-flex justify-content-between mb-1">
-                <span>Fechados</span>
+                <span>{% trans "Fechados" %}</span>
                 <strong>{{ kpi_status_closed_count|default:0 }}</strong>
               </li>
               <li class="d-flex justify-content-between">
-                <span>Cancelados</span>
+                <span>{% trans "Cancelados" %}</span>
                 <strong>{{ kpi_status_cancelled_count|default:0 }}</strong>
               </li>
             </ul>
@@ -217,11 +217,11 @@
       <div class="card h-100">
         <div class="card-header pb-0 d-flex justify-content-between align-items-center">
           <div>
-            <h6 class="mb-1">Empréstimos recentes</h6>
-            <p class="text-xs text-muted mb-0">Últimos pedidos registados</p>
+            <h6 class="mb-1">{% trans "Empréstimos recentes" %}</h6>
+            <p class="text-xs text-muted mb-0">{% trans "Últimos pedidos registados" %}</p>
           </div>
           <a href="{% url 'core:loan_list_all' %}" class="text-xs text-primary text-decoration-none">
-            Ver todos
+            {% trans "Ver todos" %}
           </a>
         </div>
         <div class="card-body px-0 pb-0">
@@ -230,10 +230,10 @@
               <thead>
                 <tr>
                   <th class="text-xs text-secondary text-uppercase fw-bold ps-3">ID</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold">Cliente</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end">Valor (MT)</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-center">Status</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end pe-3">Criado em</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold">{% trans "Cliente" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-end">{% trans "Valor (MT)" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-center">{% trans "Status" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-end pe-3">{% trans "Criado em" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -252,15 +252,15 @@
                     </td>
                     <td class="text-sm text-center">
                       {% if loan.status == "pending" %}
-                        <span class="badge bg-warning text-dark text-xxs">Pendente</span>
+                        <span class="badge bg-warning text-dark text-xxs">{% trans "Pendente" %}</span>
                       {% elif loan.status == "approved" %}
-                        <span class="badge bg-info text-white text-xxs">Aprovado</span>
+                        <span class="badge bg-info text-white text-xxs">{% trans "Aprovado" %}</span>
                       {% elif loan.status == "disbursed" %}
-                        <span class="badge bg-success text-white text-xxs">Desembolsado</span>
+                        <span class="badge bg-success text-white text-xxs">{% trans "Desembolsado" %}</span>
                       {% elif loan.status == "closed" %}
-                        <span class="badge bg-secondary text-white text-xxs">Fechado</span>
+                        <span class="badge bg-secondary text-white text-xxs">{% trans "Fechado" %}</span>
                       {% elif loan.status == "cancelled" %}
-                        <span class="badge bg-dark text-white text-xxs">Cancelado</span>
+                        <span class="badge bg-dark text-white text-xxs">{% trans "Cancelado" %}</span>
                       {% else %}
                         <span class="badge bg-light text-dark text-xxs">{{ loan.get_status_display }}</span>
                       {% endif %}
@@ -272,7 +272,7 @@
                 {% empty %}
                   <tr>
                     <td colspan="5" class="text-center text-sm text-muted py-3">
-                      Nenhum empréstimo recente encontrado.
+                      {% trans "Nenhum empréstimo recente encontrado." %}
                     </td>
                   </tr>
                 {% endfor %}
@@ -287,25 +287,25 @@
     <div class="col-xl-6 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0">
-          <h6 class="mb-1">Entradas recentes</h6>
-          <p class="text-xs text-muted mb-0">Reembolsos de empréstimos registados recentemente</p>
+          <h6 class="mb-1">{% trans "Entradas recentes" %}</h6>
+          <p class="text-xs text-muted mb-0">{% trans "Reembolsos de empréstimos registados recentemente" %}</p>
         </div>
         <div class="card-body px-0 pb-0">
           <div class="table-responsive">
             <table class="table align-items-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-xs text-secondary text-uppercase fw-bold ps-3">Tipo</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold">Origem</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end">Valor (MT)</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end pe-3">Data</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold ps-3">{% trans "Tipo" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold">{% trans "Origem" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-end">{% trans "Valor (MT)" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-end pe-3">{% trans "Data" %}</th>
                 </tr>
               </thead>
               <tbody>
                 {% for item in recent_cash_in %}
                   <tr>
                     <td class="ps-3 text-xs">
-                      <span class="badge bg-success text-xxs">Reembolso</span>
+                      <span class="badge bg-success text-xxs">{% trans "Reembolso" %}</span>
                     </td>
                     <td class="text-sm">
                       {{ item.label|default:"—" }}
@@ -320,7 +320,7 @@
                 {% empty %}
                   <tr>
                     <td colspan="4" class="text-center text-sm text-muted py-3">
-                      Nenhuma transacção recente encontrada.
+                      {% trans "Nenhuma transacção recente encontrada." %}
                     </td>
                   </tr>
                 {% endfor %}
@@ -338,18 +338,18 @@
     <div class="col-12 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0">
-          <h6 class="mb-1">Próximos vencimentos</h6>
-          <p class="text-xs text-muted mb-0">1ª prestação / validade de empréstimos a expirar</p>
+          <h6 class="mb-1">{% trans "Próximos vencimentos" %}</h6>
+          <p class="text-xs text-muted mb-0">{% trans "1ª prestação / validade de empréstimos a expirar" %}</p>
         </div>
         <div class="card-body px-0 pb-0">
           <div class="table-responsive">
             <table class="table align-items-center mb-0">
               <thead>
                 <tr>
-                  <th class="text-xs text-secondary text-uppercase fw-bold ps-3">Empréstimo</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold">Cliente</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-center">Data</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-center pe-3">Dias</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold ps-3">{% trans "Empréstimo" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold">{% trans "Cliente" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-center">{% trans "Data" %}</th>
+                  <th class="text-xs text-secondary text-uppercase fw-bold text-center pe-3">{% trans "Dias" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -365,15 +365,15 @@
                     <td class="text-xs text-center pe-3">
                       {% if item.days_to_due < 0 %}
                         <span class="badge bg-danger text-xxs">
-                          {{ item.days_to_due }} dias
+                          {% blocktrans with days=item.days_to_due %}{{ days }} dias{% endblocktrans %}
                         </span>
                       {% elif item.days_to_due <= 3 %}
                         <span class="badge bg-warning text-dark text-xxs">
-                          {{ item.days_to_due }} dias
+                          {% blocktrans with days=item.days_to_due %}{{ days }} dias{% endblocktrans %}
                         </span>
                       {% else %}
                         <span class="badge bg-success text-xxs">
-                          {{ item.days_to_due }} dias
+                          {% blocktrans with days=item.days_to_due %}{{ days }} dias{% endblocktrans %}
                         </span>
                       {% endif %}
                     </td>
@@ -381,7 +381,7 @@
                 {% empty %}
                   <tr>
                     <td colspan="4" class="text-center text-sm text-muted py-3">
-                      Nenhum vencimento próximo.
+                      {% trans "Nenhum vencimento próximo." %}
                     </td>
                   </tr>
                 {% endfor %}
@@ -426,7 +426,7 @@
           labels: loanCashflowLabels,
           datasets: [
             {
-              label: 'Desembolsos',
+              label: "{% trans 'Desembolsos' %}",
               data: loanCashflowDisb,
               tension: 0.3,
               borderWidth: 2,
@@ -437,7 +437,7 @@
               fill: true
             },
             {
-              label: 'Reembolsos',
+              label: "{% trans 'Reembolsos' %}",
               data: loanCashflowRepay,
               tension: 0.3,
               borderWidth: 2,

@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 class AccountType(models.Model):
@@ -19,8 +20,8 @@ class AccountType(models.Model):
 
     def get_category_display(self):
         mapping = {
-            "cash": "Cash",
-            "mobile": "Carteira móvel",
-            "bank": "Conta bancária",
+            "cash": _("Cash"),
+            "mobile": _("Carteira móvel"),
+            "bank": _("Conta bancária"),
         }
         return mapping.get(self.category, self.category)

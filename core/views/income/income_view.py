@@ -18,6 +18,7 @@ from core.models import (
 )
 import os
 from django.http import JsonResponse, FileResponse, Http404
+from django.utils.translation import gettext as _
 
 
 #============================================================================================================
@@ -43,7 +44,7 @@ def create_income_category(request):
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "Nome do tipo de rendimento é obrigatório."},
+            {"success": False, "message": _("Nome do tipo de rendimento é obrigatório.")},
             status=400,
         )
 
@@ -54,7 +55,7 @@ def create_income_category(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Tipo de rendimento criado com sucesso."}
+        {"success": True, "message": _("Tipo de rendimento criado com sucesso.")}
     )
     
     
@@ -66,13 +67,13 @@ def update_income_category(request):
 
     if not cat_id:
         return JsonResponse(
-            {"success": False, "message": "ID do tipo de rendimento é obrigatório."},
+            {"success": False, "message": _("ID do tipo de rendimento é obrigatório.")},
             status=400,
         )
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "Nome do tipo de rendimento é obrigatório."},
+            {"success": False, "message": _("Nome do tipo de rendimento é obrigatório.")},
             status=400,
         )
 
@@ -83,7 +84,7 @@ def update_income_category(request):
     category.save(update_fields=["name", "description"])
 
     return JsonResponse(
-        {"success": True, "message": "Tipo de rendimento actualizado com sucesso."}
+        {"success": True, "message": _("Tipo de rendimento actualizado com sucesso.")}
     )
 
 
@@ -95,7 +96,7 @@ def toggle_income_category_status(request):
 
     if not cat_id:
         return JsonResponse(
-            {"success": False, "message": "ID do tipo de rendimento é obrigatório."},
+            {"success": False, "message": _("ID do tipo de rendimento é obrigatório.")},
             status=400,
         )
 
@@ -104,12 +105,12 @@ def toggle_income_category_status(request):
     category.is_active = not category.is_active
     category.save(update_fields=["is_active"])
 
-    status_label = "activado" if category.is_active else "desactivado"
+    status_label = _("activado") if category.is_active else _("desactivado")
 
     return JsonResponse(
         {
             "success": True,
-            "message": f"Tipo de rendimento {status_label} com sucesso.",
+            "message": _("Tipo de rendimento {status_label} com sucesso.").format(status_label=status_label),
             "is_active": category.is_active,
         }
     )
@@ -152,7 +153,7 @@ def create_income(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Categoria, conta da empresa, data, descrição e valor são obrigatórios.",
+                "message": _("Categoria, conta da empresa, data, descrição e valor são obrigatórios."),
             },
             status=400,
         )
@@ -161,7 +162,7 @@ def create_income(request):
         category = IncomeCategory.objects.get(pk=category_id, is_active=True)
     except IncomeCategory.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Categoria de rendimento inválida."},
+            {"success": False, "message": _("Categoria de rendimento inválida.")},
             status=400,
         )
 
@@ -169,7 +170,7 @@ def create_income(request):
         company_account = CompanyAccount.objects.get(pk=company_account_id, is_active=True)
     except CompanyAccount.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Conta da empresa inválida."},
+            {"success": False, "message": _("Conta da empresa inválida.")},
             status=400,
         )
 
@@ -177,7 +178,7 @@ def create_income(request):
         amount = Decimal(str(amount_raw))
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Valor inválido."},
+            {"success": False, "message": _("Valor inválido.")},
             status=400,
         )
 
@@ -186,7 +187,7 @@ def create_income(request):
         timezone.datetime.strptime(income_date, "%Y-%m-%d")
     except ValueError:
         return JsonResponse(
-            {"success": False, "message": "Data inválida."},
+            {"success": False, "message": _("Data inválida.")},
             status=400,
         )
 
@@ -220,7 +221,7 @@ def create_income(request):
         source_type="income",
         source_id=income.id,
         tx_date=income_date,
-        description=f"Rendimento: {description}",
+        description=_("Rendimento: {description}").format(description=description),
         amount=amount,
         balance_before=old_balance,
         balance_after=new_balance,
@@ -229,7 +230,7 @@ def create_income(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Rendimento registado, saldo creditado e transacção criada com sucesso."}
+        {"success": True, "message": _("Rendimento registado, saldo creditado e transacção criada com sucesso.")}
     )
 
 
@@ -242,10 +243,10 @@ def download_income_attachment(request, income_id):
     try:
         income = Income.objects.get(pk=income_id, is_active=True)
     except Income.DoesNotExist:
-        raise Http404("Rendimento não encontrado.")
+        raise Http404(_("Rendimento não encontrado."))
 
     if not income.attachment:
-        raise Http404("Nenhum anexo disponível para este rendimento.")
+        raise Http404(_("Nenhum anexo disponível para este rendimento."))
 
     file_handle = income.attachment.open("rb")
     filename = os.path.basename(income.attachment.name)

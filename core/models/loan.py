@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from .member import Member
 from .loantype import LoanType
 from .interesttype import InterestType
@@ -7,22 +8,22 @@ from .companyaccount import CompanyAccount
 
 class Loan(models.Model):
     STATUS_CHOICES = (
-        ("pending", "Pending Approval"),
-        ("approved", "Approved"),
-        ("disbursed", "Disbursed"),
-        ("closed", "Closed"),
-        ("cancelled", "Cancelled"),
+        ("pending", _("Pendente")),
+        ("approved", _("Aprovado")),
+        ("disbursed", _("Desembolsado")),
+        ("closed", _("Fechado")),
+        ("cancelled", _("Cancelado")),
     )
 
     PERIOD_TYPE_CHOICES = (
-        ("monthly", "Mensal"),
-        ("daily", "Diário"),
+        ("monthly", _("Mensal")),
+        ("daily", _("Diário")),
     )
 
     DISBURSE_METHOD_CHOICES = (
-        ("cash", "Cash"),
-        ("company_account", "Conta da Empresa"),
-        ("mobile_wallet", "Carteira Móvel"),
+        ("cash", _("Cash")),
+        ("company_account", _("Conta da Empresa")),
+        ("mobile_wallet", _("Carteira Móvel")),
     )
 
     id = models.BigAutoField(primary_key=True)

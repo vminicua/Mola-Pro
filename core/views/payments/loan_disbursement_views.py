@@ -6,6 +6,7 @@ from django.db import transaction as db_transaction
 from django.http import JsonResponse
 from django.db.models import F, ExpressionWrapper, DecimalField
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from core.models import (
@@ -100,13 +101,13 @@ def register_disbursement(request, loan_id):
 
     if loan.status != "approved":
         return JsonResponse(
-            {"success": False, "message": "Apenas empréstimos aprovados podem ser desembolsados."},
+            {"success": False, "message": _("Apenas empréstimos aprovados podem ser desembolsados.")},
             status=400,
         )
 
     if loan.disbursements.exists():
         return JsonResponse(
-            {"success": False, "message": "Este empréstimo já foi desembolsado."},
+            {"success": False, "message": _("Este empréstimo já foi desembolsado.")},
             status=400,
         )
 
@@ -124,35 +125,35 @@ def register_disbursement(request, loan_id):
     # Conta da empresa
     if not company_account_id:
         return JsonResponse(
-            {"success": False, "message": "Selecione a conta da empresa para o desembolso."},
+            {"success": False, "message": _("Selecione a conta da empresa para o desembolso.")},
             status=400,
         )
     try:
         account = CompanyAccount.objects.get(pk=company_account_id, is_active=True)
     except CompanyAccount.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Conta da empresa inválida."},
+            {"success": False, "message": _("Conta da empresa inválida.")},
             status=400,
         )
 
     # Data
     if not disburse_date_str:
         return JsonResponse(
-            {"success": False, "message": "Informe a data de desembolso."},
+            {"success": False, "message": _("Informe a data de desembolso.")},
             status=400,
         )
     try:
         disburse_date = datetime.strptime(disburse_date_str, "%Y-%m-%d").date()
     except ValueError:
         return JsonResponse(
-            {"success": False, "message": "Data de desembolso inválida."},
+            {"success": False, "message": _("Data de desembolso inválida.")},
             status=400,
         )
 
     # Valor
     if not amount_raw:
         return JsonResponse(
-            {"success": False, "message": "Informe o valor de desembolso."},
+            {"success": False, "message": _("Informe o valor de desembolso.")},
             status=400,
         )
     try:
@@ -161,7 +162,7 @@ def register_disbursement(request, loan_id):
             raise ValueError
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Valor de desembolso inválido."},
+            {"success": False, "message": _("Valor de desembolso inválido.")},
             status=400,
         )
 
@@ -171,7 +172,7 @@ def register_disbursement(request, loan_id):
         return JsonResponse(
             {
                 "success": False,
-                "message": (
+                "message": _(
                     "Saldo insuficiente na conta seleccionada para efectuar este desembolso. "
                     "Por favor registe primeiro uma entrada de saldo (depósito/crédito) "
                     "na conta da empresa antes de desembolsar."
@@ -199,13 +200,13 @@ def register_disbursement(request, loan_id):
     new_balance = account.balance
 
     # Descrição da transacção, incluindo info da conta do cliente (se fornecida)
-    desc = (
-        f"Desembolso de empréstimo (Loan #{loan.id}) "
-        f"para {loan.member.first_name} {loan.member.last_name}"
+    desc = _("Desembolso de empréstimo (Loan #{loan_id}) para {member_name}").format(
+        loan_id=loan.id,
+        member_name=f"{loan.member.first_name} {loan.member.last_name}",
     )
 
     if client_account_name or client_account_number:
-        desc += " | Conta cliente: "
+        desc += _(" | Conta cliente: ")
         if client_account_name:
             desc += client_account_name
         if client_account_number:
@@ -230,7 +231,7 @@ def register_disbursement(request, loan_id):
     loan.save(update_fields=["status"])
 
     return JsonResponse(
-        {"success": True, "message": "Desembolso registado com sucesso."}
+        {"success": True, "message": _("Desembolso registado com sucesso.")}
     )
 #============================================================================================================
 #============================================================================================================

@@ -6,6 +6,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
+from django.utils.translation import gettext as _
 
 
 #===================================================================================================
@@ -98,7 +99,7 @@ def toggle_user_active(request, user_id):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Não pode desactivar a sua própria conta."
+                "message": _("Não pode desactivar a sua própria conta.")
             },
             status=400,
         )
@@ -110,7 +111,7 @@ def toggle_user_active(request, user_id):
         {
             "success": True,
             "is_active": user.is_active,
-            "message": "Utilizador activado." if user.is_active else "Utilizador desactivado.",
+            "message": _("Utilizador activado.") if user.is_active else _("Utilizador desactivado."),
         }
     )
 
@@ -134,7 +135,7 @@ def update_user_groups(request, user_id):
     return JsonResponse(
         {
             "success": True,
-            "message": "Grupos actualizados com sucesso.",
+            "message": _("Grupos actualizados com sucesso."),
         }
     )
 
@@ -159,25 +160,25 @@ def create_user(request):
 
     if not username:
         return JsonResponse(
-            {"success": False, "message": "O nome de utilizador é obrigatório."},
+            {"success": False, "message": _("O nome de utilizador é obrigatório.")},
             status=400,
         )
 
     if User.objects.filter(username=username).exists():
         return JsonResponse(
-            {"success": False, "message": "Já existe um utilizador com este username."},
+            {"success": False, "message": _("Já existe um utilizador com este username.")},
             status=400,
         )
 
     if password1 != password2:
         return JsonResponse(
-            {"success": False, "message": "As palavras-passe não coincidem."},
+            {"success": False, "message": _("As palavras-passe não coincidem.")},
             status=400,
         )
 
     if len(password1) < 6:
         return JsonResponse(
-            {"success": False, "message": "A palavra-passe deve ter pelo menos 6 caracteres."},
+            {"success": False, "message": _("A palavra-passe deve ter pelo menos 6 caracteres.")},
             status=400,
         )
 
@@ -186,7 +187,7 @@ def create_user(request):
             validate_email(email)
         except ValidationError:
             return JsonResponse(
-                {"success": False, "message": "Email inválido."},
+                {"success": False, "message": _("Email inválido.")},
                 status=400,
             )
 
@@ -209,7 +210,7 @@ def create_user(request):
     return JsonResponse(
         {
             "success": True,
-            "message": "Utilizador criado com sucesso.",
+            "message": _("Utilizador criado com sucesso."),
         }
     )
 
@@ -238,13 +239,13 @@ def update_user(request, user_id):
 
     if not username:
         return JsonResponse(
-            {"success": False, "message": "O nome de utilizador é obrigatório."},
+            {"success": False, "message": _("O nome de utilizador é obrigatório.")},
             status=400,
         )
 
     if User.objects.exclude(pk=user.id).filter(username=username).exists():
         return JsonResponse(
-            {"success": False, "message": "Já existe outro utilizador com este username."},
+            {"success": False, "message": _("Já existe outro utilizador com este username.")},
             status=400,
         )
 
@@ -253,14 +254,14 @@ def update_user(request, user_id):
             validate_email(email)
         except ValidationError:
             return JsonResponse(
-                {"success": False, "message": "Email inválido."},
+                {"success": False, "message": _("Email inválido.")},
                 status=400,
             )
 
     # Não permitir desactivar a si próprio
     if request.user.id == user.id and not is_active:
         return JsonResponse(
-            {"success": False, "message": "Não pode desactivar a sua própria conta."},
+            {"success": False, "message": _("Não pode desactivar a sua própria conta.")},
             status=400,
         )
 
@@ -268,13 +269,13 @@ def update_user(request, user_id):
     if password1 or password2:
         if password1 != password2:
             return JsonResponse(
-                {"success": False, "message": "As palavras-passe não coincidem."},
+                {"success": False, "message": _("As palavras-passe não coincidem.")},
                 status=400,
             )
 
         if len(password1) < 6:
             return JsonResponse(
-                {"success": False, "message": "A palavra-passe deve ter pelo menos 6 caracteres."},
+                {"success": False, "message": _("A palavra-passe deve ter pelo menos 6 caracteres.")},
                 status=400,
             )
 
@@ -295,7 +296,7 @@ def update_user(request, user_id):
     return JsonResponse(
         {
             "success": True,
-            "message": "Utilizador actualizado com sucesso.",
+            "message": _("Utilizador actualizado com sucesso."),
         }
     )
 
@@ -311,19 +312,19 @@ def create_group(request):
 
     if not name:
         return JsonResponse(
-            {"success": False, "message": "O nome do grupo é obrigatório."},
+            {"success": False, "message": _("O nome do grupo é obrigatório.")},
             status=400,
         )
 
     if len(name) > 150:
         return JsonResponse(
-            {"success": False, "message": "O nome do grupo não pode exceder 150 caracteres."},
+            {"success": False, "message": _("O nome do grupo não pode exceder 150 caracteres.")},
             status=400,
         )
 
     if Group.objects.filter(name__iexact=name).exists():
         return JsonResponse(
-            {"success": False, "message": "Já existe um grupo com este nome."},
+            {"success": False, "message": _("Já existe um grupo com este nome.")},
             status=400,
         )
 
@@ -332,7 +333,7 @@ def create_group(request):
     return JsonResponse(
         {
             "success": True,
-            "message": "Grupo criado com sucesso.",
+            "message": _("Grupo criado com sucesso."),
             "group_id": group.id,
         }
     )

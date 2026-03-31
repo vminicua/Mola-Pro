@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 class InterestType(models.Model):
     PERIOD_MONTHLY = "monthly"
@@ -26,7 +27,7 @@ class InterestType(models.Model):
 
     def get_period_type_display(self):
         mapping = {
-            "monthly": "Mensal",
-            "daily": "Diário",
+            "monthly": _("Mensal"),
+            "daily": _("Diário"),
         }
         return mapping.get(self.period_type, self.period_type)

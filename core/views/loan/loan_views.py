@@ -7,6 +7,7 @@ from datetime import datetime
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
 from core.models import Member, LoanType, InterestType, CompanyAccount, Loan, LoanGuarantor, LoanGuarantee, Transaction, LoanPaymentRequest
@@ -60,22 +61,22 @@ def new_loan(request):
         # Validar member
         member = None
         if not member_id:
-            errors["member"] = "Selecione o membro/cliente."
+            errors["member"] = _("Selecione o membro/cliente.")
         else:
             try:
                 member = members.get(pk=member_id)
             except Member.DoesNotExist:
-                errors["member"] = "Membro inválido."
+                errors["member"] = _("Membro inválido.")
 
         # Validar interest_type
         interest_type = None
         if not interest_type_id:
-            errors["interest_type"] = "Selecione o tipo de juro."
+            errors["interest_type"] = _("Selecione o tipo de juro.")
         else:
             try:
                 interest_type = interest_types.get(pk=interest_type_id)
             except InterestType.DoesNotExist:
-                errors["interest_type"] = "Tipo de juro inválido."
+                errors["interest_type"] = _("Tipo de juro inválido.")
 
         # Loan type (opcional)
         loan_type = None
@@ -83,54 +84,54 @@ def new_loan(request):
             try:
                 loan_type = loan_types.get(pk=loan_type_id)
             except LoanType.DoesNotExist:
-                errors["loan_type"] = "Tipo de empréstimo inválido."
+                errors["loan_type"] = _("Tipo de empréstimo inválido.")
 
         # Principal
         principal_amount = None
         if not principal_raw:
-            errors["principal_amount"] = "Informe o valor do empréstimo."
+            errors["principal_amount"] = _("Informe o valor do empréstimo.")
         else:
             try:
                 principal_amount = Decimal(str(principal_raw))
                 if principal_amount <= 0:
                     raise ValueError
             except Exception:
-                errors["principal_amount"] = "Valor do empréstimo inválido."
+                errors["principal_amount"] = _("Valor do empréstimo inválido.")
 
         # Term
         term_periods = None
         if not term_raw:
-            errors["term_periods"] = "Informe o número de períodos."
+            errors["term_periods"] = _("Informe o número de períodos.")
         else:
             try:
                 term_periods = int(term_raw)
                 if term_periods <= 0:
                     raise ValueError
             except Exception:
-                errors["term_periods"] = "Número de períodos inválido."
+                errors["term_periods"] = _("Número de períodos inválido.")
 
         # Payment per period
         payment_per_period = None
         if not payment_raw:
-            errors["payment_per_period"] = "Informe o pagamento por ciclo (pode usar o sugerido)."
+            errors["payment_per_period"] = _("Informe o pagamento por ciclo (pode usar o sugerido).")
         else:
             try:
                 payment_per_period = Decimal(str(payment_raw))
                 if payment_per_period <= 0:
                     raise ValueError
             except Exception:
-                errors["payment_per_period"] = "Pagamento por ciclo inválido."
+                errors["payment_per_period"] = _("Pagamento por ciclo inválido.")
 
         # Disburse / conta
         company_account = None
         if disburse_method in ("company_account", "mobile_wallet"):
             if not company_account_id:
-                errors["company_account"] = "Selecione a conta da empresa usada para desembolso."
+                errors["company_account"] = _("Selecione a conta da empresa usada para desembolso.")
             else:
                 try:
                     company_account = company_accounts.get(pk=company_account_id)
                 except CompanyAccount.DoesNotExist:
-                    errors["company_account"] = "Conta da empresa inválida."
+                    errors["company_account"] = _("Conta da empresa inválida.")
 
         # Se não houver erros -> criar Loan
         if not errors and member and interest_type and principal_amount and term_periods and payment_per_period:
@@ -260,7 +261,7 @@ def confirm_loan(request, loan_id):
 
     if loan.status != "pending":
         return JsonResponse(
-            {"success": False, "message": "Apenas empréstimos pendentes podem ser confirmados."},
+            {"success": False, "message": _("Apenas empréstimos pendentes podem ser confirmados.")},
             status=400,
         )
 
@@ -269,7 +270,7 @@ def confirm_loan(request, loan_id):
     loan.save(update_fields=["status", "approved_by"])
 
     return JsonResponse(
-        {"success": True, "message": "Empréstimo confirmado. Agora pode ser desembolsado na secção Desembolso."}
+        {"success": True, "message": _("Empréstimo confirmado. Agora pode ser desembolsado na secção Desembolso.")}
     )
 
 
@@ -287,7 +288,7 @@ def reject_loan(request, loan_id):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Apenas empréstimos pendentes podem ser rejeitados.",
+                "message": _("Apenas empréstimos pendentes podem ser rejeitados."),
             },
             status=400,
         )
@@ -298,7 +299,7 @@ def reject_loan(request, loan_id):
     return JsonResponse(
         {
             "success": True,
-            "message": "Empréstimo rejeitado com sucesso.",
+            "message": _("Empréstimo rejeitado com sucesso."),
         }
     )
 

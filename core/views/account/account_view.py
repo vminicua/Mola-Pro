@@ -5,6 +5,7 @@ from django.shortcuts import render
 from decimal import Decimal
 from django.utils import timezone
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import gettext as _
 
 
 
@@ -29,13 +30,13 @@ def create_account_type(request):
 
     if not category or not name:
         return JsonResponse(
-            {"success": False, "message": "Categoria e nome são obrigatórios."},
+            {"success": False, "message": _("Categoria e nome são obrigatórios.")},
             status=400,
         )
 
     if category not in ["cash", "mobile", "bank"]:
         return JsonResponse(
-            {"success": False, "message": "Categoria inválida."},
+            {"success": False, "message": _("Categoria inválida.")},
             status=400,
         )
 
@@ -48,7 +49,7 @@ def create_account_type(request):
     return JsonResponse(
         {
             "success": True,
-            "message": "Tipo de conta criado com sucesso.",
+            "message": _("Tipo de conta criado com sucesso."),
             "id": account_type.id,
         }
     )
@@ -62,19 +63,19 @@ def update_account_type(request):
 
     if not at_id:
         return JsonResponse(
-            {"success": False, "message": "ID do tipo de conta é obrigatório."},
+            {"success": False, "message": _("ID do tipo de conta é obrigatório.")},
             status=400,
         )
 
     if not category or not name:
         return JsonResponse(
-            {"success": False, "message": "Categoria e nome são obrigatórios."},
+            {"success": False, "message": _("Categoria e nome são obrigatórios.")},
             status=400,
         )
 
     if category not in ["cash", "mobile", "bank"]:
         return JsonResponse(
-            {"success": False, "message": "Categoria inválida."},
+            {"success": False, "message": _("Categoria inválida.")},
             status=400,
         )
 
@@ -85,7 +86,7 @@ def update_account_type(request):
     account_type.save(update_fields=["category", "name"])
 
     return JsonResponse(
-        {"success": True, "message": "Tipo de conta actualizado com sucesso."}
+        {"success": True, "message": _("Tipo de conta actualizado com sucesso.")}
     )
 
 
@@ -98,7 +99,7 @@ def toggle_account_type_status(request):
 
     if not at_id:
         return JsonResponse(
-            {"success": False, "message": "ID do tipo de conta é obrigatório."},
+            {"success": False, "message": _("ID do tipo de conta é obrigatório.")},
             status=400,
         )
 
@@ -107,12 +108,12 @@ def toggle_account_type_status(request):
     account_type.is_active = not account_type.is_active
     account_type.save(update_fields=["is_active"])
 
-    status_label = "activado" if account_type.is_active else "desactivado"
+    status_label = _("activado") if account_type.is_active else _("desactivado")
 
     return JsonResponse(
         {
             "success": True,
-            "message": f"Tipo de conta {status_label} com sucesso.",
+            "message": _("Tipo de conta {status_label} com sucesso.").format(status_label=status_label),
             "is_active": account_type.is_active,
         }
     )
@@ -152,7 +153,7 @@ def create_client_account(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Membro, tipo de conta e identificador são obrigatórios.",
+                "message": _("Membro, tipo de conta e identificador são obrigatórios."),
             },
             status=400,
         )
@@ -161,7 +162,7 @@ def create_client_account(request):
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Membro inválido."},
+            {"success": False, "message": _("Membro inválido.")},
             status=400,
         )
 
@@ -169,7 +170,7 @@ def create_client_account(request):
         account_type = AccountType.objects.get(pk=account_type_id, is_active=True)
     except AccountType.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Tipo de conta inválido."},
+            {"success": False, "message": _("Tipo de conta inválido.")},
             status=400,
         )
 
@@ -177,7 +178,7 @@ def create_client_account(request):
         balance = float(balance_raw) if balance_raw else 0.0
     except ValueError:
         return JsonResponse(
-            {"success": False, "message": "Saldo inválido."},
+            {"success": False, "message": _("Saldo inválido.")},
             status=400,
         )
 
@@ -190,7 +191,7 @@ def create_client_account(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Conta de cliente criada com sucesso."}
+        {"success": True, "message": _("Conta de cliente criada com sucesso.")}
     )
 
 #============================================================================================================
@@ -205,7 +206,7 @@ def update_client_account(request):
 
     if not account_id:
         return JsonResponse(
-            {"success": False, "message": "ID da conta é obrigatório."},
+            {"success": False, "message": _("ID da conta é obrigatório.")},
             status=400,
         )
 
@@ -213,7 +214,7 @@ def update_client_account(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Membro, tipo de conta e identificador são obrigatórios.",
+                "message": _("Membro, tipo de conta e identificador são obrigatórios."),
             },
             status=400,
         )
@@ -224,7 +225,7 @@ def update_client_account(request):
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Membro inválido."},
+            {"success": False, "message": _("Membro inválido.")},
             status=400,
         )
 
@@ -232,7 +233,7 @@ def update_client_account(request):
         account_type = AccountType.objects.get(pk=account_type_id, is_active=True)
     except AccountType.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Tipo de conta inválido."},
+            {"success": False, "message": _("Tipo de conta inválido.")},
             status=400,
         )
 
@@ -240,7 +241,7 @@ def update_client_account(request):
         balance = Decimal(str(balance_raw)) if balance_raw else Decimal("0")
     except Exception:
         return JsonResponse(
-            {"success": False, "message": "Saldo inválido."},
+            {"success": False, "message": _("Saldo inválido.")},
             status=400,
         )
 
@@ -251,7 +252,7 @@ def update_client_account(request):
     account.save(update_fields=["member", "account_type", "account_identifier", "balance"])
 
     return JsonResponse(
-        {"success": True, "message": "Conta de cliente actualizada com sucesso."}
+        {"success": True, "message": _("Conta de cliente actualizada com sucesso.")}
     )
 
 
@@ -264,7 +265,7 @@ def toggle_client_account_status(request):
 
     if not account_id:
         return JsonResponse(
-            {"success": False, "message": "ID da conta é obrigatório."},
+            {"success": False, "message": _("ID da conta é obrigatório.")},
             status=400,
         )
 
@@ -273,12 +274,12 @@ def toggle_client_account_status(request):
     account.is_active = not account.is_active
     account.save(update_fields=["is_active"])
 
-    status_label = "activada" if account.is_active else "desactivada"
+    status_label = _("activada") if account.is_active else _("desactivada")
 
     return JsonResponse(
         {
             "success": True,
-            "message": f"Conta de cliente {status_label} com sucesso.",
+            "message": _("Conta de cliente {status_label} com sucesso.").format(status_label=status_label),
             "is_active": account.is_active,
         }
     )
@@ -315,7 +316,7 @@ def create_company_account(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": "Tipo de conta, nome e identificador são obrigatórios.",
+                "message": _("Tipo de conta, nome e identificador são obrigatórios."),
             },
             status=400,
         )
@@ -324,7 +325,7 @@ def create_company_account(request):
         account_type = AccountType.objects.get(pk=account_type_id, is_active=True)
     except AccountType.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": "Tipo de conta inválido."},
+            {"success": False, "message": _("Tipo de conta inválido.")},
             status=400,
         )
 
@@ -336,7 +337,7 @@ def create_company_account(request):
     )
 
     return JsonResponse(
-        {"success": True, "message": "Conta da empresa criada com sucesso."}
+        {"success": True, "message": _("Conta da empresa criada com sucesso.")}
     )
 
 #============================================================================================================
@@ -346,7 +347,7 @@ def update_company_account(request, account_id):
     try:
         account = CompanyAccount.objects.get(pk=account_id, is_active=True)
     except CompanyAccount.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Conta não encontrada."}, status=404)
+        return JsonResponse({"success": False, "message": _("Conta não encontrada.")}, status=404)
 
     account_type_id = request.POST.get("account_type", "").strip()
     name = request.POST.get("name", "").strip()
@@ -355,14 +356,14 @@ def update_company_account(request, account_id):
 
     if not account_type_id or not name or not account_identifier:
         return JsonResponse(
-            {"success": False, "message": "Tipo de conta, nome e identificador são obrigatórios."},
+            {"success": False, "message": _("Tipo de conta, nome e identificador são obrigatórios.")},
             status=400,
         )
 
     try:
         acc_type = AccountType.objects.get(pk=account_type_id, is_active=True)
     except AccountType.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Tipo de conta inválido."}, status=400)
+        return JsonResponse({"success": False, "message": _("Tipo de conta inválido.")}, status=400)
 
     # Saldo antes da alteração
     old_balance = account.balance or Decimal("0")
@@ -374,7 +375,7 @@ def update_company_account(request, account_id):
         else:
             new_balance = old_balance
     except Exception:
-        return JsonResponse({"success": False, "message": "Saldo inválido."}, status=400)
+        return JsonResponse({"success": False, "message": _("Saldo inválido.")}, status=400)
 
     # Actualizar campos da conta
     account.account_type = acc_type
@@ -388,11 +389,11 @@ def update_company_account(request, account_id):
         if new_balance > old_balance:
             tx_type = Transaction.TX_TYPE_IN
             amount = new_balance - old_balance
-            desc = f"Ajuste manual de saldo (+{amount})"
+            desc = _("Ajuste manual de saldo (+{amount})").format(amount=amount)
         else:
             tx_type = Transaction.TX_TYPE_OUT
             amount = old_balance - new_balance
-            desc = f"Ajuste manual de saldo (-{amount})"
+            desc = _("Ajuste manual de saldo (-{amount})").format(amount=amount)
 
         Transaction.objects.create(
             company_account=account,
@@ -408,7 +409,7 @@ def update_company_account(request, account_id):
             created_at=timezone.now(),
         )
 
-    return JsonResponse({"success": True, "message": "Conta actualizada com sucesso."})
+    return JsonResponse({"success": True, "message": _("Conta actualizada com sucesso.")})
 
 
 
@@ -419,12 +420,12 @@ def deactivate_company_account(request, account_id):
     try:
         account = CompanyAccount.objects.get(pk=account_id, is_active=True)
     except CompanyAccount.DoesNotExist:
-        return JsonResponse({"success": False, "message": "Conta não encontrada."}, status=404)
+        return JsonResponse({"success": False, "message": _("Conta não encontrada.")}, status=404)
 
     account.is_active = False
     account.save(update_fields=["is_active"])
 
-    return JsonResponse({"success": True, "message": "Conta desactivada com sucesso."})
+    return JsonResponse({"success": True, "message": _("Conta desactivada com sucesso.")})
 
 #============================================================================================================
 #============================================================================================================

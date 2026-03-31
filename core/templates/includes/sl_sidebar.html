@@ -20,7 +20,7 @@
                 <a class="nav-link text-dark {% if segment == 'dashboard' or request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
                    href="{% url 'core:dashboard' %}">
                     <i class="material-symbols-rounded opacity-5">space_dashboard</i>
-                    <span class="nav-link-text ms-1">Dashboard</span>
+                    <span class="nav-link-text ms-1">{% trans "Dashboard" %}</span>
                 </a>
             </li>
 
@@ -30,7 +30,7 @@
                    data-bs-toggle="collapse" href="#menu-clientes" role="button"
                    aria-expanded="false" aria-controls="menu-clientes">
                     <i class="material-symbols-rounded opacity-5">groups</i>
-                    <span class="nav-link-text ms-2 ps-1">Clientes</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Clientes" %}</span>
                 </a>
                 <div class="collapse {% if segment == 'members_list' or segment == 'member_add' %}show{% endif %}" id="menu-clientes">
                     <ul class="nav ms-4">
@@ -38,14 +38,14 @@
                             <a class="nav-link text-dark {% if segment == 'members_list' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:member_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">list</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Lista de Membros </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Lista de Membros" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'member_add' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:add_member' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">person_add</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Adicionar Membros </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Adicionar Membros" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -59,7 +59,7 @@
                    data-bs-toggle="collapse" href="#menu-emprestimos" role="button"
                    aria-expanded="false" aria-controls="menu-emprestimos">
                     <i class="material-symbols-rounded opacity-5">request_quote</i>
-                    <span class="nav-link-text ms-2 ps-1">Empréstimos</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Empréstimos" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' %}show{% endif %}"
@@ -69,28 +69,28 @@
                             <a class="nav-link text-dark {% if segment == 'loans_new' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:new_loan' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">add_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Novo Empréstimo </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Novo Empréstimo" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'loans_active' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:active_loans_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">check_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Empréstimos Activos </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Empréstimos Activos" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'loans_pending' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:pending_loans' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">pending</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Empréstimos Pendentes </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Empréstimos Pendentes" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'loans_all' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:loan_list_all' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">view_list</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Todos os Empréstimos </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Todos os Empréstimos" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -104,7 +104,7 @@
                    data-bs-toggle="collapse" href="#menu-pagamentos" role="button"
                    aria-expanded="false" aria-controls="menu-pagamentos">
                     <i class="material-symbols-rounded opacity-5">payments</i>
-                    <span class="nav-link-text ms-2 ps-1">Pagamentos</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Pagamentos" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'loan_disbursements' or segment == 'loan_repayments' %}show{% endif %}"
@@ -114,14 +114,14 @@
                             <a class="nav-link text-dark {% if segment == 'loan_disbursements' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:loan_disbursement_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">upload</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Desembolso</span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Desembolso" %}</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'loan_repayments' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:loan_repayment_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">download</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Reembolso</span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Reembolso" %}</span>
                             </a>
                         </li>
                     </ul>
@@ -135,7 +135,7 @@
                    data-bs-toggle="collapse" href="#menu-contas" role="button"
                    aria-expanded="false" aria-controls="menu-contas">
                     <i class="material-symbols-rounded opacity-5">account_balance_wallet</i>
-                    <span class="nav-link-text ms-2 ps-1">Contas</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Contas" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'client_accounts' or segment == 'company_accounts' %}show{% endif %}"
@@ -145,14 +145,14 @@
                             <a class="nav-link text-dark {% if segment == 'client_accounts' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:client_account_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">account_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Conta dos Clientes </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Conta dos Clientes" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'company_accounts' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:company_account_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">business</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Conta da Empresa </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Conta da Empresa" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -166,7 +166,7 @@
                    data-bs-toggle="collapse" href="#menu-juros" role="button"
                    aria-expanded="false" aria-controls="menu-juros">
                     <i class="material-symbols-rounded opacity-5">percent</i>
-                    <span class="nav-link-text ms-2 ps-1">Juros</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Juros" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'interest_calculator' %}show{% endif %}"
@@ -176,7 +176,7 @@
                             <a class="nav-link text-dark {% if segment == 'interest_calculator' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:interest_calculator' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">calculate</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Cálculo de Juros </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Cálculo de Juros" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -189,7 +189,7 @@
                    data-bs-toggle="collapse" href="#menu-transaccoes" role="button"
                    aria-expanded="false" aria-controls="menu-transaccoes">
                     <i class="material-symbols-rounded opacity-5">swap_horiz</i>
-                    <span class="nav-link-text ms-2 ps-1">Transacções</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Transacções" %}</span>
                 </a>
                 <div class="collapse {% if segment == 'transactions' %}show{% endif %}" id="menu-transaccoes">
                     <ul class="nav ms-4">
@@ -197,7 +197,7 @@
                             <a class="nav-link text-dark {% if segment == 'transactions' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:transaction_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">history</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Histórico </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Histórico" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -211,7 +211,7 @@
                    data-bs-toggle="collapse" href="#menu-despesas" role="button"
                    aria-expanded="false" aria-controls="menu-despesas">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
-                    <span class="nav-link-text ms-2 ps-1">Despesas & Rendimentos</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Despesas & Rendimentos" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'expenses' or segment == 'incomes' or segment == 'expense_categories' or segment == 'income_categories' %}show{% endif %}"
@@ -221,28 +221,28 @@
                             <a class="nav-link text-dark {% if segment == 'expenses' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:expense_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">remove_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Despesas </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Despesas" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'incomes' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:income_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">add_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Rendimentos </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Rendimentos" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'expense_categories' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:expense_category_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Categoria de Despesas </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Categoria de Despesas" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'income_categories' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:income_category_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder_open</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Categoria de Rendimentos </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Categoria de Rendimentos" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -255,7 +255,7 @@
                 data-bs-toggle="collapse" href="#menu-utilizadores" role="button"
                 aria-expanded="false" aria-controls="menu-utilizadores">
                     <i class="material-symbols-rounded opacity-5">manage_accounts</i>
-                    <span class="nav-link-text ms-2 ps-1">Utilizadores</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Utilizadores" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'users' or segment == 'user_permissions' %}show{% endif %}"
@@ -265,14 +265,14 @@
                             <a class="nav-link text-dark {% if segment == 'users' %}active fw-bold text-primary{% endif %}"
                             href="{% url 'core:user_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">people</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Todos os Utilizadores </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Todos os Utilizadores" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'user_permissions' %}active fw-bold text-primary{% endif %}"
                             href="{% url 'core:group_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">admin_panel_settings</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Permissões </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Permissões" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -286,7 +286,7 @@
                 data-bs-toggle="collapse" href="#menu-configuracoes" role="button"
                 aria-expanded="false" aria-controls="menu-configuracoes">
                     <i class="material-symbols-rounded opacity-5">tune</i>
-                    <span class="nav-link-text ms-2 ps-1">Configurações</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Configurações" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' %}show{% endif %}"
@@ -296,21 +296,21 @@
                             <a class="nav-link text-dark {% if segment == 'loan_types' %}active fw-bold text-primary{% endif %}"
                             href="{% url 'core:loan_type_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">category</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Empréstimos </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Tipos de Empréstimos" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'account_types' %}active fw-bold text-primary{% endif %}"
                             href="{% url 'core:account_type_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">account_balance</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Contas </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Tipos de Contas" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark {% if segment == 'interest_types' %}active fw-bold text-primary{% endif %}"
                             href="{% url 'core:interest_type_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">percent</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Tipos de Juros </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Tipos de Juros" %} </span>
                             </a>
                         </li>
                     </ul>
@@ -322,7 +322,7 @@
                 <a class="nav-link text-dark {% if segment == 'preferences' %}active{% endif %}"
                    href="{% url 'core:preferences' %}">
                     <i class="material-symbols-rounded opacity-5">settings</i>
-                    <span class="nav-link-text ms-1">Preferências</span>
+                    <span class="nav-link-text ms-1">{% trans "Preferências" %}</span>
                 </a>
             </li>
 
@@ -333,7 +333,7 @@
                    data-bs-toggle="collapse" href="#menu-relatorios" role="button"
                    aria-expanded="false" aria-controls="menu-relatorios">
                     <i class="material-symbols-rounded opacity-5">bar_chart</i>
-                    <span class="nav-link-text ms-2 ps-1">Relatórios</span>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Relatórios" %}</span>
                 </a>
                 <div class="collapse
                     {% if segment == 'report_portfolio' or segment == 'report_risk' or segment == 'report_payments' %}show{% endif %}"
@@ -343,7 +343,7 @@
                             <a class="nav-link text-dark {% if segment == 'report_payments' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:report_filters' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">receipt</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Gerar </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Gerar" %} </span>
                             </a>
                         </li>
                     </ul>

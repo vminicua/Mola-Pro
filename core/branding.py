@@ -12,9 +12,33 @@ from django.templatetags.static import static
 
 DEFAULT_BRAND_NAME = "Mola Pro"
 DEFAULT_PRIMARY_COLOR = "#064E3B"
+DEFAULT_LANGUAGE = "pt-mz"
 PREFERENCES_RELATIVE_PATH = "preferences/branding.json"
 ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp"}
 ALLOWED_FAVICON_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp", ".ico"}
+LANGUAGE_OPTIONS: dict[str, dict[str, str]] = {
+    "pt-mz": {
+        "label": "Português (Moçambique)",
+        "translation_code": "pt",
+        "datatables_language_url": "https://cdn.datatables.net/plug-ins/1.13.8/i18n/pt-PT.json",
+    },
+    "en": {
+        "label": "English",
+        "translation_code": "en",
+        "datatables_language_url": "https://cdn.datatables.net/plug-ins/1.13.8/i18n/en-GB.json",
+    },
+}
+LANGUAGE_ALIASES = {
+    "pt": "pt-mz",
+    "pt-mz": "pt-mz",
+    "pt_mz": "pt-mz",
+    "pt-pt": "pt-mz",
+    "en": "en",
+    "en-us": "en",
+    "en_us": "en",
+    "en-gb": "en",
+    "en_gb": "en",
+}
 
 
 def _preferences_file_path() -> Path:
@@ -40,6 +64,33 @@ def _write_preferences(data: dict[str, Any]) -> None:
     preferences_path.parent.mkdir(parents=True, exist_ok=True)
     with preferences_path.open("w", encoding="utf-8") as preferences_file:
         json.dump(data, preferences_file, ensure_ascii=True, indent=2, sort_keys=True)
+
+
+def normalize_language_code(value: str | None, default: str | None = DEFAULT_LANGUAGE) -> str | None:
+    candidate = (value or "").strip().lower()
+    if not candidate:
+        return default
+
+    return LANGUAGE_ALIASES.get(candidate, default)
+
+
+def get_language_definition(value: str | None) -> dict[str, str]:
+    normalized = normalize_language_code(value, default=DEFAULT_LANGUAGE) or DEFAULT_LANGUAGE
+    return LANGUAGE_OPTIONS[normalized]
+
+
+def get_translation_language_code(value: str | None) -> str:
+    return get_language_definition(value)["translation_code"]
+
+
+def get_available_languages() -> list[dict[str, str]]:
+    return [
+        {
+            "code": code,
+            "label": config["label"],
+        }
+        for code, config in LANGUAGE_OPTIONS.items()
+    ]
 
 
 def normalize_hex_color(value: str | None, default: str = DEFAULT_PRIMARY_COLOR) -> str:
@@ -132,6 +183,11 @@ def load_brand_preferences() -> dict[str, Any]:
         stored_preferences.get("primary_color"),
         default=DEFAULT_PRIMARY_COLOR,
     )
+    language = normalize_language_code(
+        stored_preferences.get("language"),
+        default=DEFAULT_LANGUAGE,
+    ) or DEFAULT_LANGUAGE
+    language_definition = get_language_definition(language)
 
     logo_path = stored_preferences.get("logo_path") or None
     if logo_path and not default_storage.exists(logo_path):
@@ -162,6 +218,11 @@ def load_brand_preferences() -> dict[str, Any]:
         "favicon_url": favicon_url,
         "has_custom_favicon": bool(favicon_path),
         "has_custom_logo": bool(logo_path),
+        "language": language,
+        "language_label": language_definition["label"],
+        "translation_language": language_definition["translation_code"],
+        "datatables_language_url": language_definition["datatables_language_url"],
+        "available_languages": get_available_languages(),
         "logo_path": logo_path,
         "logo_url": logo_url,
         "palette": build_brand_palette(primary_color),
@@ -172,6 +233,7 @@ def load_brand_preferences() -> dict[str, Any]:
 def save_brand_preferences(
     *,
     primary_color: str | None,
+    language: str | None = None,
     logo_file=None,
     remove_logo: bool = False,
     favicon_file=None,
@@ -181,13 +243,21 @@ def save_brand_preferences(
     current_logo_path = stored_preferences.get("logo_path") or None
     current_favicon_path = stored_preferences.get("favicon_path") or None
     submitted_primary_color = (primary_color or "").strip()
+    submitted_language = (language or "").strip()
 
     if submitted_primary_color and not is_valid_hex_color(submitted_primary_color):
         raise ValueError("Cor primária inválida. Use um valor hexadecimal no formato #RRGGBB.")
 
+    if submitted_language and normalize_language_code(submitted_language, default=None) is None:
+        raise ValueError("Idioma inválido. Escolha Português (Moçambique) ou English.")
+
     stored_preferences["primary_color"] = normalize_hex_color(
         primary_color,
         default=stored_preferences.get("primary_color", DEFAULT_PRIMARY_COLOR),
+    )
+    stored_preferences["language"] = normalize_language_code(
+        language,
+        default=stored_preferences.get("language", DEFAULT_LANGUAGE),
     )
 
     if remove_logo:

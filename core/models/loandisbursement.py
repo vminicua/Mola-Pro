@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from .loan import Loan
 from .member import Member
 from .companyaccount import CompanyAccount
@@ -6,9 +7,9 @@ from .companyaccount import CompanyAccount
 
 class LoanDisbursement(models.Model):
     METHOD_CHOICES = (
-        ("cash", "Cash"),
-        ("bank", "Conta bancária"),
-        ("mobile", "Carteira móvel"),
+        ("cash", _("Cash")),
+        ("bank", _("Conta bancária")),
+        ("mobile", _("Carteira móvel")),
     )
 
     id = models.BigAutoField(primary_key=True)
