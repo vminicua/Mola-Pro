@@ -16,9 +16,6 @@ from .loanguarantee import LoanGuarantee
 from .loanpaymentrequest import LoanPaymentRequest
 from .loandisbursement import LoanDisbursement
 from .loanrepayment import LoanRepayment
-from .leasedvehicle import LeasedVehicle
-from .vehicleleasecontract import VehicleLeaseContract
-from .vehicleleasepayment import VehicleLeasePayment
 
 __all__ = [
     'Member',
@@ -38,7 +35,4 @@ __all__ = [
     'LoanPaymentRequest',
     'LoanDisbursement',
     'LoanRepayment',
-    'LeasedVehicle',
-    'VehicleLeaseContract',
-    'VehicleLeasePayment',
 ]

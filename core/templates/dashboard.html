@@ -12,7 +12,7 @@
             {{ brand_preferences.brand_name }} · Dashboard
           </h3>
           <p class="mb-0 text-sm text-muted">
-            Visão geral da carteira de empréstimos, reembolsos, leasing de veículos e fluxo de caixa.
+            Visão geral da carteira de empréstimos, reembolsos e fluxo de caixa do microcrédito.
           </p>
         </div>
         <div class="d-flex align-items-center gap-2">
@@ -113,21 +113,21 @@
       </div>
     </div>
 
-    <!-- Leasing de veículos activos -->
+    <!-- Empréstimos pendentes -->
     <div class="col-xl-2 col-md-4 col-sm-6 mb-3">
       <div class="card shadow-sm border-0 h-100">
         <div class="card-body py-3 px-3 d-flex flex-column">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <p class="text-xs text-muted mb-0 text-uppercase">Leasing de veículos activos</p>
+            <p class="text-xs text-muted mb-0 text-uppercase">Empréstimos pendentes</p>
             <span class="icon icon-xs icon-shape bg-gradient-warning text-center border-radius-md">
-              <i class="material-symbols-rounded text-white" style="font-size:18px;">directions_car</i>
+              <i class="material-symbols-rounded text-white" style="font-size:18px;">pending_actions</i>
             </span>
           </div>
           <h5 class="mb-1">
-            {{ kpi_vehicle_active_contracts|default:0 }}
+            {{ kpi_pending_loans_count|default:0 }}
           </h5>
           <span class="text-xs text-muted">
-            {{ kpi_vehicle_month_income|default:0|floatformat:2 }} MT recebidos este mês.
+            Pedidos que ainda aguardam decisão.
           </span>
         </div>
       </div>
@@ -157,7 +157,7 @@
   <!-- GRÁFICOS PRINCIPAIS -->
   <div class="row mb-4">
     <!-- Linha: Desembolsos vs Reembolsos -->
-    <div class="col-xl-6 col-lg-6 mb-4">
+    <div class="col-xl-8 col-lg-7 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0 d-flex justify-content-between align-items-start">
           <div>
@@ -174,7 +174,7 @@
     </div>
 
     <!-- Doughnut: carteira por status -->
-    <div class="col-xl-3 col-lg-6 mb-4">
+    <div class="col-xl-4 col-lg-5 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0">
           <h6 class="mb-1">Carteira por status</h6>
@@ -208,30 +208,6 @@
       </div>
     </div>
 
-    <!-- Barras: Microcrédito vs Leasing -->
-    <div class="col-xl-3 col-lg-6 mb-4">
-      <div class="card h-100">
-        <div class="card-header pb-0">
-          <h6 class="mb-1">Microcrédito vs Leasing</h6>
-          <p class="text-xs text-muted mb-0">Montantes recebidos (últimos 30 dias)</p>
-        </div>
-        <div class="card-body pt-3">
-          <div style="height:230px;">
-            <canvas id="chart-mc-vs-leasing" class="chart-canvas" height="230"></canvas>
-          </div>
-          <div class="mt-3 text-xs">
-            <p class="mb-1">
-              <span class="badge bg-dark me-1">&nbsp;</span> Microcrédito:
-              <strong>{{ kpi_mc_income_30d|default:0|floatformat:2 }} MT</strong>
-            </p>
-            <p class="mb-0">
-              <span class="badge bg-secondary me-1">&nbsp;</span> Leasing de veículos:
-              <strong>{{ kpi_vehicle_income_30d|default:0|floatformat:2 }} MT</strong>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- TABELAS: Empréstimos & Reembolsos recentes -->
@@ -307,12 +283,12 @@
       </div>
     </div>
 
-    <!-- Reembolsos & Leasing recentes -->
+    <!-- Reembolsos recentes -->
     <div class="col-xl-6 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0">
           <h6 class="mb-1">Entradas recentes</h6>
-          <p class="text-xs text-muted mb-0">Reembolsos de empréstimos e leasing de veículos</p>
+          <p class="text-xs text-muted mb-0">Reembolsos de empréstimos registados recentemente</p>
         </div>
         <div class="card-body px-0 pb-0">
           <div class="table-responsive">
@@ -329,13 +305,7 @@
                 {% for item in recent_cash_in %}
                   <tr>
                     <td class="ps-3 text-xs">
-                      {% if item.source_type == "loan_repayment" %}
-                        <span class="badge bg-success text-xxs">Reembolso</span>
-                      {% elif item.source_type == "vehicle_lease_payment" %}
-                        <span class="badge bg-dark text-xxs">Leasing veículo</span>
-                      {% else %}
-                        <span class="badge bg-secondary text-xxs">{{ item.source_type|default:"Outro" }}</span>
-                      {% endif %}
+                      <span class="badge bg-success text-xxs">Reembolso</span>
                     </td>
                     <td class="text-sm">
                       {{ item.label|default:"—" }}
@@ -362,10 +332,10 @@
     </div>
   </div>
 
-  <!-- PRÓXIMAS PRESTAÇÕES / RISCO & RESUMO LEASING -->
+  <!-- PRÓXIMAS PRESTAÇÕES -->
   <div class="row mb-4">
     <!-- Próximos vencimentos -->
-    <div class="col-xl-5 mb-4">
+    <div class="col-12 mb-4">
       <div class="card h-100">
         <div class="card-header pb-0">
           <h6 class="mb-1">Próximos vencimentos</h6>
@@ -421,67 +391,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Resumo Leasing de Veículos -->
-    <div class="col-xl-7 mb-4">
-      <div class="card h-100">
-        <div class="card-header pb-0 d-flex justify-content-between align-items-center">
-          <div>
-            <h6 class="mb-1">Resumo Leasing · Veículos</h6>
-            <p class="text-xs text-muted mb-0">Contratos, pagamentos e saldos em aberto</p>
-          </div>
-          <a href="{% url 'core:vehicle_lease_contract_list' %}" class="text-xs text-primary text-decoration-none">
-            Gerir contratos
-          </a>
-        </div>
-        <div class="card-body px-0 pb-0">
-          <div class="table-responsive">
-            <table class="table align-items-center mb-0">
-              <thead>
-                <tr>
-                  <th class="text-xs text-secondary text-uppercase fw-bold ps-3">Viatura</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold">Motorista</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end">Semanal (MT)</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end">Recebido (MT)</th>
-                  <th class="text-xs text-secondary text-uppercase fw-bold text-end pe-3">Saldo (MT)</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for c in vehicle_dashboard_contracts %}
-                  <tr>
-                    <td class="ps-3 text-sm">
-                      {{ c.vehicle_label }}
-                    </td>
-                    <td class="text-sm">
-                      {{ c.driver_name }}
-                    </td>
-                    <td class="text-sm text-end">
-                      {{ c.weekly_amount|floatformat:2 }}
-                    </td>
-                    <td class="text-sm text-end">
-                      {{ c.received_amount|floatformat:2 }}
-                    </td>
-                    <td class="text-sm text-end pe-3">
-                      {% if c.balance > 0 %}
-                        <span class="text-danger">{{ c.balance|floatformat:2 }}</span>
-                      {% else %}
-                        <span class="text-success">{{ c.balance|floatformat:2 }}</span>
-                      {% endif %}
-                    </td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td colspan="5" class="text-center text-sm text-muted py-3">
-                      Nenhum contrato de leasing registado.
-                    </td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 
   {% include "includes/sl_footer.html" %}
@@ -505,10 +414,6 @@
 
     const loanStatusLabels = {{ chart_loan_status_labels|default:"[]"|safe }};
     const loanStatusValues = {{ chart_loan_status_values|default:"[]"|safe }};
-
-    const mcVsLeasingLabels = {{ chart_mc_vs_leasing_labels|default:"[]"|safe }};
-    const mcVsLeasingMC     = {{ chart_mc_vs_leasing_mc_values|default:"[]"|safe }};
-    const mcVsLeasingLeas   = {{ chart_mc_vs_leasing_leasing_values|default:"[]"|safe }};
 
     // ==========================
     // Chart 1: Linha – Desembolsos vs Reembolsos
@@ -609,62 +514,6 @@
       });
     }
 
-    // ==========================
-    // Chart 3: Barras – Microcrédito vs Leasing
-    // ==========================
-    const ctx3 = document.getElementById('chart-mc-vs-leasing');
-    if (ctx3) {
-      new Chart(ctx3.getContext('2d'), {
-        type: 'bar',
-        data: {
-          labels: mcVsLeasingLabels,
-          datasets: [
-            {
-              label: 'Microcrédito',
-              data: mcVsLeasingMC,
-              backgroundColor: primaryColor,
-              borderRadius: 4,
-              maxBarThickness: 20
-            },
-            {
-              label: 'Leasing de veículos',
-              data: mcVsLeasingLeas,
-              backgroundColor: '#6d4c41',
-              borderRadius: 4,
-              maxBarThickness: 20
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              grid: {
-                drawBorder: false,
-                color: '#e5e5e5',
-                borderDash: [4,4]
-              },
-              ticks: {
-                color: '#737373',
-                font: { size: 11 }
-              }
-            },
-            x: {
-              grid: { display: false },
-              ticks: {
-                color: '#737373',
-                font: { size: 11 }
-              }
-            }
-          }
-        }
-      });
-    }
   });
 </script>
 {% endblock extra_js %}

@@ -17,7 +17,7 @@
             <div class="mb-4">
               <h6 class="mb-1">Branding do sistema</h6>
               <p class="text-sm text-muted mb-0">
-                Defina a cor primária e o logotipo. Depois de guardar, o site passa a usar estas preferências.
+                Defina a cor primária, o logotipo e o favicon. Depois de guardar, o site passa a usar estas preferências.
               </p>
             </div>
 
@@ -168,6 +168,78 @@
                         >
                         <label class="form-check-label" for="id_remove_logo">
                           Remover logotipo personalizado e voltar ao padrão
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="preferences-item">
+                  <button
+                    class="preferences-toggle collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#preferenceFavicon"
+                    aria-expanded="false"
+                    aria-controls="preferenceFavicon"
+                  >
+                    <span class="preferences-title-group">
+                      <span class="preferences-icon">
+                        <i class="material-symbols-rounded">tab</i>
+                      </span>
+                      <span>
+                        <span class="preferences-title">Favicon</span>
+                        <span class="preferences-description">Ícone mostrado no separador do navegador e atalhos da aplicação.</span>
+                      </span>
+                    </span>
+
+                    <span class="preferences-meta">
+                      <span class="favicon-mini">
+                        <img id="faviconPreviewMini" src="{{ brand_preferences.favicon_url }}" alt="Favicon {{ brand_preferences.brand_name }}">
+                      </span>
+                      <span class="preferences-value" id="faviconModeLabel">
+                        {% if brand_preferences.has_custom_favicon %}Personalizado{% else %}Padrão{% endif %}
+                      </span>
+                      <span class="preferences-chevron">
+                        <i class="material-symbols-rounded">expand_more</i>
+                      </span>
+                    </span>
+                  </button>
+
+                  <div class="collapse" id="preferenceFavicon">
+                    <div class="preferences-body">
+                      <div class="favicon-preview-wrap mb-3">
+                        <img
+                          id="faviconPreview"
+                          src="{{ brand_preferences.favicon_url }}"
+                          data-current-src="{{ brand_preferences.favicon_url }}"
+                          data-default-src="{{ brand_preferences.default_favicon_url }}"
+                          alt="Favicon {{ brand_preferences.brand_name }}"
+                        >
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label">Novo ficheiro</label>
+                        <input
+                          type="file"
+                          class="form-control"
+                          name="favicon"
+                          id="id_favicon"
+                          accept=".png,.jpg,.jpeg,.svg,.webp,.ico,image/png,image/jpeg,image/svg+xml,image/webp,image/x-icon,image/vnd.microsoft.icon"
+                        >
+                        <small class="text-muted">Formatos aceites: PNG, JPG, JPEG, SVG, WEBP e ICO.</small>
+                      </div>
+
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          value="1"
+                          id="id_remove_favicon"
+                          name="remove_favicon"
+                        >
+                        <label class="form-check-label" for="id_remove_favicon">
+                          Remover favicon personalizado e voltar ao padrão
                         </label>
                       </div>
                     </div>
@@ -327,6 +399,25 @@
     padding: 0.35rem;
   }
 
+  .favicon-mini {
+    width: 44px;
+    height: 44px;
+    border-radius: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+  }
+
+  .favicon-mini img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
   .color-chip {
     width: 44px;
     height: 44px;
@@ -388,6 +479,36 @@
     object-fit: contain;
   }
 
+  .favicon-preview-wrap {
+    min-height: 180px;
+    border-radius: 1rem;
+    border: 1px dashed rgba(var(--mola-pro-primary-rgb), 0.25);
+    background:
+      radial-gradient(circle at center, rgba(var(--mola-pro-primary-rgb), 0.08), rgba(255, 255, 255, 0.98) 68%),
+      repeating-linear-gradient(
+        45deg,
+        rgba(15, 23, 42, 0.02),
+        rgba(15, 23, 42, 0.02) 10px,
+        rgba(255, 255, 255, 0.92) 10px,
+        rgba(255, 255, 255, 0.92) 20px
+      );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .favicon-preview-wrap img {
+    width: 72px;
+    height: 72px;
+    border-radius: 1.15rem;
+    object-fit: contain;
+    background: #fff;
+    padding: 0.75rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+  }
+
   @media (max-width: 767.98px) {
     .preferences-toggle {
       align-items: flex-start;
@@ -417,6 +538,11 @@
     const logoPreview = document.getElementById('logoPreview');
     const logoPreviewMini = document.getElementById('logoPreviewMini');
     const logoModeLabel = document.getElementById('logoModeLabel');
+    const faviconInput = document.getElementById('id_favicon');
+    const removeFaviconInput = document.getElementById('id_remove_favicon');
+    const faviconPreview = document.getElementById('faviconPreview');
+    const faviconPreviewMini = document.getElementById('faviconPreviewMini');
+    const faviconModeLabel = document.getElementById('faviconModeLabel');
     const resetPreviewButton = document.getElementById('btnResetPreview');
 
     function normalizeHex(value) {
@@ -430,6 +556,9 @@
     const initialLogoSrc = logoPreview.dataset.currentSrc;
     const defaultLogoSrc = logoPreview.dataset.defaultSrc;
     const initialLogoMode = logoModeLabel.textContent.trim();
+    const initialFaviconSrc = faviconPreview.dataset.currentSrc;
+    const defaultFaviconSrc = faviconPreview.dataset.defaultSrc;
+    const initialFaviconMode = faviconModeLabel.textContent.trim();
 
     function hexToRgb(hex) {
       const normalized = normalizeHex(hex);
@@ -490,12 +619,21 @@
       logoModeLabel.textContent = modeLabel;
     }
 
+    function setFaviconPreview(src, modeLabel) {
+      faviconPreview.src = src;
+      faviconPreviewMini.src = src;
+      faviconModeLabel.textContent = modeLabel;
+    }
+
     function resetPreview() {
       colorInput.value = initialColor;
       colorPicker.value = initialColor;
       removeLogoInput.checked = false;
+      removeFaviconInput.checked = false;
       logoInput.value = '';
+      faviconInput.value = '';
       setLogoPreview(initialLogoSrc, initialLogoMode);
+      setFaviconPreview(initialFaviconSrc, initialFaviconMode);
       applyPreviewColor(initialColor);
     }
 
@@ -538,6 +676,34 @@
         setLogoPreview(defaultLogoSrc, 'Padrão');
       } else {
         setLogoPreview(initialLogoSrc, initialLogoMode);
+      }
+    });
+
+    faviconInput.addEventListener('change', function () {
+      const [file] = this.files;
+      if (!file) {
+        if (removeFaviconInput.checked) {
+          setFaviconPreview(defaultFaviconSrc, 'Padrão');
+        } else {
+          setFaviconPreview(initialFaviconSrc, initialFaviconMode);
+        }
+        return;
+      }
+
+      removeFaviconInput.checked = false;
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        setFaviconPreview(event.target.result, 'Pré-visualização');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    removeFaviconInput.addEventListener('change', function () {
+      if (this.checked) {
+        faviconInput.value = '';
+        setFaviconPreview(defaultFaviconSrc, 'Padrão');
+      } else {
+        setFaviconPreview(initialFaviconSrc, initialFaviconMode);
       }
     });
 

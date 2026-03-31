@@ -269,49 +269,6 @@
                     </ul>
                 </div>
             </li>
-
-            {# ========= LEASING DE VEÍCULOS ========= #}
-            <li class="nav-item">
-                <a class="nav-link text-dark
-                {% if segment == 'vehicle_lease_fleet' or segment == 'vehicle_lease_contracts' or segment == 'vehicle_lease_payments' %}active{% endif %}"
-                data-bs-toggle="collapse" href="#menu-leasing" role="button"
-                aria-expanded="false" aria-controls="menu-leasing">
-                    <i class="material-symbols-rounded opacity-5">directions_car</i>
-                    <span class="nav-link-text ms-2 ps-1">Leasing de Veículos</span>
-                </a>
-                <div class="collapse
-                    {% if segment == 'vehicle_lease_fleet' or segment == 'vehicle_lease_contracts' or segment == 'vehicle_lease_payments' %}show{% endif %}"
-                    id="menu-leasing">
-                    <ul class="nav ms-4">
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'vehicle_lease_payments' %}active fw-bold text-primary{% endif %}"
-                            href="{% url 'core:vehicle_lease_payment_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">credit_score</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Pagamentos </span>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'vehicle_lease_fleet' %}active fw-bold text-primary{% endif %}"
-                            href="{% url 'core:leased_vehicle_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">garage</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Frota</span>
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'vehicle_lease_contracts' %}active fw-bold text-primary{% endif %}"
-                            href="{% url 'core:vehicle_lease_contract_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">description</i>
-                                <span class="sidenav-normal ms-2 ps-1"> Contratos</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-
             {# ========= UTILIZADORES ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark

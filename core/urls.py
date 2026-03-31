@@ -18,9 +18,6 @@ from core.views.payments.loan_repayment_views import loan_repayment_list, regist
 from core.views.loan.all_loan_list_views import loan_list_all, loan_details_any_status
 from core.views.user.user_views import user_list, toggle_user_active, update_user_groups, create_user,update_user
 from core.views.reports.report_views import report_filters, generate_report_pdf
-from core.views.leasing.leasing import leased_vehicle_list, create_leased_vehicle
-from core.views.leasing.leasing_contracts import vehicle_lease_contract_list, create_vehicle_lease_contract
-from core.views.leasing.vehicle_lease_payments import vehicle_lease_payment_list, create_vehicle_lease_payment
 from core.views.preferences_view import preferences_view, update_brand_preferences
 
 app_name = "core"
@@ -116,17 +113,6 @@ urlpatterns = [
     path("loans/repayments/", loan_repayment_list, name="loan_repayment_list"),
     path("loans/<int:loan_id>/repay/", register_repayment, name="register_repayment"),
     
-    
-    path("leasing/veiculos/", leased_vehicle_list, name="leased_vehicle_list"),
-    path("leasing/veiculos/add/", create_leased_vehicle, name="create_leased_vehicle"),
-
-    path("leasing/veiculos/contracts/",vehicle_lease_contract_list,name="vehicle_lease_contract_list",),
-    path("leasing/veiculos/contracts/add/",create_vehicle_lease_contract,name="create_vehicle_lease_contract",),
-    
-    path("leasing/veiculos/payments/",vehicle_lease_payment_list,name="vehicle_lease_payment_list",),
-    path("leasing/veiculos/payments/add/",create_vehicle_lease_payment,name="create_vehicle_lease_payment",),
-
-
     # UTILIZADORES
     path("users/", user_list, name="user_list"),
     path("users/create/", create_user, name="create_user"),

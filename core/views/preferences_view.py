@@ -29,6 +29,8 @@ def update_brand_preferences(request):
             primary_color=request.POST.get("primary_color"),
             logo_file=request.FILES.get("logo"),
             remove_logo=request.POST.get("remove_logo") in {"1", "true", "on", "yes"},
+            favicon_file=request.FILES.get("favicon"),
+            remove_favicon=request.POST.get("remove_favicon") in {"1", "true", "on", "yes"},
         )
     except ValueError as exc:
         return JsonResponse(
@@ -43,6 +45,7 @@ def update_brand_preferences(request):
         {
             "success": True,
             "message": "Preferências actualizadas com sucesso.",
+            "favicon_url": preferences["favicon_url"],
             "logo_url": preferences["logo_url"],
             "primary_color": preferences["primary_color"],
         }

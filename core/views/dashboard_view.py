@@ -9,7 +9,6 @@ from django.utils import timezone
 from django.db.models import (
     Sum,
     Count,
-    Q,
     F,
     DecimalField,
     OuterRef,
@@ -22,8 +21,6 @@ from core.models import (
     LoanRepayment,
     LoanDisbursement,
     LoanPaymentRequest,
-    VehicleLeaseContract,
-    VehicleLeasePayment,
     CompanyAccount,
 )
 
@@ -151,23 +148,9 @@ def dashboard_view(request):
     today_repayments_count = today_repayments_qs.count()
 
     # ==========================
-    # KPI 5 – Leasing de Veículos (contratos activos + renda recebida no mês)
+    # KPI 5 – Empréstimos pendentes
     # ==========================
-    vehicle_active_contracts = VehicleLeaseContract.objects.filter(status="active").count()
-
-    start_month = date(today.year, today.month, 1)
-    vehicle_month_income = (
-        VehicleLeasePayment.objects.filter(
-            payment_date__gte=start_month, payment_date__lte=today
-        ).aggregate(
-            total=Coalesce(
-                Sum("amount"),
-                Decimal("0"),
-                output_field=DecimalField(max_digits=15, decimal_places=2),
-            )
-        )["total"]
-        or Decimal("0")
-    )
+    pending_loans_count = Loan.objects.filter(status="pending").count()
 
     # ==========================
     # KPI 6 – Saldo total das contas da empresa
@@ -186,6 +169,7 @@ def dashboard_view(request):
     # ==========================
     # Indicador de variação da carteira (desembolsos mês actual vs anterior)
     # ==========================
+    start_month = date(today.year, today.month, 1)
     this_month_start = start_month
     if today.month == 12:
         next_month_start = date(today.year + 1, 1, 1)
@@ -244,7 +228,7 @@ def dashboard_view(request):
     )
 
     # ==========================
-    # Entradas recentes (Reembolsos + Leasing de Veículos)
+    # Entradas recentes (Reembolsos)
     # ==========================
     recent_cash_items = []
 
@@ -260,21 +244,6 @@ def dashboard_view(request):
                 "label": f"Reembolso Loan #{r.loan_id} · {r.member.first_name} {r.member.last_name}",
                 "amount": r.amount,
                 "tx_date": r.payment_date,
-            }
-        )
-
-    vehicle_pay_qs = (
-        VehicleLeasePayment.objects.select_related("contract__leased_vehicle", "driver")
-        .filter(payment_date__gte=start_30d)
-        .order_by("-payment_date")[:20]
-    )
-    for p in vehicle_pay_qs:
-        recent_cash_items.append(
-            {
-                "source_type": "vehicle_lease_payment",
-                "label": f"Viatura {p.contract.leased_vehicle.plate_number} · {p.driver.first_name} {p.driver.last_name}",
-                "amount": p.amount,
-                "tx_date": p.payment_date,
             }
         )
 
@@ -303,49 +272,6 @@ def dashboard_view(request):
             }
         )
 
-    # ==========================
-    # Resumo Leasing de Veículos (contratos activos)
-    # ==========================
-    vehicle_contracts = (
-        VehicleLeaseContract.objects.filter(status="active")
-        .select_related("leased_vehicle", "driver")
-        .order_by("start_date")
-    )
-
-    payments_by_contract = (
-        VehicleLeasePayment.objects.filter(contract__in=vehicle_contracts)
-        .values("contract_id")
-        .annotate(
-            total=Coalesce(
-                Sum("amount"),
-                Decimal("0"),
-                output_field=DecimalField(max_digits=15, decimal_places=2),
-            )
-        )
-    )
-    payments_map = {row["contract_id"]: row["total"] for row in payments_by_contract}
-
-    vehicle_dashboard_contracts = []
-    for c in vehicle_contracts:
-        received = payments_map.get(c.id, Decimal("0"))
-
-        # Estimativa de semanas decorridas desde o início
-        days_elapsed = max(0, (today - c.start_date).days)
-        weeks_elapsed = days_elapsed // 7 + 1 if days_elapsed > 0 else 0
-        expected = c.weekly_rent * weeks_elapsed
-        balance = expected - received  # >0 em atraso, <0 adiantado
-
-        vehicle_dashboard_contracts.append(
-            {
-                "vehicle_label": str(c.leased_vehicle),
-                "driver_name": str(c.driver),
-                "weekly_amount": c.weekly_rent,
-                "received_amount": received,
-                "balance": balance,
-            }
-        )
-
-    # ==========================
     # Gráfico 1: Linha – Desembolsos vs Reembolsos (últimos 6 meses)
     # ==========================
     months = _get_last_6_months()
@@ -406,35 +332,6 @@ def dashboard_view(request):
         status_cancelled_count,
     ]
 
-    # ==========================
-    # Gráfico 3: Barras – Microcrédito vs Leasing (últimos 30 dias)
-    # ==========================
-    mc_income_30d = (
-        LoanRepayment.objects.filter(payment_date__gte=start_30d).aggregate(
-            total=Coalesce(
-                Sum("amount"),
-                Decimal("0"),
-                output_field=DecimalField(max_digits=15, decimal_places=2),
-            )
-        )["total"]
-        or Decimal("0")
-    )
-    vehicle_income_30d = (
-        VehicleLeasePayment.objects.filter(payment_date__gte=start_30d).aggregate(
-            total=Coalesce(
-                Sum("amount"),
-                Decimal("0"),
-                output_field=DecimalField(max_digits=15, decimal_places=2),
-            )
-        )["total"]
-        or Decimal("0")
-    )
-
-    chart_mc_vs_leasing_labels = ["Últimos 30 dias"]
-    chart_mc_vs_leasing_mc_values = [float(mc_income_30d)]
-    chart_mc_vs_leasing_leasing_values = [float(vehicle_income_30d)]
-
-    # ==========================
     # Contexto final
     # ==========================
     context = {
@@ -449,21 +346,17 @@ def dashboard_view(request):
         "kpi_interest_to_receive": interest_to_receive,
         "kpi_today_repayments": today_repayments_amount,
         "kpi_today_repayments_count": today_repayments_count,
-        "kpi_vehicle_active_contracts": vehicle_active_contracts,
-        "kpi_vehicle_month_income": vehicle_month_income,
+        "kpi_pending_loans_count": pending_loans_count,
         "kpi_company_accounts_balance": company_accounts_balance,
         "kpi_status_active_count": status_active_count,
         "kpi_status_pending_count": status_pending_count,
         "kpi_status_closed_count": status_closed_count,
         "kpi_status_cancelled_count": status_cancelled_count,
-        "kpi_mc_income_30d": mc_income_30d,
-        "kpi_vehicle_income_30d": vehicle_income_30d,
 
         # Listas
         "recent_loans": recent_loans,
         "recent_cash_in": recent_cash_in,
         "upcoming_due_loans": upcoming_due_loans,
-        "vehicle_dashboard_contracts": vehicle_dashboard_contracts,
 
         # Gráficos
         "chart_loan_cashflow_labels": json.dumps(chart_loan_cashflow_labels),
@@ -471,11 +364,6 @@ def dashboard_view(request):
         "chart_loan_cashflow_repaid": json.dumps(chart_loan_cashflow_repaid),
         "chart_loan_status_labels": json.dumps(chart_loan_status_labels),
         "chart_loan_status_values": json.dumps(chart_loan_status_values),
-        "chart_mc_vs_leasing_labels": json.dumps(chart_mc_vs_leasing_labels),
-        "chart_mc_vs_leasing_mc_values": json.dumps(chart_mc_vs_leasing_mc_values),
-        "chart_mc_vs_leasing_leasing_values": json.dumps(
-            chart_mc_vs_leasing_leasing_values
-        ),
     }
 
     return render(request, "dashboard.html", context)

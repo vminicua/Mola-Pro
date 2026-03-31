@@ -14,6 +14,7 @@ DEFAULT_BRAND_NAME = "Mola Pro"
 DEFAULT_PRIMARY_COLOR = "#064E3B"
 PREFERENCES_RELATIVE_PATH = "preferences/branding.json"
 ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp"}
+ALLOWED_FAVICON_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp", ".ico"}
 
 
 def _preferences_file_path() -> Path:
@@ -120,6 +121,11 @@ def _delete_logo(logo_path: str | None) -> None:
         default_storage.delete(logo_path)
 
 
+def _delete_favicon(favicon_path: str | None) -> None:
+    if favicon_path and default_storage.exists(favicon_path):
+        default_storage.delete(favicon_path)
+
+
 def load_brand_preferences() -> dict[str, Any]:
     stored_preferences = _read_preferences()
     primary_color = normalize_hex_color(
@@ -131,16 +137,30 @@ def load_brand_preferences() -> dict[str, Any]:
     if logo_path and not default_storage.exists(logo_path):
         logo_path = None
 
+    favicon_path = stored_preferences.get("favicon_path") or None
+    if favicon_path and not default_storage.exists(favicon_path):
+        favicon_path = None
+
     default_logo_url = static("assets/img/logo-ct-dark.png")
+    default_favicon_url = static("assets/img/favicon.png")
     logo_url = (
         f"{settings.MEDIA_URL.rstrip('/')}/{logo_path.lstrip('/')}"
         if logo_path
         else default_logo_url
     )
+    favicon_url = (
+        f"{settings.MEDIA_URL.rstrip('/')}/{favicon_path.lstrip('/')}"
+        if favicon_path
+        else default_favicon_url
+    )
 
     return {
         "brand_name": DEFAULT_BRAND_NAME,
+        "default_favicon_url": default_favicon_url,
         "default_logo_url": default_logo_url,
+        "favicon_path": favicon_path,
+        "favicon_url": favicon_url,
+        "has_custom_favicon": bool(favicon_path),
         "has_custom_logo": bool(logo_path),
         "logo_path": logo_path,
         "logo_url": logo_url,
@@ -154,9 +174,12 @@ def save_brand_preferences(
     primary_color: str | None,
     logo_file=None,
     remove_logo: bool = False,
+    favicon_file=None,
+    remove_favicon: bool = False,
 ) -> dict[str, Any]:
     stored_preferences = _read_preferences()
     current_logo_path = stored_preferences.get("logo_path") or None
+    current_favicon_path = stored_preferences.get("favicon_path") or None
     submitted_primary_color = (primary_color or "").strip()
 
     if submitted_primary_color and not is_valid_hex_color(submitted_primary_color):
@@ -172,6 +195,11 @@ def save_brand_preferences(
         current_logo_path = None
         stored_preferences["logo_path"] = None
 
+    if remove_favicon:
+        _delete_favicon(current_favicon_path)
+        current_favicon_path = None
+        stored_preferences["favicon_path"] = None
+
     if logo_file:
         extension = Path(logo_file.name).suffix.lower()
         if extension not in ALLOWED_LOGO_EXTENSIONS:
@@ -184,6 +212,19 @@ def save_brand_preferences(
             default_storage.delete(target_logo_path)
 
         stored_preferences["logo_path"] = default_storage.save(target_logo_path, logo_file)
+
+    if favicon_file:
+        extension = Path(favicon_file.name).suffix.lower()
+        if extension not in ALLOWED_FAVICON_EXTENSIONS:
+            raise ValueError("Formato de favicon inválido. Use PNG, JPG, JPEG, SVG, WEBP ou ICO.")
+
+        target_favicon_path = f"branding/site-favicon{extension}"
+        if current_favicon_path and current_favicon_path != target_favicon_path:
+            _delete_favicon(current_favicon_path)
+        if default_storage.exists(target_favicon_path):
+            default_storage.delete(target_favicon_path)
+
+        stored_preferences["favicon_path"] = default_storage.save(target_favicon_path, favicon_file)
 
     _write_preferences(stored_preferences)
     return load_brand_preferences()

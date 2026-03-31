@@ -20,7 +20,7 @@
                   <p class="text-sm text-muted mb-0">
                     Entradas e saídas de dinheiro registadas automaticamente a partir de Rendimentos,
                     Despesas, Desembolsos de Empréstimos, Reembolsos de Empréstimos,
-                    Pagamentos de Leasing de Veículos e ajustes manuais.
+                    e ajustes manuais.
                   </p>
                 </div>
               </div>
@@ -90,8 +90,6 @@
                             Desembolso de Empréstimo
                           {% elif t.source_type == 'loan_repayment' %}
                             Reembolso de Empréstimo
-                          {% elif t.source_type == 'vehicle_lease_payment' or t.source_type == 'tuktuk_lease_payment' %}
-                            Pagamento Leasing de Veículo
                           {% elif t.source_type == 'opening_balance' %}
                             Saldo Inicial
                           {% elif t.source_type == 'adjustment' %}

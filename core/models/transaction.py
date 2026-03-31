@@ -24,7 +24,7 @@ class Transaction(models.Model):
         max_length=30,     # aumentei um pouco para caber tranquilo
         blank=True,
         null=True,
-        help_text="Origem: income, expense, loan_repayment, vehicle_lease_payment, etc.",
+        help_text="Origem: income, expense, loan_repayment, loan_disbursement, etc.",
     )
     source_id = models.BigIntegerField(blank=True, null=True)
     tx_date = models.DateField()
