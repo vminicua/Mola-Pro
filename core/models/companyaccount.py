@@ -9,7 +9,7 @@ class CompanyAccount(models.Model):
         on_delete=models.PROTECT,
         related_name="company_accounts",
     )
-    name = models.CharField(max_length=150)  # Ex: "Conta BCI MZN - Salama"
+    name = models.CharField(max_length=150)  # Ex: "Conta BCI MZN - Mola Pro"
     account_identifier = models.CharField(max_length=100)  # nº conta / celular / NIB
     balance = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     is_active = models.BooleanField(default=True)

@@ -438,7 +438,7 @@ def dashboard_view(request):
     # Contexto final
     # ==========================
     context = {
-        "page_title": "Salama · Investimentos",
+        "page_title": "Mola Pro",
         "segment": "dashboard",
 
         # KPIs

@@ -1,5 +1,5 @@
 """
-Django settings for salama_project project.
+Django settings for mola_pro_project project.
 """
 
 import os
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'salama_project.urls'
+ROOT_URLCONF = 'mola_pro_project.urls'
 
 TEMPLATES = [
     {
@@ -79,7 +79,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'salama_project.wsgi.application'
+WSGI_APPLICATION = 'mola_pro_project.wsgi.application'
 
 # ==========================
 # DATABASES via .env

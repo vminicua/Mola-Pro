@@ -1,0 +1,158 @@
+:root {
+  --mola-pro-primary: #2196f3;
+  --mola-pro-primary-rgb: 33, 150, 243;
+  --mola-pro-primary-hover: #1e88e5;
+  --mola-pro-primary-hover-rgb: 30, 136, 229;
+  --mola-pro-primary-active: #1976d2;
+  --mola-pro-primary-active-rgb: 25, 118, 210;
+  --mola-pro-primary-soft: #e3f2fd;
+  --mola-pro-primary-soft-2: #eff6ff;
+  --mola-pro-primary-light: #90caf9;
+  --mola-pro-primary-light-2: #bbdefb;
+}
+
+:root,
+[data-bs-theme="light"] {
+  --bs-primary: var(--mola-pro-primary);
+  --bs-primary-rgb: var(--mola-pro-primary-rgb);
+  --bs-primary-text-emphasis: #1565c0;
+  --bs-primary-bg-subtle: var(--mola-pro-primary-soft);
+  --bs-primary-border-subtle: var(--mola-pro-primary-light);
+  --bs-success: var(--mola-pro-primary);
+  --bs-success-rgb: var(--mola-pro-primary-rgb);
+  --bs-success-text-emphasis: #1565c0;
+  --bs-success-bg-subtle: var(--mola-pro-primary-soft);
+  --bs-success-border-subtle: var(--mola-pro-primary-light);
+  --bs-link-color: var(--mola-pro-primary);
+  --bs-link-color-rgb: var(--mola-pro-primary-rgb);
+  --bs-link-hover-color: var(--mola-pro-primary-hover);
+  --bs-link-hover-color-rgb: var(--mola-pro-primary-hover-rgb);
+  --bs-focus-ring-color: rgba(var(--mola-pro-primary-rgb), 0.25);
+  --bs-form-valid-color: var(--mola-pro-primary);
+  --bs-form-valid-border-color: var(--mola-pro-primary);
+}
+
+[data-bs-theme="dark"] {
+  --bs-primary-text-emphasis: var(--mola-pro-primary-light);
+  --bs-success-text-emphasis: var(--mola-pro-primary-light);
+  --bs-primary-bg-subtle: rgba(var(--mola-pro-primary-rgb), 0.18);
+  --bs-success-bg-subtle: rgba(var(--mola-pro-primary-rgb), 0.18);
+  --bs-primary-border-subtle: rgba(var(--mola-pro-primary-rgb), 0.45);
+  --bs-success-border-subtle: rgba(var(--mola-pro-primary-rgb), 0.45);
+}
+
+.btn-primary,
+.btn.bg-gradient-primary,
+.btn-success,
+.btn.bg-gradient-success,
+.badge.bg-primary,
+.badge.bg-success,
+.bg-gradient-primary,
+.bg-gradient-success {
+  background-image: linear-gradient(
+    195deg,
+    var(--mola-pro-primary-hover),
+    var(--mola-pro-primary-active)
+  ) !important;
+  border-color: var(--mola-pro-primary) !important;
+  color: #fff !important;
+}
+
+.btn-primary,
+.btn.bg-gradient-primary,
+.btn-success,
+.btn.bg-gradient-success {
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+    0 7px 10px -5px rgba(var(--mola-pro-primary-rgb), 0.4) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn.bg-gradient-primary:hover,
+.btn.bg-gradient-primary:focus,
+.btn.bg-gradient-primary:active,
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active,
+.btn.bg-gradient-success:hover,
+.btn.bg-gradient-success:focus,
+.btn.bg-gradient-success:active {
+  background-image: linear-gradient(
+    195deg,
+    var(--mola-pro-primary),
+    var(--mola-pro-primary-active)
+  ) !important;
+  border-color: var(--mola-pro-primary-active) !important;
+}
+
+.btn-outline-primary,
+.btn-outline-success {
+  color: var(--mola-pro-primary-active) !important;
+  border-color: rgba(var(--mola-pro-primary-rgb), 0.45) !important;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-success:hover,
+.btn-outline-success:focus {
+  background-color: var(--mola-pro-primary) !important;
+  border-color: var(--mola-pro-primary) !important;
+  color: #fff !important;
+}
+
+.text-primary,
+.text-success,
+.link-primary,
+.link-success {
+  color: var(--mola-pro-primary-active) !important;
+}
+
+.text-gradient.text-primary,
+.text-gradient.text-success {
+  background-image: linear-gradient(
+    195deg,
+    var(--mola-pro-primary-hover),
+    var(--mola-pro-primary-active)
+  ) !important;
+}
+
+.border-primary,
+.border-success {
+  border-color: var(--mola-pro-primary) !important;
+}
+
+.shadow-primary,
+.shadow-success {
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.14),
+    0 7px 10px -5px rgba(var(--mola-pro-primary-rgb), 0.4) !important;
+}
+
+.pagination.pagination-primary .page-item.active > .page-link,
+.pagination.pagination-primary .page-item.active > .page-link:hover,
+.pagination.pagination-success .page-item.active > .page-link,
+.pagination.pagination-success .page-item.active > .page-link:hover {
+  background-color: var(--mola-pro-primary) !important;
+  border-color: var(--mola-pro-primary) !important;
+}
+
+.form-check-input:checked {
+  background-color: var(--mola-pro-primary) !important;
+  border-color: var(--mola-pro-primary) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(var(--mola-pro-primary-rgb), 0.35) !important;
+  box-shadow: 0 0 0 0.15rem rgba(var(--mola-pro-primary-rgb), 0.14) !important;
+}
+
+svg.text-primary .color-foreground,
+svg.text-success .color-foreground {
+  fill: var(--mola-pro-primary) !important;
+}
+
+svg.text-primary .color-background,
+svg.text-success .color-background {
+  fill: var(--mola-pro-primary-active) !important;
+}

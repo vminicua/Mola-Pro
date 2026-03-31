@@ -83,8 +83,8 @@
         }
 
         .form-control-auth:focus {
-            border-color: #22c55e;
-            box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.35);
+            border-color: var(--mola-pro-primary);
+            box-shadow: 0 0 0 1px rgba(var(--mola-pro-primary-rgb), 0.35);
             background-color: rgba(15, 23, 42, 1);
         }
 
@@ -114,7 +114,7 @@
             font-weight: 600;
             letter-spacing: 0.02em;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #22c55e, #16a34a);
+            background: linear-gradient(135deg, var(--mola-pro-primary), var(--mola-pro-primary-active));
             color: #0b1120;
             display: inline-flex;
             align-items: center;
@@ -125,8 +125,8 @@
 
         .auth-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 12px 30px rgba(34, 197, 94, 0.45);
-            background: linear-gradient(135deg, #16a34a, #15803d);
+            box-shadow: 0 12px 30px rgba(var(--mola-pro-primary-rgb), 0.45);
+            background: linear-gradient(135deg, var(--mola-pro-primary-hover), var(--mola-pro-primary-active));
         }
 
         .auth-btn i {
@@ -164,13 +164,13 @@
 
         .small-link {
             font-size: 0.75rem;
-            color: #a3e635;
+            color: var(--mola-pro-primary-light);
             text-decoration: none;
         }
 
         .small-link:hover {
             text-decoration: underline;
-            color: #bef264;
+            color: var(--mola-pro-primary-light-2);
         }
 
         @media (max-width: 576px) {
@@ -186,7 +186,7 @@
     <!-- Logo + título -->
     <div class="auth-logo">
         <img src="{% static 'assets/img/logo-ct-dark.png' %}" alt="Logo">
-        <span>SALAMA · INVESTIMENTOS</span>
+        <span>MOLA PRO</span>
     </div>
 
     <h1 class="auth-title">Iniciar sessão</h1>

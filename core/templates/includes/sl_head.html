@@ -6,7 +6,7 @@
 <link rel="icon" type="image/png" href="{% static "assets/img/favicon.png" %}">
 
 <title>
-  Salama Investimento
+  Mola Pro
 </title>
 
 <!--     Fonts and icons     -->
@@ -49,6 +49,7 @@
 <!-- CSS Files -->
  {% comment %} <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> {% endcomment %}
 <link id="pagestyle" href="{% static "assets/css/material-dashboard.css" %}?v=3.2.0" rel="stylesheet" />
+<link href="{% static "assets/css/mola-pro-brand.css" %}" rel="stylesheet" />
 
 {% comment %} <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script> {% endcomment %}
 
@@ -57,14 +58,14 @@
     .nav-link.active,
     .nav-link.active span,
     .nav-link.active i.material-symbols-rounded {
-        background-color: #064E3B !important;
+        background-color: var(--mola-pro-primary-active) !important;
         color: #ffffff !important;
         border-radius: 8px;
     }
 
     /* Para sub-menus dentro de collapses */
     .nav .nav-link.active {
-        background-color: #064E3B !important;
+        background-color: var(--mola-pro-primary-active) !important;
         color: #ffffff !important;
     }
 
@@ -75,7 +76,7 @@
 
     /* Quando o collapse está aberto e tem filhos activos */
     .collapse.show > ul > li > a.active {
-        background-color: #064E3B !important;
+        background-color: var(--mola-pro-primary-active) !important;
         color: #ffffff !important;
     }
 
