@@ -254,7 +254,7 @@ def generate_report_pdf(request):
         return HttpResponseBadRequest("Tipo de relatório desconhecido.")
 
     # ===================== GERAR PDF COM WEASYPRINT =====================
-    html_string = render_to_string("reports/report_pdf.html", context)
+    html_string = render_to_string("reports/report_pdf.html", context, request=request)
     html = HTML(string=html_string, base_url=request.build_absolute_uri("/"))
     pdf_bytes = html.write_pdf()
 

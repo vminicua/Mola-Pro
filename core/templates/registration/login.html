@@ -185,8 +185,8 @@
 <div class="auth-card">
     <!-- Logo + título -->
     <div class="auth-logo">
-        <img src="{% static 'assets/img/logo-ct-dark.png' %}" alt="Logo">
-        <span>MOLA PRO</span>
+        <img src="{{ brand_preferences.logo_url }}" alt="{{ brand_preferences.brand_name }}">
+        <span>{{ brand_preferences.brand_name }}</span>
     </div>
 
     <h1 class="auth-title">Iniciar sessão</h1>

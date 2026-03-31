@@ -39,7 +39,7 @@
     .company-name {
       font-size: 14px;
       font-weight: 700;
-      color: #1976d2;
+      color: {{ brand_preferences.palette.primary_strong }};
     }
 
     .report-title-box {
@@ -134,7 +134,7 @@
       color: #fff;
     }
 
-    .badge-success { background: #2196f3; }
+    .badge-success { background: {{ brand_preferences.palette.primary }}; }
     .badge-danger { background: #dc2626; }
     .badge-warning { background: #f59e0b; color: #111827; }
     .badge-info { background: #0ea5e9; }
@@ -149,12 +149,12 @@
       border: 1px solid #e5e7eb;
       padding: 6px 8px;
       font-size: 10px;
-      background: #eff6ff;
+      background: {{ brand_preferences.palette.primary_soft_2 }};
     }
 
     .summary-title {
       font-weight: 700;
-      color: #1565c0;
+      color: {{ brand_preferences.palette.primary_strong }};
       margin-bottom: 4px;
     }
 
@@ -186,9 +186,9 @@
   <!-- ================= CABEÇALHO ================= -->
   <div class="header">
     <div class="logo-box">
-      <img src="{% static 'assets/img/logo-ct-dark.png' %}" alt="Logo">
+      <img src="{{ brand_preferences.logo_url }}" alt="{{ brand_preferences.brand_name }}">
       <div>
-        <div class="company-name">Mola Pro</div>
+        <div class="company-name">{{ brand_preferences.brand_name }}</div>
         <div style="font-size: 9px; color:#6b7280;">
           Sistema de Gestão de Carteira · Relatórios
         </div>

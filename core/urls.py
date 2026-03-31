@@ -21,6 +21,7 @@ from core.views.reports.report_views import report_filters, generate_report_pdf
 from core.views.leasing.leasing import leased_vehicle_list, create_leased_vehicle
 from core.views.leasing.leasing_contracts import vehicle_lease_contract_list, create_vehicle_lease_contract
 from core.views.leasing.vehicle_lease_payments import vehicle_lease_payment_list, create_vehicle_lease_payment
+from core.views.preferences_view import preferences_view, update_brand_preferences
 
 app_name = "core"
 
@@ -132,6 +133,10 @@ urlpatterns = [
     path("users/<int:user_id>/toggle-active/", toggle_user_active, name="toggle_user_active"),
     path("users/<int:user_id>/update-groups/", update_user_groups, name="update_user_groups"),
     path("users/<int:user_id>/update/", update_user, name="update_user"),
+
+    # PREFERÊNCIAS
+    path("preferences/", preferences_view, name="preferences"),
+    path("preferences/branding/update/", update_brand_preferences, name="update_brand_preferences"),
 
     # RELATÓRIOS
     path("reports/", report_filters, name="report_filters"),

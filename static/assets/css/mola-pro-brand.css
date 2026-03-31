@@ -1,26 +1,28 @@
 :root {
-  --mola-pro-primary: #2196f3;
-  --mola-pro-primary-rgb: 33, 150, 243;
-  --mola-pro-primary-hover: #1e88e5;
-  --mola-pro-primary-hover-rgb: 30, 136, 229;
-  --mola-pro-primary-active: #1976d2;
-  --mola-pro-primary-active-rgb: 25, 118, 210;
-  --mola-pro-primary-soft: #e3f2fd;
-  --mola-pro-primary-soft-2: #eff6ff;
-  --mola-pro-primary-light: #90caf9;
-  --mola-pro-primary-light-2: #bbdefb;
+  --mola-pro-primary: #064e3b;
+  --mola-pro-primary-rgb: 6, 78, 59;
+  --mola-pro-primary-hover: #24725b;
+  --mola-pro-primary-hover-rgb: 36, 114, 91;
+  --mola-pro-primary-active: #064e3b;
+  --mola-pro-primary-active-rgb: 6, 78, 59;
+  --mola-pro-primary-strong: #054334;
+  --mola-pro-primary-strong-rgb: 5, 67, 52;
+  --mola-pro-primary-soft: #e6f2ef;
+  --mola-pro-primary-soft-2: #f2f8f5;
+  --mola-pro-primary-light: #93b8ad;
+  --mola-pro-primary-light-2: #b8d1ca;
 }
 
 :root,
 [data-bs-theme="light"] {
   --bs-primary: var(--mola-pro-primary);
   --bs-primary-rgb: var(--mola-pro-primary-rgb);
-  --bs-primary-text-emphasis: #1565c0;
+  --bs-primary-text-emphasis: var(--mola-pro-primary-strong);
   --bs-primary-bg-subtle: var(--mola-pro-primary-soft);
   --bs-primary-border-subtle: var(--mola-pro-primary-light);
   --bs-success: var(--mola-pro-primary);
   --bs-success-rgb: var(--mola-pro-primary-rgb);
-  --bs-success-text-emphasis: #1565c0;
+  --bs-success-text-emphasis: var(--mola-pro-primary-strong);
   --bs-success-bg-subtle: var(--mola-pro-primary-soft);
   --bs-success-border-subtle: var(--mola-pro-primary-light);
   --bs-link-color: var(--mola-pro-primary);
@@ -80,10 +82,10 @@
 .btn.bg-gradient-success:active {
   background-image: linear-gradient(
     195deg,
-    var(--mola-pro-primary),
-    var(--mola-pro-primary-active)
+    var(--mola-pro-primary-hover),
+    var(--mola-pro-primary)
   ) !important;
-  border-color: var(--mola-pro-primary-active) !important;
+  border-color: var(--mola-pro-primary) !important;
 }
 
 .btn-outline-primary,
@@ -105,7 +107,7 @@
 .text-success,
 .link-primary,
 .link-success {
-  color: var(--mola-pro-primary-active) !important;
+  color: var(--mola-pro-primary-strong) !important;
 }
 
 .text-gradient.text-primary,

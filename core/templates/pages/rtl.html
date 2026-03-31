@@ -11,7 +11,7 @@
     <div class="sidenav-header">
       <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute start-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
       <a class="navbar-brand px-4 py-3 m-0" href=" https://demos.creative-tim.com/material-dashboard/pages/dashboard " target="_blank">
-        <img src="{% static "assets/img/logo-ct-dark.png" %}" class="navbar-brand-img" width="26" height="26" alt="main_logo">
+        <img src="{{ brand_preferences.logo_url }}" class="navbar-brand-img" width="26" height="26" alt="{{ brand_preferences.brand_name }}">
         <span class="me-1 text-sm text-dark">Creative Tim</span>
       </a>
     </div>
@@ -680,7 +680,7 @@
           <div class="row align-items-center justify-content-lg-between">
             <div class="col-lg-6 mb-lg-0 mb-4">
               <div class="copyright text-center text-sm text-muted text-lg-start">
-            &copy; Mola Pro coded by <a class="font-weight-bold">Valdimiro Minicua</a>.
+            &copy; {{ brand_preferences.brand_name }} coded by <a class="font-weight-bold">Valdimiro Minicua</a>.
           </div>
             </div>
             <div class="col-lg-6">
