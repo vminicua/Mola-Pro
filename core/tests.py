@@ -96,7 +96,7 @@ class BrandPalettePreferenceTests(SimpleTestCase):
 
         self.assertEqual(preferences["currency_format"], "mz")
         self.assertEqual(preferences["default_currency_format"], "mz")
-        self.assertEqual(preferences["currency_example"], "78.000,00")
+        self.assertEqual(preferences["currency_example"], "100.000,00")
 
     def test_load_brand_preferences_supports_session_currency_override(self) -> None:
         self._write_preferences(
@@ -120,7 +120,7 @@ class BrandPalettePreferenceTests(SimpleTestCase):
         token = set_active_brand_preferences(preferences)
         self.addCleanup(reset_active_brand_preferences, token)
 
-        self.assertEqual(format_money_value("78000.00"), "78,000.00")
+        self.assertEqual(format_money_value("100000.00"), "100,000.00")
 
     def test_update_user_language_stores_session_override(self) -> None:
         request = self.request_factory.post("/preferences/language/update/", {"language": "en"})

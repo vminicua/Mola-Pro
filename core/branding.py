@@ -52,14 +52,14 @@ CURRENCY_FORMAT_OPTIONS: dict[str, dict[str, Any]] = {
             "en": "Mozambique",
         },
         "description": {
-            "pt": "Usa ponto para milhar e vírgula para decimais, como 78.000,00.",
-            "en": "Uses a dot for thousands and a comma for decimals, like 78.000,00.",
+            "pt": "Usa ponto para milhar e vírgula para decimais, como 100.000,00.",
+            "en": "Uses a dot for thousands and a comma for decimals, like 100.000,00.",
         },
         "currency_symbol": "MT",
         "currency_symbol_spacing": " ",
         "decimal_separator": ",",
         "thousands_separator": ".",
-        "example": "78.000,00",
+        "example": "100.000,00",
     },
     "intl": {
         "label": {
@@ -67,14 +67,14 @@ CURRENCY_FORMAT_OPTIONS: dict[str, dict[str, Any]] = {
             "en": "International",
         },
         "description": {
-            "pt": "Usa vírgula para milhar e ponto para decimais, como 78,000.00.",
-            "en": "Uses a comma for thousands and a dot for decimals, like 78,000.00.",
+            "pt": "Usa vírgula para milhar e ponto para decimais, como 100,000.00.",
+            "en": "Uses a comma for thousands and a dot for decimals, like 100,000.00.",
         },
         "currency_symbol": "MT",
         "currency_symbol_spacing": " ",
         "decimal_separator": ".",
         "thousands_separator": ",",
-        "example": "78,000.00",
+        "example": "100,000.00",
     },
 }
 CURRENCY_FORMAT_ALIASES = {
