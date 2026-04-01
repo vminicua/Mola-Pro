@@ -15,6 +15,7 @@ DEFAULT_BRAND_NAME = "Mola Pro"
 DEFAULT_PRIMARY_COLOR = "#064E3B"
 DEFAULT_LANGUAGE = "pt-mz"
 DEFAULT_PALETTE_KEY = "emerald"
+USER_LANGUAGE_SESSION_KEY = "mola_pro_language_override"
 PREFERENCES_RELATIVE_PATH = "preferences/branding.json"
 ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp"}
 ALLOWED_FAVICON_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp", ".ico"}
@@ -186,6 +187,34 @@ def get_available_languages() -> list[dict[str, str]]:
         }
         for code, config in LANGUAGE_OPTIONS.items()
     ]
+
+
+def build_language_preferences(
+    language: str | None,
+    *,
+    default_language: str | None = None,
+) -> dict[str, Any]:
+    normalized_default_language = normalize_language_code(
+        default_language,
+        default=DEFAULT_LANGUAGE,
+    ) or DEFAULT_LANGUAGE
+    normalized_language = normalize_language_code(
+        language,
+        default=normalized_default_language,
+    ) or normalized_default_language
+    language_definition = get_language_definition(normalized_language)
+    default_language_definition = get_language_definition(normalized_default_language)
+
+    return {
+        "available_languages": get_available_languages(),
+        "datatables_language_url": language_definition["datatables_language_url"],
+        "default_language": normalized_default_language,
+        "default_language_label": default_language_definition["label"],
+        "is_language_overridden": normalized_language != normalized_default_language,
+        "language": normalized_language,
+        "language_label": language_definition["label"],
+        "translation_language": language_definition["translation_code"],
+    }
 
 
 def normalize_hex_color(value: str | None, default: str = DEFAULT_PRIMARY_COLOR) -> str:
@@ -363,14 +392,17 @@ def _delete_favicon(favicon_path: str | None) -> None:
         default_storage.delete(favicon_path)
 
 
-def load_brand_preferences() -> dict[str, Any]:
+def load_brand_preferences(language_override: str | None = None) -> dict[str, Any]:
     stored_preferences = _read_preferences()
-    language = normalize_language_code(
+    stored_language = normalize_language_code(
         stored_preferences.get("language"),
         default=DEFAULT_LANGUAGE,
     ) or DEFAULT_LANGUAGE
-    language_definition = get_language_definition(language)
-    translation_code = language_definition["translation_code"]
+    language_preferences = build_language_preferences(
+        language_override,
+        default_language=stored_language,
+    )
+    translation_code = language_preferences["translation_language"]
     palette_key = _resolve_palette_key(stored_preferences)
     palette = build_brand_palette(palette_key, translation_code=translation_code)
 
@@ -396,24 +428,20 @@ def load_brand_preferences() -> dict[str, Any]:
     )
 
     return {
-        "available_languages": get_available_languages(),
         "available_palettes": get_available_palettes(translation_code),
         "brand_name": DEFAULT_BRAND_NAME,
-        "datatables_language_url": language_definition["datatables_language_url"],
         "default_favicon_url": default_favicon_url,
         "default_logo_url": default_logo_url,
         "favicon_path": favicon_path,
         "favicon_url": favicon_url,
         "has_custom_favicon": bool(favicon_path),
         "has_custom_logo": bool(logo_path),
-        "language": language,
-        "language_label": language_definition["label"],
         "logo_path": logo_path,
         "logo_url": logo_url,
         "palette": palette,
         "palette_key": palette["key"],
         "primary_color": palette["primary"],
-        "translation_language": translation_code,
+        **language_preferences,
     }
 
 

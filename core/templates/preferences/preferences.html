@@ -163,7 +163,7 @@
                     </span>
 
                     <span class="preferences-meta">
-                      <span class="preferences-value" id="languageValue">{{ brand_preferences.language_label }}</span>
+                      <span class="preferences-value" id="languageValue">{{ brand_preferences.default_language_label }}</span>
                       <span class="preferences-chevron">
                         <i class="material-symbols-rounded">expand_more</i>
                       </span>
@@ -177,7 +177,7 @@
                           <label class="form-label" for="id_language">{% trans "Idioma" %}</label>
                           <select class="form-select" name="language" id="id_language">
                             {% for language in brand_preferences.available_languages %}
-                              <option value="{{ language.code }}" {% if language.code == brand_preferences.language %}selected{% endif %}>
+                              <option value="{{ language.code }}" {% if language.code == brand_preferences.default_language %}selected{% endif %}>
                                 {{ language.label }}
                               </option>
                             {% endfor %}

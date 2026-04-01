@@ -15,6 +15,12 @@ msgstr "Guest"
 msgid "Terminar sessão"
 msgstr "Sign out"
 
+msgid "Alterar idioma"
+msgstr "Change language"
+
+msgid "Idioma rápido"
+msgstr "Quick language"
+
 msgid "Clientes"
 msgstr "Clients"
 
@@ -258,8 +264,14 @@ msgstr "Error"
 msgid "Não foi possível guardar as preferências."
 msgstr "Could not save the preferences."
 
+msgid "Não foi possível actualizar o idioma."
+msgstr "Could not update the language."
+
 msgid "Preferências actualizadas com sucesso."
 msgstr "Preferences updated successfully."
+
+msgid "Idioma actualizado com sucesso."
+msgstr "Language updated successfully."
 
 msgid "Paleta inválida. Escolha uma das opções disponíveis."
 msgstr "Invalid palette. Choose one of the available options."

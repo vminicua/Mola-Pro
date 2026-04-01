@@ -4,7 +4,12 @@ from django.shortcuts import render
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_http_methods
 
-from core.branding import save_brand_preferences
+from core.branding import (
+    USER_LANGUAGE_SESSION_KEY,
+    load_brand_preferences,
+    normalize_language_code,
+    save_brand_preferences,
+)
 from core.views.user.user_views import staff_required
 
 
@@ -54,5 +59,39 @@ def update_brand_preferences(request):
             "palette_key": preferences["palette_key"],
             "palette_label": preferences["palette"]["label"],
             "primary_color": preferences["primary_color"],
+        }
+    )
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_user_language(request):
+    normalized_language = normalize_language_code(
+        request.POST.get("language"),
+        default=None,
+    )
+    if normalized_language is None:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": _("Idioma inválido. Escolha Português (Moçambique) ou English."),
+            },
+            status=400,
+        )
+
+    default_preferences = load_brand_preferences()
+    if normalized_language == default_preferences["default_language"]:
+        request.session.pop(USER_LANGUAGE_SESSION_KEY, None)
+    else:
+        request.session[USER_LANGUAGE_SESSION_KEY] = normalized_language
+
+    active_preferences = load_brand_preferences(language_override=normalized_language)
+
+    return JsonResponse(
+        {
+            "success": True,
+            "language": active_preferences["language"],
+            "language_label": active_preferences["language_label"],
+            "message": _("Idioma actualizado com sucesso."),
         }
     )

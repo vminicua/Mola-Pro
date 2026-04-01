@@ -4,9 +4,15 @@ import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from django.test import SimpleTestCase, override_settings
+from django.contrib.sessions.middleware import SessionMiddleware
+from django.test import RequestFactory, SimpleTestCase, override_settings
 
-from core.branding import load_brand_preferences, save_brand_preferences
+from core.branding import USER_LANGUAGE_SESSION_KEY, load_brand_preferences, save_brand_preferences
+from core.views.preferences_view import update_user_language
+
+
+class DummyAuthenticatedUser:
+    is_authenticated = True
 
 
 class BrandPalettePreferenceTests(SimpleTestCase):
@@ -17,6 +23,7 @@ class BrandPalettePreferenceTests(SimpleTestCase):
         self.override.enable()
         self.addCleanup(self.override.disable)
         self.addCleanup(self.media_root.cleanup)
+        self.request_factory = RequestFactory()
 
     def _preferences_path(self) -> Path:
         return Path(self.media_root.name) / "preferences" / "branding.json"
@@ -53,3 +60,30 @@ class BrandPalettePreferenceTests(SimpleTestCase):
     def test_save_brand_preferences_rejects_unknown_palette(self) -> None:
         with self.assertRaisesMessage(ValueError, "Paleta inválida"):
             save_brand_preferences(palette_key="unknown-palette")
+
+    def test_load_brand_preferences_supports_session_language_override(self) -> None:
+        self._write_preferences(
+            {
+                "language": "pt-mz",
+                "palette_key": "emerald",
+            }
+        )
+
+        preferences = load_brand_preferences(language_override="en")
+
+        self.assertEqual(preferences["language"], "en")
+        self.assertEqual(preferences["default_language"], "pt-mz")
+        self.assertTrue(preferences["is_language_overridden"])
+        self.assertEqual(preferences["palette"]["label"], "Mola Green")
+
+    def test_update_user_language_stores_session_override(self) -> None:
+        request = self.request_factory.post("/preferences/language/update/", {"language": "en"})
+        SessionMiddleware(lambda _: None).process_request(request)
+        request.user = DummyAuthenticatedUser()
+
+        response = update_user_language(request)
+        payload = json.loads(response.content.decode("utf-8"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(request.session[USER_LANGUAGE_SESSION_KEY], "en")
+        self.assertEqual(payload["language"], "en")

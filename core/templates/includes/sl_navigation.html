@@ -16,12 +16,9 @@
     </nav>
 
     <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
-      <!-- Empurra tudo para a direita -->
       <div class="ms-md-auto"></div>
 
       <ul class="navbar-nav d-flex align-items-center justify-content-end">
-
-        <!-- Toggler do sidenav (mobile) -->
         <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
           <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
             <div class="sidenav-toggler-inner">
@@ -32,7 +29,6 @@
           </a>
         </li>
 
-        <!-- Utilizador logado -->
         <li class="nav-item d-flex align-items-center px-2">
           <span class="d-flex align-items-center text-sm text-dark">
             <i class="material-symbols-rounded me-1" style="font-size: 18px; color:var(--mola-pro-primary-active);">account_circle</i>
@@ -44,7 +40,46 @@
           </span>
         </li>
 
-        <!-- Logout -->
+        <li class="nav-item dropdown d-flex align-items-center px-2">
+          <button
+            type="button"
+            class="btn btn-link mb-0 p-0 text-body d-flex align-items-center quick-language-trigger"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            title="{% trans 'Alterar idioma' %}"
+          >
+            <img
+              class="quick-language-flag"
+              src="{% if brand_preferences.language == 'en' %}{% static 'assets/img/icons/flags/GB.png' %}{% else %}{% static 'assets/img/icons/flags/MZ.svg' %}{% endif %}"
+              alt="{{ brand_preferences.language_label }}"
+            >
+            <span class="quick-language-code">{% if brand_preferences.language == 'en' %}EN{% else %}PT{% endif %}</span>
+            <i class="material-symbols-rounded quick-language-chevron">expand_more</i>
+          </button>
+
+          <div class="dropdown-menu dropdown-menu-end px-2 py-2 quick-language-menu">
+            <div class="quick-language-title text-xs text-uppercase text-muted px-2 pb-2">
+              {% trans "Idioma rápido" %}
+            </div>
+
+            {% for language in brand_preferences.available_languages %}
+              <button
+                type="button"
+                class="dropdown-item quick-language-option {% if language.code == brand_preferences.language %}active{% endif %}"
+                data-language="{{ language.code }}"
+              >
+                <img
+                  class="quick-language-flag"
+                  src="{% if language.code == 'en' %}{% static 'assets/img/icons/flags/GB.png' %}{% else %}{% static 'assets/img/icons/flags/MZ.svg' %}{% endif %}"
+                  alt="{{ language.label }}"
+                >
+                <span class="quick-language-option-label">{{ language.label }}</span>
+                <i class="material-symbols-rounded quick-language-check">done</i>
+              </button>
+            {% endfor %}
+          </div>
+        </li>
+
         <li class="nav-item d-flex align-items-center ps-2">
           <form id="logout-form" method="post" action="{% url 'logout' %}">
             {% csrf_token %}
@@ -59,3 +94,110 @@
     </div>
   </div>
 </nav>
+
+<style>
+  .quick-language-trigger {
+    gap: 0.45rem;
+    text-decoration: none !important;
+  }
+
+  .quick-language-flag {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08);
+    flex-shrink: 0;
+  }
+
+  .quick-language-code {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #111827;
+  }
+
+  .quick-language-chevron {
+    font-size: 18px !important;
+    color: #6b7280;
+  }
+
+  .quick-language-menu {
+    min-width: 250px;
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  }
+
+  .quick-language-option {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: 0.85rem;
+    padding: 0.7rem 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .quick-language-option:last-child {
+    margin-bottom: 0;
+  }
+
+  .quick-language-option.active,
+  .quick-language-option:active,
+  .quick-language-option:hover {
+    background: linear-gradient(180deg, var(--mola-pro-primary-soft-2) 0%, #ffffff 100%);
+    color: var(--mola-pro-primary-strong);
+  }
+
+  .quick-language-option-label {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .quick-language-check {
+    font-size: 18px !important;
+    opacity: 0;
+    color: var(--mola-pro-primary);
+  }
+
+  .quick-language-option.active .quick-language-check {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const languageButtons = Array.from(document.querySelectorAll('.quick-language-option'));
+    if (!languageButtons.length) {
+      return;
+    }
+
+    languageButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        const selectedLanguage = this.dataset.language;
+        const requestPayload = new FormData();
+        requestPayload.append('language', selectedLanguage);
+        requestPayload.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        $.ajax({
+          url: "{% url 'core:update_user_language' %}",
+          type: 'POST',
+          data: requestPayload,
+          processData: false,
+          contentType: false,
+          success: function () {
+            window.location.reload();
+          },
+          error: function (xhr) {
+            Swal.fire(
+              "{% trans 'Erro' %}",
+              xhr.responseJSON?.message || "{% trans 'Não foi possível actualizar o idioma.' %}",
+              'error'
+            );
+          }
+        });
+      });
+    });
+  });
+</script>

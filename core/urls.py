@@ -18,7 +18,7 @@ from core.views.payments.loan_repayment_views import loan_repayment_list, regist
 from core.views.loan.all_loan_list_views import loan_list_all, loan_details_any_status
 from core.views.user.user_views import user_list, group_list, toggle_user_active, update_user_groups, create_user, update_user, create_group
 from core.views.reports.report_views import report_filters, generate_report_pdf
-from core.views.preferences_view import preferences_view, update_brand_preferences
+from core.views.preferences_view import preferences_view, update_brand_preferences, update_user_language
 
 app_name = "core"
 
@@ -125,6 +125,7 @@ urlpatterns = [
     # PREFERÊNCIAS
     path("preferences/", preferences_view, name="preferences"),
     path("preferences/branding/update/", update_brand_preferences, name="update_brand_preferences"),
+    path("preferences/language/update/", update_user_language, name="update_user_language"),
 
     # RELATÓRIOS
     path("reports/", report_filters, name="report_filters"),
