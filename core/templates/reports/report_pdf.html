@@ -1,4 +1,4 @@
-{% load static %}
+{% load static core_i18n %}
 
 <!DOCTYPE html>
 <html lang="pt">
@@ -274,7 +274,7 @@
             <td>{{ r.category.name|default:"—" }}</td>
             <td>{{ r.description }}</td>
             <td>{{ r.company_account.name|default:"—" }}</td>
-            <td class="text-right">{{ r.amount|floatformat:2 }}</td>
+            <td class="text-right">{{ r.amount|money }}</td>
             <td>
               {% if r.created_by %}
                 {{ r.created_by.get_full_name|default:r.created_by.username }}
@@ -292,7 +292,7 @@
       <tfoot>
         <tr>
           <td colspan="4" class="text-right">Total</td>
-          <td class="text-right">{{ total_amount|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_amount|default:0|money }}</td>
           <td></td>
         </tr>
       </tfoot>
@@ -302,7 +302,7 @@
       <div class="summary-title">Resumo de Rendimentos</div>
       <div class="summary-row">
         <div class="summary-label">Total de Rendimentos no período</div>
-        <div class="summary-value">{{ total_amount|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_amount|default:0|money_with_symbol }}</div>
       </div>
     </div>
   {% endif %}
@@ -328,7 +328,7 @@
             <td>{{ r.category.name|default:"—" }}</td>
             <td>{{ r.description }}</td>
             <td>{{ r.company_account.name|default:"—" }}</td>
-            <td class="text-right">{{ r.amount|floatformat:2 }}</td>
+            <td class="text-right">{{ r.amount|money }}</td>
             <td>
               {% if r.created_by %}
                 {{ r.created_by.get_full_name|default:r.created_by.username }}
@@ -346,7 +346,7 @@
       <tfoot>
         <tr>
           <td colspan="4" class="text-right">Total</td>
-          <td class="text-right">{{ total_amount|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_amount|default:0|money }}</td>
           <td></td>
         </tr>
       </tfoot>
@@ -356,7 +356,7 @@
       <div class="summary-title">Resumo de Despesas</div>
       <div class="summary-row">
         <div class="summary-label">Total de Despesas no período</div>
-        <div class="summary-value">{{ total_amount|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_amount|default:0|money_with_symbol }}</div>
       </div>
     </div>
   {% endif %}
@@ -377,7 +377,7 @@
           <tr>
             <td>{{ acc.name }}</td>
             <td>{{ acc.account_identifier }}</td>
-            <td class="text-right">{{ acc.balance|floatformat:2 }}</td>
+            <td class="text-right">{{ acc.balance|money }}</td>
           </tr>
         {% empty %}
           <tr>
@@ -410,7 +410,7 @@
             <td>{{ r.id }}</td>
             <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
             <td>{{ r.loan_type.name|default:"—" }}</td>
-            <td class="text-right">{{ r.principal_amount|floatformat:2 }}</td>
+            <td class="text-right">{{ r.principal_amount|money }}</td>
             <td>{{ r.term_periods }} {{ r.get_period_type_display }}</td>
             <td>{{ r.get_status_display|default:r.status }}</td>
             <td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
@@ -431,7 +431,7 @@
       <tfoot>
         <tr>
           <td colspan="3" class="text-right">Total Principal</td>
-          <td class="text-right">{{ total_principal|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_principal|default:0|money }}</td>
           <td colspan="4"></td>
         </tr>
       </tfoot>
@@ -441,7 +441,7 @@
       <div class="summary-title">Resumo de Empréstimos</div>
       <div class="summary-row">
         <div class="summary-label">Total de Principal Aprovado</div>
-        <div class="summary-value">{{ total_principal|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_principal|default:0|money_with_symbol }}</div>
       </div>
       <div class="summary-row">
         <div class="summary-label">Número de Empréstimos</div>
@@ -472,7 +472,7 @@
             <td>{{ r.disburse_date }}</td>
             <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
             <td>{{ r.company_account.name }}</td>
-            <td class="text-right">{{ r.amount|floatformat:2 }}</td>
+            <td class="text-right">{{ r.amount|money }}</td>
             <td>{{ r.get_method_display|default:r.method }}</td>
             <td>
               {% if r.created_by %}
@@ -491,7 +491,7 @@
       <tfoot>
         <tr>
           <td colspan="4" class="text-right">Total Desembolsado</td>
-          <td class="text-right">{{ total_amount|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_amount|default:0|money }}</td>
           <td colspan="2"></td>
         </tr>
       </tfoot>
@@ -501,7 +501,7 @@
       <div class="summary-title">Resumo de Desembolsos</div>
       <div class="summary-row">
         <div class="summary-label">Total desembolsado</div>
-        <div class="summary-value">{{ total_amount|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_amount|default:0|money_with_symbol }}</div>
       </div>
       <div class="summary-row">
         <div class="summary-label">Número de registos</div>
@@ -533,9 +533,9 @@
             <td>{{ r.payment_date }}</td>
             <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
             <td>{{ r.company_account.name }}</td>
-            <td class="text-right">{{ r.amount|floatformat:2 }}</td>
-            <td class="text-right">{{ r.interest_amount|floatformat:2 }}</td>
-            <td class="text-right">{{ r.principal_amount|floatformat:2 }}</td>
+            <td class="text-right">{{ r.amount|money }}</td>
+            <td class="text-right">{{ r.interest_amount|money }}</td>
+            <td class="text-right">{{ r.principal_amount|money }}</td>
             <td>
               {% if r.created_by %}
                 {{ r.created_by.get_full_name|default:r.created_by.username }}
@@ -553,9 +553,9 @@
       <tfoot>
         <tr>
           <td colspan="4" class="text-right">Total Reembolsado</td>
-          <td class="text-right">{{ total_amount|default:0|floatformat:2 }}</td>
-          <td class="text-right">{{ total_interest|default:0|floatformat:2 }}</td>
-          <td class="text-right">{{ total_principal|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_amount|default:0|money }}</td>
+          <td class="text-right">{{ total_interest|default:0|money }}</td>
+          <td class="text-right">{{ total_principal|default:0|money }}</td>
           <td></td>
         </tr>
       </tfoot>
@@ -565,15 +565,15 @@
       <div class="summary-title">Resumo de Reembolsos</div>
       <div class="summary-row">
         <div class="summary-label">Total reembolsado</div>
-        <div class="summary-value">{{ total_amount|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_amount|default:0|money_with_symbol }}</div>
       </div>
       <div class="summary-row">
         <div class="summary-label">Total em juros</div>
-        <div class="summary-value">{{ total_interest|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_interest|default:0|money_with_symbol }}</div>
       </div>
       <div class="summary-row">
         <div class="summary-label">Total em principal</div>
-        <div class="summary-value">{{ total_principal|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_principal|default:0|money_with_symbol }}</div>
       </div>
     </div>
   {% endif %}
@@ -607,9 +607,9 @@
               {% endif %}
             </td>
             <td>{{ r.description }}</td>
-            <td class="text-right">{{ r.amount|floatformat:2 }}</td>
-            <td class="text-right">{{ r.balance_before|floatformat:2 }}</td>
-            <td class="text-right">{{ r.balance_after|floatformat:2 }}</td>
+            <td class="text-right">{{ r.amount|money }}</td>
+            <td class="text-right">{{ r.balance_before|money }}</td>
+            <td class="text-right">{{ r.balance_after|money }}</td>
             <td>
               {% if r.created_by %}
                 {{ r.created_by.get_full_name|default:r.created_by.username }}
@@ -627,17 +627,17 @@
       <tfoot>
         <tr>
           <td colspan="4" class="text-right">Total Entradas</td>
-          <td class="text-right">{{ total_in|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_in|default:0|money }}</td>
           <td colspan="3"></td>
         </tr>
         <tr>
           <td colspan="4" class="text-right">Total Saídas</td>
-          <td class="text-right">{{ total_out|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_out|default:0|money }}</td>
           <td colspan="3"></td>
         </tr>
         <tr>
           <td colspan="4" class="text-right">Saldo Líquido (Entradas - Saídas)</td>
-          <td class="text-right">{{ net|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ net|default:0|money }}</td>
           <td colspan="3"></td>
         </tr>
       </tfoot>
@@ -647,15 +647,15 @@
       <div class="summary-title">Resumo de Transacções</div>
       <div class="summary-row">
         <div class="summary-label">Total de Entradas</div>
-        <div class="summary-value">{{ total_in|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_in|default:0|money_with_symbol }}</div>
       </div>
       <div class="summary-row">
         <div class="summary-label">Total de Saídas</div>
-        <div class="summary-value">{{ total_out|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ total_out|default:0|money_with_symbol }}</div>
       </div>
       <div class="summary-row">
         <div class="summary-label">Saldo Líquido</div>
-        <div class="summary-value">{{ net|default:0|floatformat:2 }} MT</div>
+        <div class="summary-value">{{ net|default:0|money_with_symbol }}</div>
       </div>
     </div>
   {% endif %}
@@ -673,15 +673,15 @@
       <tbody>
         <tr>
           <td>Total de Rendimentos</td>
-          <td class="text-right">{{ total_incomes|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_incomes|default:0|money }}</td>
         </tr>
         <tr>
           <td>Total de Despesas</td>
-          <td class="text-right">{{ total_expenses|default:0|floatformat:2 }}</td>
+          <td class="text-right">{{ total_expenses|default:0|money }}</td>
         </tr>
         <tr>
           <td><strong>Lucro Líquido (Rendimentos - Despesas)</strong></td>
-          <td class="text-right"><strong>{{ profit|default:0|floatformat:2 }}</strong></td>
+          <td class="text-right"><strong>{{ profit|default:0|money }}</strong></td>
         </tr>
       </tbody>
     </table>

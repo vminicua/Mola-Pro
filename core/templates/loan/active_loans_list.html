@@ -1,5 +1,5 @@
 {% extends "layouts/sl_base.html" %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
 <div class="container-fluid py-2">
@@ -51,7 +51,7 @@
                   <div class="card-body py-3">
                     <p class="text-sm text-muted mb-1">Total principal (MT)</p>
                     <h5 class="mb-0">
-                      {{ kpi_total_principal|floatformat:2 }}
+                      {{ kpi_total_principal|money }}
                     </h5>
                   </div>
                 </div>
@@ -61,7 +61,7 @@
                   <div class="card-body py-3">
                     <p class="text-sm text-muted mb-1">Total a reembolsar (MT)</p>
                     <h5 class="mb-0">
-                      {{ kpi_total_to_repay|floatformat:2 }}
+                      {{ kpi_total_to_repay|money }}
                     </h5>
                   </div>
                 </div>
@@ -71,7 +71,7 @@
                   <div class="card-body py-3">
                     <p class="text-sm text-muted mb-1">Total juros (MT)</p>
                     <h5 class="mb-0">
-                      {{ kpi_total_interest|floatformat:2 }}
+                      {{ kpi_total_interest|money }}
                     </h5>
                   </div>
                 </div>
@@ -117,7 +117,7 @@
                       <td>{{ loan.id }}</td>
 
                       <!-- Membro -->
-                      <td>
+                      <td data-order="{{ loan.total_interest|default:0|floatformat:2 }}">
                         {{ loan.member.first_name }} {{ loan.member.last_name }}
                         <br>
                         <small class="text-muted">
@@ -129,12 +129,12 @@
                       <td>{{ loan.loan_type.name|default:"—" }}</td>
 
                       <!-- Valor do empréstimo -->
-                      <td>{{ loan.principal_amount|floatformat:2 }}</td>
+                      <td data-order="{{ loan.principal_amount|default:0|floatformat:2 }}">{{ loan.principal_amount|money }}</td>
 
                       <!-- Valor de Juros (MT) -->
-                      <td>
+                      <td data-order="{{ loan.total_to_repay|default:0|floatformat:2 }}">
                         {% if loan.total_interest %}
-                          {{ loan.total_interest|floatformat:2 }}
+                          {{ loan.total_interest|money }}
                         {% else %}
                           —
                         {% endif %}
@@ -143,7 +143,7 @@
                       <!-- Total a Reembolsar (MT) -->
                       <td>
                         {% if loan.total_to_repay %}
-                          {{ loan.total_to_repay|floatformat:2 }}
+                          {{ loan.total_to_repay|money }}
                         {% else %}
                           —
                         {% endif %}
@@ -207,7 +207,7 @@
                           <br>
                           {% if loan.disbursed_amount %}
                             <small class="text-muted">
-                              MT {{ loan.disbursed_amount|floatformat:2 }}
+                              {{ loan.disbursed_amount|money_with_symbol }}
                             </small>
                           {% endif %}
                         {% else %}
@@ -334,6 +334,15 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const formatMoney = function (value, options) {
+        if (window.MolaLocale && typeof window.MolaLocale.formatMoney === 'function') {
+          return window.MolaLocale.formatMoney(value, options);
+        }
+
+        const numericValue = Number(value || 0);
+        return 'MT ' + numericValue.toFixed(2);
+      };
+
       const table = $('#active-loans-table').DataTable({
         pageLength: 25,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
@@ -446,16 +455,16 @@
                   <ul class="list-unstyled mb-3">
                     <li><strong>Tipo:</strong> ${loan.loan_type || '—'}</li>
                     <li><strong>Tipo de juro:</strong> ${loan.interest_type || '—'}</li>
-                    <li><strong>Principal:</strong> MT ${loan.principal_amount?.toFixed(2) || '—'}</li>
-                    <li><strong>Juros:</strong> MT ${loan.total_interest != null ? loan.total_interest.toFixed(2) : '—'}</li>
-                    <li><strong>Total a reembolsar:</strong> MT ${loan.total_to_repay != null ? loan.total_to_repay.toFixed(2) : '—'}</li>
+                    <li><strong>Principal:</strong> ${loan.principal_amount != null ? formatMoney(loan.principal_amount) : '—'}</li>
+                    <li><strong>Juros:</strong> ${loan.total_interest != null ? formatMoney(loan.total_interest) : '—'}</li>
+                    <li><strong>Total a reembolsar:</strong> ${loan.total_to_repay != null ? formatMoney(loan.total_to_repay) : '—'}</li>
                   </ul>
                 </div>
                 <div class="col-md-6">
                   <h6 class="mb-2">Termos</h6>
                   <ul class="list-unstyled mb-3">
                     <li><strong>Período:</strong> ${loan.term_periods || '—'} ${loan.period_type}</li>
-                    <li><strong>Prestação por período:</strong> MT ${loan.payment_per_period != null ? loan.payment_per_period.toFixed(2) : '—'}</li>
+                    <li><strong>Prestação por período:</strong> ${loan.payment_per_period != null ? formatMoney(loan.payment_per_period) : '—'}</li>
                     <li><strong>Data início:</strong> ${loan.release_date || '—'}</li>
                     <li><strong>1ª prestação:</strong> ${loan.first_payment_date || '—'}</li>
                     <li><strong>Método de desembolso:</strong> ${loan.disburse_method || '—'}</li>
@@ -523,7 +532,7 @@
                     <td>${ca.account_type}</td>
                     <td>${ca.account_type_name}</td>
                     <td>${ca.identifier}</td>
-                    <td>${ca.balance.toFixed(2)}</td>
+                    <td>${ca.balance != null ? formatMoney(ca.balance, { symbol: false }) : '—'}</td>
                   </tr>
                 `;
               });
@@ -549,7 +558,7 @@
             } else {
               disbHtml += `
                 <ul class="list-unstyled mb-3">
-                  <li><strong>Valor desembolsado:</strong> MT ${disb.amount != null ? disb.amount.toFixed(2) : '—'}</li>
+                  <li><strong>Valor desembolsado:</strong> ${disb.amount != null ? formatMoney(disb.amount) : '—'}</li>
                   <li><strong>Data:</strong> ${disb.date || '—'}</li>
                   <li><strong>Método:</strong> ${disb.method || '—'}</li>
                   <li><strong>Conta da empresa:</strong> ${disb.company_account || '—'}</li>
@@ -593,7 +602,7 @@
                     <td>${g.name}</td>
                     <td>${g.phone || '—'}</td>
                     <td>${g.account_number || '—'}</td>
-                    <td>${g.amount != null ? g.amount.toFixed(2) : '—'}</td>
+                    <td>${g.amount != null ? formatMoney(g.amount, { symbol: false }) : '—'}</td>
                   </tr>
                 `;
               });
@@ -631,7 +640,7 @@
                     <td>${gg.name}</td>
                     <td>${gg.guarantee_type || '—'}</td>
                     <td>${gg.serial_number || '—'}</td>
-                    <td>${gg.estimated_price != null ? gg.estimated_price.toFixed(2) : '—'}</td>
+                    <td>${gg.estimated_price != null ? formatMoney(gg.estimated_price, { symbol: false }) : '—'}</td>
                     <td>${gg.description || '—'}</td>
                     <td>
                       ${gg.attachment_url

@@ -80,6 +80,41 @@
           </div>
         </li>
 
+        <li class="nav-item dropdown d-flex align-items-center px-2">
+          <button
+            type="button"
+            class="btn btn-link mb-0 p-0 text-body d-flex align-items-center quick-currency-trigger"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            title="{% trans 'Alterar formato monetário' %}"
+          >
+            <i class="material-symbols-rounded quick-currency-icon">payments</i>
+            <span class="quick-currency-code">{{ brand_preferences.currency_example }}</span>
+            <i class="material-symbols-rounded quick-currency-chevron">expand_more</i>
+          </button>
+
+          <div class="dropdown-menu dropdown-menu-end px-2 py-2 quick-currency-menu">
+            <div class="quick-language-title text-xs text-uppercase text-muted px-2 pb-2">
+              {% trans "Formato monetário" %}
+            </div>
+
+            {% for currency_format in brand_preferences.available_currency_formats %}
+              <button
+                type="button"
+                class="dropdown-item quick-currency-option {% if currency_format.key == brand_preferences.currency_format %}active{% endif %}"
+                data-currency-format="{{ currency_format.key }}"
+              >
+                <span class="quick-currency-option-main">
+                  <span class="quick-currency-option-label">{{ currency_format.label }}</span>
+                  <span class="quick-currency-option-description">{{ currency_format.description }}</span>
+                </span>
+                <span class="quick-currency-example">{{ currency_format.currency_symbol }}{{ currency_format.currency_symbol_spacing }}{{ currency_format.example }}</span>
+                <i class="material-symbols-rounded quick-currency-check">done</i>
+              </button>
+            {% endfor %}
+          </div>
+        </li>
+
         <li class="nav-item d-flex align-items-center ps-2">
           <form id="logout-form" method="post" action="{% url 'logout' %}">
             {% csrf_token %}
@@ -120,6 +155,24 @@
   .quick-language-chevron {
     font-size: 18px !important;
     color: #6b7280;
+  }
+
+  .quick-currency-trigger {
+    gap: 0.45rem;
+    text-decoration: none !important;
+  }
+
+  .quick-currency-icon,
+  .quick-currency-chevron {
+    font-size: 18px !important;
+    color: #6b7280;
+  }
+
+  .quick-currency-code {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #111827;
+    letter-spacing: 0.02em;
   }
 
   .quick-language-menu {
@@ -164,39 +217,122 @@
   .quick-language-option.active .quick-language-check {
     opacity: 1;
   }
+
+  .quick-currency-menu {
+    min-width: 320px;
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  }
+
+  .quick-currency-option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.7rem;
+    border-radius: 0.85rem;
+    padding: 0.75rem 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .quick-currency-option:last-child {
+    margin-bottom: 0;
+  }
+
+  .quick-currency-option.active,
+  .quick-currency-option:active,
+  .quick-currency-option:hover {
+    background: linear-gradient(180deg, var(--mola-pro-primary-soft-2) 0%, #ffffff 100%);
+    color: var(--mola-pro-primary-strong);
+  }
+
+  .quick-currency-option-main {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .quick-currency-option-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+
+  .quick-currency-option-description {
+    color: #6b7280;
+    font-size: 0.75rem;
+    line-height: 1.35;
+  }
+
+  .quick-currency-example {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #111827;
+    white-space: nowrap;
+  }
+
+  .quick-currency-check {
+    font-size: 18px !important;
+    opacity: 0;
+    color: var(--mola-pro-primary);
+  }
+
+  .quick-currency-option.active .quick-currency-check {
+    opacity: 1;
+  }
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const languageButtons = Array.from(document.querySelectorAll('.quick-language-option'));
-    if (!languageButtons.length) {
-      return;
+    const currencyButtons = Array.from(document.querySelectorAll('.quick-currency-option'));
+    const fallbackMessages = {
+      language: "{% trans 'Não foi possível actualizar o idioma.' %}",
+      currency: "{% trans 'Não foi possível actualizar o formato monetário.' %}"
+    };
+
+    function submitQuickPreference(url, fieldName, fieldValue, fallbackMessage) {
+      const requestPayload = new FormData();
+      requestPayload.append(fieldName, fieldValue);
+      requestPayload.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+      $.ajax({
+        url: url,
+        type: 'POST',
+        data: requestPayload,
+        processData: false,
+        contentType: false,
+        success: function () {
+          window.location.reload();
+        },
+        error: function (xhr) {
+          Swal.fire(
+            "{% trans 'Erro' %}",
+            xhr.responseJSON?.message || fallbackMessage,
+            'error'
+          );
+        }
+      });
     }
 
     languageButtons.forEach(function (button) {
       button.addEventListener('click', function () {
-        const selectedLanguage = this.dataset.language;
-        const requestPayload = new FormData();
-        requestPayload.append('language', selectedLanguage);
-        requestPayload.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+        submitQuickPreference(
+          "{% url 'core:update_user_language' %}",
+          'language',
+          this.dataset.language,
+          fallbackMessages.language
+        );
+      });
+    });
 
-        $.ajax({
-          url: "{% url 'core:update_user_language' %}",
-          type: 'POST',
-          data: requestPayload,
-          processData: false,
-          contentType: false,
-          success: function () {
-            window.location.reload();
-          },
-          error: function (xhr) {
-            Swal.fire(
-              "{% trans 'Erro' %}",
-              xhr.responseJSON?.message || "{% trans 'Não foi possível actualizar o idioma.' %}",
-              'error'
-            );
-          }
-        });
+    currencyButtons.forEach(function (button) {
+      button.addEventListener('click', function () {
+        submitQuickPreference(
+          "{% url 'core:update_user_currency_format' %}",
+          'currency_format',
+          this.dataset.currencyFormat,
+          fallbackMessages.currency
+        );
       });
     });
   });

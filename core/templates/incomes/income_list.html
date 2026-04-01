@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -52,7 +52,7 @@
                           <br /><small class="text-muted">{{ i.company_account.account_identifier }}</small>
                         </td>
                         <td>{{ i.description }}</td>
-                        <td>{{ i.amount|floatformat:2 }}</td>
+                        <td data-order="{{ i.amount|default:0|floatformat:2 }}">{{ i.amount|money }}</td>
                         <td>
                           {% if i.attachment %}
                             <a href="{% url 'core:download_income_attachment' i.id %}"

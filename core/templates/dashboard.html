@@ -1,5 +1,5 @@
 {% extends "layouts/sl_base.html" %}
-{% load i18n static %}
+{% load i18n static core_i18n %}
 
 {% block content %}
 <div class="container-fluid py-2">
@@ -44,7 +44,7 @@
             </span>
           </div>
           <h5 class="mb-1">
-            {{ kpi_portfolio_total|default:0|floatformat:2 }}
+            {{ kpi_portfolio_total|default:0|money }}
           </h5>
           <span class="text-xs text-success">
             {{ kpi_portfolio_change_label|default:"+0% vs período anterior" }}
@@ -64,7 +64,7 @@
             </span>
           </div>
           <h5 class="mb-1">
-            {{ kpi_outstanding_principal|default:0|floatformat:2 }}
+            {{ kpi_outstanding_principal|default:0|money }}
           </h5>
           <span class="text-xs text-muted">
             {{ kpi_outstanding_loans_count|default:0 }} empréstimos activos
@@ -84,7 +84,7 @@
             </span>
           </div>
           <h5 class="mb-1">
-            {{ kpi_interest_to_receive|default:0|floatformat:2 }}
+            {{ kpi_interest_to_receive|default:0|money }}
           </h5>
           <span class="text-xs text-muted">
             Inclui juros previstos em empréstimos activos.
@@ -104,7 +104,7 @@
             </span>
           </div>
           <h5 class="mb-1">
-            {{ kpi_today_repayments|default:0|floatformat:2 }}
+            {{ kpi_today_repayments|default:0|money }}
           </h5>
           <span class="text-xs text-muted">
             {{ kpi_today_repayments_count|default:0 }} pagamentos registados.
@@ -144,7 +144,7 @@
             </span>
           </div>
           <h5 class="mb-1">
-            {{ kpi_company_accounts_balance|default:0|floatformat:2 }}
+            {{ kpi_company_accounts_balance|default:0|money }}
           </h5>
           <span class="text-xs text-muted">
             Soma de todas as contas activas da empresa.
@@ -248,7 +248,7 @@
                       </span>
                     </td>
                     <td class="text-sm text-end">
-                      {{ loan.principal_amount|floatformat:2 }}
+                      {{ loan.principal_amount|money }}
                     </td>
                     <td class="text-sm text-center">
                       {% if loan.status == "pending" %}
@@ -311,7 +311,7 @@
                       {{ item.label|default:"—" }}
                     </td>
                     <td class="text-sm text-end">
-                      {{ item.amount|floatformat:2 }}
+                      {{ item.amount|money }}
                     </td>
                     <td class="text-xs text-muted text-end pe-3">
                       {{ item.tx_date|date:"d/m/Y" }}

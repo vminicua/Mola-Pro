@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -45,7 +45,7 @@
                         <td>{{ loan.id }}</td>
 
                         <!-- Membro -->
-                        <td>
+                        <td data-order="{{ loan.total_interest|default:0|floatformat:2 }}">
                           {{ loan.member.first_name }} {{ loan.member.last_name }}
                           <br /><small class="text-muted">{{ loan.member.phone }}</small>
                         </td>
@@ -54,12 +54,12 @@
                         <td>{{ loan.loan_type.name|default:'—' }}</td>
 
                         <!-- Valor do empréstimo -->
-                        <td>{{ loan.principal_amount|floatformat:2 }}</td>
+                        <td data-order="{{ loan.principal_amount|default:0|floatformat:2 }}">{{ loan.principal_amount|money }}</td>
 
                         <!-- Valor de Juros (MT) -->
-                        <td>
+                        <td data-order="{{ loan.total_to_repay|default:0|floatformat:2 }}">
                           {% if loan.total_interest %}
-                            {{ loan.total_interest|floatformat:2 }}
+                            {{ loan.total_interest|money }}
                           {% else %}
                             —
                           {% endif %}
@@ -68,7 +68,7 @@
                         <!-- Total a Reembolsar (MT) -->
                         <td>
                           {% if loan.total_to_repay %}
-                            {{ loan.total_to_repay|floatformat:2 }}
+                            {{ loan.total_to_repay|money }}
                           {% else %}
                             —
                           {% endif %}

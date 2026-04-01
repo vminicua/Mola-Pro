@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -45,7 +45,7 @@
                         <td>{{ a.account_type.get_category_display }} - {{ a.account_type.name }}</td>
                         <td>{{ a.name }}</td>
                         <td>{{ a.account_identifier }}</td>
-                        <td>MT {{ a.balance|default:0|floatformat:2 }}</td>
+                        <td data-order="{{ a.balance|default:0|floatformat:2 }}">{{ a.balance|default:0|money_with_symbol }}</td>
                         <td>
                           {% if a.is_active %}
                             <span class="badge bg-success text-white">Activo</span>

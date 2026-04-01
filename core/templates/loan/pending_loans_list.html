@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -48,8 +48,8 @@
                           <small class="text-muted">{{ loan.member.phone }}</small>
                         </td>
                         <td>{{ loan.loan_type.name|default:'—' }}</td>
-                        <td>{{ loan.principal_amount|floatformat:2 }}</td>
-                        <td>{{ loan.payment_per_period|default:0|floatformat:2 }}</td>
+                        <td data-order="{{ loan.principal_amount|default:0|floatformat:2 }}">{{ loan.principal_amount|money }}</td>
+                        <td data-order="{{ loan.payment_per_period|default:0|floatformat:2 }}">{{ loan.payment_per_period|default:0|money }}</td>
                         <td>{{ loan.term_periods }}</td>
                         <td>
                           {% if loan.created_by %}

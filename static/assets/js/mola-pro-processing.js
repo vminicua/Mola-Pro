@@ -9,6 +9,14 @@
   var formStates = new WeakMap();
   var jqueryBound = false;
 
+  function translate(message) {
+    if (window.MolaLocale && typeof window.MolaLocale.translate === 'function') {
+      return window.MolaLocale.translate(message);
+    }
+
+    return message;
+  }
+
   function injectStyles() {
     if (document.getElementById('mola-processing-styles')) {
       return;
@@ -45,8 +53,8 @@
     }
 
     window.Swal.fire({
-      title: 'A processar...',
-      text: message || 'Por favor aguarde.',
+      title: translate('A processar...'),
+      text: translate(message || 'Por favor aguarde.'),
       allowOutsideClick: false,
       allowEscapeKey: false,
       showConfirmButton: false,
@@ -130,7 +138,7 @@
 
   function beginRequest(message) {
     activeRequests += 1;
-    refreshProcessingState(message || 'Por favor aguarde.');
+    refreshProcessingState(translate(message || 'Por favor aguarde.'));
   }
 
   function endRequest() {
@@ -169,7 +177,9 @@
 
     pendingForms.add(form);
     lockForm(form);
-    refreshProcessingState(form.getAttribute('data-processing-text') || 'A processar dados...');
+    refreshProcessingState(
+      translate(form.getAttribute('data-processing-text') || 'A processar dados...')
+    );
 
     window.setTimeout(function () {
       if (pageUnloading || activeRequests > 0 || !pendingForms.has(form)) {
@@ -190,7 +200,7 @@
     var nativeFetch = window.fetch.bind(window);
 
     function wrappedFetch() {
-      beginRequest('A processar pedido...');
+      beginRequest(translate('A processar pedido...'));
       return nativeFetch.apply(window, arguments).finally(function () {
         endRequest();
       });
@@ -208,7 +218,7 @@
     jqueryBound = true;
 
     window.jQuery(document).ajaxSend(function () {
-      beginRequest('A processar pedido...');
+      beginRequest(translate('A processar pedido...'));
     });
 
     window.jQuery(document).ajaxComplete(function () {

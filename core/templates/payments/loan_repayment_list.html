@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -28,7 +28,7 @@
                   <div class="card shadow-sm border-0 h-100">
                     <div class="card-body py-3">
                       <p class="text-sm text-muted mb-1">Principal total (MT)</p>
-                      <h5 class="mb-0">{{ kpi_total_principal|floatformat:2 }}</h5>
+                      <h5 class="mb-0">{{ kpi_total_principal|money }}</h5>
                     </div>
                   </div>
                 </div>
@@ -36,7 +36,7 @@
                   <div class="card shadow-sm border-0 h-100">
                     <div class="card-body py-3">
                       <p class="text-sm text-muted mb-1">Saldo em dívida total (principal + juros em falta)</p>
-                      <h5 class="mb-0">{{ kpi_total_outstanding|floatformat:2 }}</h5>
+                      <h5 class="mb-0">{{ kpi_total_outstanding|money }}</h5>
                     </div>
                   </div>
                 </div>
@@ -44,7 +44,7 @@
                   <div class="card shadow-sm border-0 h-100">
                     <div class="card-body py-3">
                       <p class="text-sm text-muted mb-1">Saldo médio em dívida (MT)</p>
-                      <h5 class="mb-0">{{ kpi_avg_outstanding|floatformat:2 }}</h5>
+                      <h5 class="mb-0">{{ kpi_avg_outstanding|money }}</h5>
                     </div>
                   </div>
                 </div>
@@ -78,7 +78,7 @@
                     {% for loan in loans %}
                       <tr data-loan-id="{{ loan.id }}" data-outstanding="{{ loan.outstanding_principal|floatformat:2 }}" data-interest-remaining="{{ loan.period_interest_remaining|floatformat:2 }}" data-interest-rate="{{ loan.interest_type.rate|default_if_none:'0.0000' }}" data-cycle-due="{{ loan.current_cycle_due|default_if_none:'' }}" data-member-name="{{ loan.member.first_name }} {{ loan.member.last_name }}">
                         <td>{{ loan.id }}</td>
-                        <td>
+                        <td data-order="{{ loan.outstanding_with_interest|default:0|floatformat:2 }}">
                           {{ loan.member.first_name }} {{ loan.member.last_name }}
                           <br />
                           <small class="text-muted">
@@ -95,14 +95,14 @@
                             —
                           {% endif %}
                         </td>
-                        <td>{{ loan.principal_amount|floatformat:2 }}</td>
-                        <td>{{ loan.outstanding_principal|floatformat:2 }}</td>
-                        <td>{{ loan.period_interest_remaining|floatformat:2 }}</td>
+                        <td data-order="{{ loan.principal_amount|default:0|floatformat:2 }}">{{ loan.principal_amount|money }}</td>
+                        <td data-order="{{ loan.outstanding_principal|default:0|floatformat:2 }}">{{ loan.outstanding_principal|money }}</td>
+                        <td data-order="{{ loan.period_interest_remaining|default:0|floatformat:2 }}">{{ loan.period_interest_remaining|money }}</td>
                         <td>
                           {% if loan.outstanding_with_interest > 0 %}
-                            <span class="badge bg-danger">{{ loan.outstanding_with_interest|floatformat:2 }}</span>
+                            <span class="badge bg-danger">{{ loan.outstanding_with_interest|money }}</span>
                           {% else %}
-                            <span class="badge bg-success">0.00</span>
+                            <span class="badge bg-success">{{ 0|money }}</span>
                           {% endif %}
                         </td>
                         <td>
@@ -119,9 +119,9 @@
                           {% if loan.last_repayment %}
                             {{ loan.last_repayment.payment_date }}<br />
                             <small class="text-muted">
-                              MT {{ loan.last_repayment.amount|floatformat:2 }}
-                              (J: {{ loan.last_repayment.interest_amount|floatformat:0 }}
-                              · P: {{ loan.last_repayment.principal_amount|floatformat:0 }})
+                              {{ loan.last_repayment.amount|money_with_symbol }}
+                              (J: {{ loan.last_repayment.interest_amount|money }}
+                              · P: {{ loan.last_repayment.principal_amount|money }})
                             </small>
                           {% else %}
                             <span class="text-muted">Sem pagamentos</span>
@@ -262,6 +262,22 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const formatMoney = function (value, options) {
+        if (window.MolaLocale && typeof window.MolaLocale.formatMoney === 'function') {
+          return window.MolaLocale.formatMoney(value, options);
+        }
+
+        const numericValue = Number(value || 0);
+        return 'MT ' + numericValue.toFixed(2);
+      };
+      const formatPercent = function (value) {
+        if (window.MolaLocale && typeof window.MolaLocale.formatPercent === 'function') {
+          return window.MolaLocale.formatPercent(value, 2);
+        }
+
+        return Number(value || 0).toFixed(2) + '%';
+      };
+
       const table = $('#loan-repayment-table').DataTable({
         pageLength: 25,
         lengthMenu: [
@@ -303,10 +319,10 @@
     
         const html = `
               <strong>Resumo deste ciclo:</strong><br>
-              Principal em dívida: <strong>MT ${principal.toFixed(2)}</strong><br>
-              Taxa de juro do período: <strong>${rate.toFixed(2)}%</strong><br>
-              Juros em falta neste ciclo: <strong>MT ${interestRemaining.toFixed(2)}</strong><br>
-              Saldo em dívida (principal + juros em falta): <strong>MT ${totalDueNow.toFixed(2)}</strong><br>
+              Principal em dívida: <strong>${formatMoney(principal)}</strong><br>
+              Taxa de juro do período: <strong>${formatPercent(rate)}</strong><br>
+              Juros em falta neste ciclo: <strong>${formatMoney(interestRemaining)}</strong><br>
+              Saldo em dívida (principal + juros em falta): <strong>${formatMoney(totalDueNow)}</strong><br>
               ${currentDue ? `<span class="badge bg-secondary mt-1">Validade: ${currentDue}</span><br>` : ''}
               <small class="text-muted">
                 - "Liquidar apenas juros": paga os juros em falta e renova a validade (novo ciclo).<br>
@@ -329,17 +345,17 @@
         if (type === 'interest_only') {
           amountField.val(interestRemaining.toFixed(2))
           amountField.prop('readonly', true)
-          hintField.text(`Será liquidado apenas o valor de juros em falta neste ciclo (MT ${interestRemaining.toFixed(2)}). ` + `O principal mantém-se igual e a validade é renovada.`)
+          hintField.text(`Será liquidado apenas o valor de juros em falta neste ciclo (${formatMoney(interestRemaining)}). ` + `O principal mantém-se igual e a validade é renovada.`)
         } else if (type === 'full') {
           amountField.val(totalDueNow.toFixed(2))
           amountField.prop('readonly', true)
-          hintField.text(`Será liquidado o valor total em dívida (principal + juros em falta: MT ${totalDueNow.toFixed(2)}). ` + `O empréstimo será encerrado.`)
+          hintField.text(`Será liquidado o valor total em dívida (principal + juros em falta: ${formatMoney(totalDueNow)}). ` + `O empréstimo será encerrado.`)
         } else {
           // partial
           amountField.val('')
           amountField.prop('readonly', false)
           if (interestRemaining > 0) {
-            hintField.text('O valor pago será aplicado primeiro aos juros em falta deste ciclo ' + ` (mínimo MT ${interestRemaining.toFixed(2)}) e depois à amortização de principal.`)
+            hintField.text('O valor pago será aplicado primeiro aos juros em falta deste ciclo ' + ` (mínimo ${formatMoney(interestRemaining)}) e depois à amortização de principal.`)
           } else {
             hintField.text('Não há juros em falta neste ciclo. O valor pago será aplicado integralmente à amortização do principal.')
           }

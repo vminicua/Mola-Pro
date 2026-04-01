@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -84,19 +84,19 @@
                     <ul class="list-group">
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Valor do Empréstimo:</span>
-                        <strong id="sumPrincipal">MT 0,00</strong>
+                        <strong id="sumPrincipal">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Juros Totais Pagos:</span>
-                        <strong id="sumInterest">MT 0,00</strong>
+                        <strong id="sumInterest">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Total Pago:</span>
-                        <strong id="sumTotalPaid">MT 0,00</strong>
+                        <strong id="sumTotalPaid">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Saldo Final em Dívida:</span>
-                        <strong id="sumRemaining">MT 0,00</strong>
+                        <strong id="sumRemaining">{{ 0|money_with_symbol }}</strong>
                       </li>
                     </ul>
                   </div>
@@ -141,14 +141,12 @@
 
   <script>
     function formatMoney(value) {
+      if (window.MolaLocale && typeof window.MolaLocale.formatMoney === 'function') {
+        return window.MolaLocale.formatMoney(value)
+      }
+
       const n = Number(value || 0)
-      return (
-        'MT ' +
-        n.toLocaleString('pt-PT', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        })
-      )
+      return 'MT ' + n.toFixed(2)
     }
     
     // Sugestão de pagamento por ciclo (amortização clássica)

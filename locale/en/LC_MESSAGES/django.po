@@ -896,3 +896,30 @@ msgstr "Invalid interest type."
 
 msgid "Ícone mostrado no separador do navegador e atalhos da aplicação."
 msgstr "Icon shown in the browser tab and application shortcuts."
+
+msgid "Defina a língua, a paleta de cores, o formato monetário, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências."
+msgstr "Set the language, color palette, currency format, logo, and favicon. After saving, the application will use these preferences."
+
+msgid "Formato monetário"
+msgstr "Currency format"
+
+msgid "Escolha o formato contabilístico usado por predefinição na aplicação. Cada utilizador pode mudar temporariamente no topo, só para a sessão actual."
+msgstr "Choose the accounting format used by default in the application. Each user can temporarily change it from the top bar, only for the current session."
+
+msgid "Formato por predefinição"
+msgstr "Default format"
+
+msgid "Por predefinição a aplicação usa o formato de Moçambique: 78.000,00. Se preferir, pode mudar para um formato internacional mantendo o símbolo MT."
+msgstr "By default the application uses the Mozambique format: 78.000,00. If you prefer, you can switch to an international format while keeping the MT symbol."
+
+msgid "Alterar formato monetário"
+msgstr "Change currency format"
+
+msgid "Não foi possível actualizar o formato monetário."
+msgstr "Could not update the currency format."
+
+msgid "Formato monetário inválido. Escolha uma das opções disponíveis."
+msgstr "Invalid currency format. Choose one of the available options."
+
+msgid "Formato monetário actualizado com sucesso."
+msgstr "Currency format updated successfully."

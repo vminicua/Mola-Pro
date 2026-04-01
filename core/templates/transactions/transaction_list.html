@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -101,9 +101,9 @@
                         <td title="{{ t.description }}">
                           {{ t.description|truncatechars:60 }}
                         </td>
-                        <td>{{ t.amount|floatformat:2 }}</td>
-                        <td>{{ t.balance_before|floatformat:2 }}</td>
-                        <td>{{ t.balance_after|floatformat:2 }}</td>
+                        <td data-order="{{ t.amount|default:0|floatformat:2 }}">{{ t.amount|money }}</td>
+                        <td data-order="{{ t.balance_before|default:0|floatformat:2 }}">{{ t.balance_before|money }}</td>
+                        <td data-order="{{ t.balance_after|default:0|floatformat:2 }}">{{ t.balance_after|money }}</td>
                         <td>
                           {% if t.created_by %}
                             {{ t.created_by.get_full_name|default:t.created_by.username }}

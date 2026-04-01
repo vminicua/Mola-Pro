@@ -1,5 +1,5 @@
 {% extends "layouts/sl_base.html" %}
-{% load static %}
+{% load static core_i18n %}
 
 {% block content %}
 <div class="container-fluid py-2">
@@ -383,11 +383,11 @@
                     <ul class="list-group mb-3">
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Valor do Empréstimo</span>
-                        <strong id="sumPrincipalStep5">MT 0,00</strong>
+                        <strong id="sumPrincipalStep5">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Pagamento por Ciclo</span>
-                        <strong id="sumPaymentStep5">MT 0,00</strong>
+                        <strong id="sumPaymentStep5">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Nº de Períodos</span>
@@ -395,7 +395,7 @@
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
                         <span>Total Estimado Pago</span>
-                        <strong id="sumTotalPaidStep5">MT 0,00</strong>
+                        <strong id="sumTotalPaidStep5">{{ 0|money_with_symbol }}</strong>
                       </li>
                     </ul>
 
@@ -433,7 +433,7 @@
                       <ul class="list-group">
                         <li class="list-group-item d-flex justify-content-between">
                           <span>Valor do Empréstimo</span>
-                          <strong id="sumPrincipal">MT 0,00</strong>
+                          <strong id="sumPrincipal">{{ 0|money_with_symbol }}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                           <span>Taxa (%) por período</span>
@@ -445,11 +445,11 @@
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                           <span>Pagamento por Ciclo</span>
-                          <strong id="sumPayment">MT 0,00</strong>
+                          <strong id="sumPayment">{{ 0|money_with_symbol }}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between">
                           <span>Total Estimado Pago</span>
-                          <strong id="sumTotalPaid">MT 0,00</strong>
+                          <strong id="sumTotalPaid">{{ 0|money_with_symbol }}</strong>
                         </li>
                       </ul>
                     </div>
@@ -475,11 +475,20 @@
 
 <script>
   function formatMoney(value) {
+    if (window.MolaLocale && typeof window.MolaLocale.formatMoney === 'function') {
+      return window.MolaLocale.formatMoney(value);
+    }
+
     const n = Number(value || 0);
-    return 'MT ' + n.toLocaleString('pt-PT', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    });
+    return 'MT ' + n.toFixed(2);
+  }
+
+  function formatPercent(value) {
+    if (window.MolaLocale && typeof window.MolaLocale.formatPercent === 'function') {
+      return window.MolaLocale.formatPercent(value, 2);
+    }
+
+    return Number(value || 0).toFixed(2) + '%';
   }
 
   function sugerirPagamento(principal, r, n) {
@@ -629,13 +638,13 @@
         const totalPaid = payment * term;
 
         sumPrincipal.innerText = formatMoney(principal);
-        sumRate.innerText = ratePercent.toFixed(2) + '%';
+        sumRate.innerText = formatPercent(ratePercent);
         sumPeriods.innerText = term.toString();
         sumPayment.innerText = formatMoney(payment);
         sumTotalPaid.innerText = formatMoney(totalPaid);
       } else {
         sumPrincipal.innerText = formatMoney(0);
-        sumRate.innerText = '0,00%';
+        sumRate.innerText = formatPercent(0);
         sumPeriods.innerText = '0';
         sumPayment.innerText = formatMoney(0);
         sumTotalPaid.innerText = formatMoney(0);

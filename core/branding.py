@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from contextvars import ContextVar, Token
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +16,9 @@ DEFAULT_BRAND_NAME = "Mola Pro"
 DEFAULT_PRIMARY_COLOR = "#064E3B"
 DEFAULT_LANGUAGE = "pt-mz"
 DEFAULT_PALETTE_KEY = "emerald"
+DEFAULT_CURRENCY_FORMAT_KEY = "mz"
 USER_LANGUAGE_SESSION_KEY = "mola_pro_language_override"
+USER_CURRENCY_FORMAT_SESSION_KEY = "mola_pro_currency_format_override"
 PREFERENCES_RELATIVE_PATH = "preferences/branding.json"
 ALLOWED_LOGO_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp"}
 ALLOWED_FAVICON_EXTENSIONS = {".png", ".jpg", ".jpeg", ".svg", ".webp", ".ico"}
@@ -41,6 +44,55 @@ LANGUAGE_ALIASES = {
     "en_us": "en",
     "en-gb": "en",
     "en_gb": "en",
+}
+CURRENCY_FORMAT_OPTIONS: dict[str, dict[str, Any]] = {
+    "mz": {
+        "label": {
+            "pt": "Moçambique",
+            "en": "Mozambique",
+        },
+        "description": {
+            "pt": "Usa ponto para milhar e vírgula para decimais, como 78.000,00.",
+            "en": "Uses a dot for thousands and a comma for decimals, like 78.000,00.",
+        },
+        "currency_symbol": "MT",
+        "currency_symbol_spacing": " ",
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "example": "78.000,00",
+    },
+    "intl": {
+        "label": {
+            "pt": "Internacional",
+            "en": "International",
+        },
+        "description": {
+            "pt": "Usa vírgula para milhar e ponto para decimais, como 78,000.00.",
+            "en": "Uses a comma for thousands and a dot for decimals, like 78,000.00.",
+        },
+        "currency_symbol": "MT",
+        "currency_symbol_spacing": " ",
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "example": "78,000.00",
+    },
+}
+CURRENCY_FORMAT_ALIASES = {
+    "mz": "mz",
+    "mozambique": "mz",
+    "mocambique": "mz",
+    "moçambique": "mz",
+    "pt": "mz",
+    "pt-mz": "mz",
+    "pt_mz": "mz",
+    "intl": "intl",
+    "int": "intl",
+    "international": "intl",
+    "en": "intl",
+    "en-gb": "intl",
+    "en_gb": "intl",
+    "en-us": "intl",
+    "en_us": "intl",
 }
 PALETTE_COLOR_ROLES = ("primary", "secondary", "info", "success", "warning", "danger")
 BRAND_PALETTE_DEFINITIONS: dict[str, dict[str, Any]] = {
@@ -135,6 +187,10 @@ BRAND_PALETTE_DEFINITIONS: dict[str, dict[str, Any]] = {
         },
     },
 }
+_ACTIVE_BRAND_PREFERENCES: ContextVar[dict[str, Any] | None] = ContextVar(
+    "mola_pro_active_brand_preferences",
+    default=None,
+)
 
 
 def _preferences_file_path() -> Path:
@@ -187,6 +243,97 @@ def get_available_languages() -> list[dict[str, str]]:
         }
         for code, config in LANGUAGE_OPTIONS.items()
     ]
+
+
+def normalize_currency_format_key(
+    value: str | None,
+    default: str | None = DEFAULT_CURRENCY_FORMAT_KEY,
+) -> str | None:
+    candidate = (value or "").strip().lower()
+    if not candidate:
+        return default
+
+    return CURRENCY_FORMAT_ALIASES.get(candidate, default)
+
+
+def get_currency_format_definition(value: str | None) -> dict[str, Any]:
+    normalized = normalize_currency_format_key(
+        value,
+        default=DEFAULT_CURRENCY_FORMAT_KEY,
+    ) or DEFAULT_CURRENCY_FORMAT_KEY
+    return CURRENCY_FORMAT_OPTIONS[normalized]
+
+
+def get_available_currency_formats(translation_code: str) -> list[dict[str, Any]]:
+    return [
+        {
+            "key": key,
+            "label": _get_localized_copy(definition["label"], translation_code),
+            "description": _get_localized_copy(definition["description"], translation_code),
+            "currency_symbol": definition["currency_symbol"],
+            "currency_symbol_spacing": definition.get("currency_symbol_spacing", " "),
+            "decimal_separator": definition["decimal_separator"],
+            "thousands_separator": definition["thousands_separator"],
+            "example": definition["example"],
+        }
+        for key, definition in CURRENCY_FORMAT_OPTIONS.items()
+    ]
+
+
+def build_currency_format_preferences(
+    currency_format: str | None,
+    *,
+    default_currency_format: str | None = None,
+    translation_code: str = "pt",
+) -> dict[str, Any]:
+    normalized_default_currency_format = normalize_currency_format_key(
+        default_currency_format,
+        default=DEFAULT_CURRENCY_FORMAT_KEY,
+    ) or DEFAULT_CURRENCY_FORMAT_KEY
+    normalized_currency_format = normalize_currency_format_key(
+        currency_format,
+        default=normalized_default_currency_format,
+    ) or normalized_default_currency_format
+    currency_definition = get_currency_format_definition(normalized_currency_format)
+    default_currency_definition = get_currency_format_definition(normalized_default_currency_format)
+
+    return {
+        "available_currency_formats": get_available_currency_formats(translation_code),
+        "currency_decimal_separator": currency_definition["decimal_separator"],
+        "currency_example": currency_definition["example"],
+        "currency_format": normalized_currency_format,
+        "currency_format_description": _get_localized_copy(
+            currency_definition["description"],
+            translation_code,
+        ),
+        "currency_format_label": _get_localized_copy(
+            currency_definition["label"],
+            translation_code,
+        ),
+        "currency_format_settings": {
+            "key": normalized_currency_format,
+            "label": _get_localized_copy(currency_definition["label"], translation_code),
+            "description": _get_localized_copy(
+                currency_definition["description"],
+                translation_code,
+            ),
+            "currency_symbol": currency_definition["currency_symbol"],
+            "currency_symbol_spacing": currency_definition.get("currency_symbol_spacing", " "),
+            "decimal_separator": currency_definition["decimal_separator"],
+            "thousands_separator": currency_definition["thousands_separator"],
+            "example": currency_definition["example"],
+        },
+        "currency_symbol": currency_definition["currency_symbol"],
+        "currency_symbol_spacing": currency_definition.get("currency_symbol_spacing", " "),
+        "currency_thousands_separator": currency_definition["thousands_separator"],
+        "default_currency_format": normalized_default_currency_format,
+        "default_currency_format_example": default_currency_definition["example"],
+        "default_currency_format_label": _get_localized_copy(
+            default_currency_definition["label"],
+            translation_code,
+        ),
+        "is_currency_format_overridden": normalized_currency_format != normalized_default_currency_format,
+    }
 
 
 def build_language_preferences(
@@ -306,7 +453,7 @@ def _build_color_family(prefix: str, color: str) -> dict[str, str]:
     }
 
 
-def _get_palette_translation(copy: dict[str, str], translation_code: str) -> str:
+def _get_localized_copy(copy: dict[str, str], translation_code: str) -> str:
     return (
         copy.get(translation_code)
         or copy.get(DEFAULT_LANGUAGE.split("-")[0])
@@ -359,8 +506,8 @@ def build_brand_palette(palette_key: str | None, translation_code: str = "pt") -
 
     palette: dict[str, Any] = {
         "key": normalized_key,
-        "label": _get_palette_translation(definition["label"], translation_code),
-        "description": _get_palette_translation(definition["description"], translation_code),
+        "label": _get_localized_copy(definition["label"], translation_code),
+        "description": _get_localized_copy(definition["description"], translation_code),
         "colors": colors,
     }
     css_variables: dict[str, str] = {}
@@ -382,6 +529,18 @@ def get_available_palettes(translation_code: str) -> list[dict[str, Any]]:
     ]
 
 
+def set_active_brand_preferences(preferences: dict[str, Any]) -> Token:
+    return _ACTIVE_BRAND_PREFERENCES.set(preferences)
+
+
+def reset_active_brand_preferences(token: Token) -> None:
+    _ACTIVE_BRAND_PREFERENCES.reset(token)
+
+
+def get_active_brand_preferences() -> dict[str, Any]:
+    return _ACTIVE_BRAND_PREFERENCES.get() or load_brand_preferences()
+
+
 def _delete_logo(logo_path: str | None) -> None:
     if logo_path and default_storage.exists(logo_path):
         default_storage.delete(logo_path)
@@ -392,7 +551,10 @@ def _delete_favicon(favicon_path: str | None) -> None:
         default_storage.delete(favicon_path)
 
 
-def load_brand_preferences(language_override: str | None = None) -> dict[str, Any]:
+def load_brand_preferences(
+    language_override: str | None = None,
+    currency_format_override: str | None = None,
+) -> dict[str, Any]:
     stored_preferences = _read_preferences()
     stored_language = normalize_language_code(
         stored_preferences.get("language"),
@@ -403,6 +565,15 @@ def load_brand_preferences(language_override: str | None = None) -> dict[str, An
         default_language=stored_language,
     )
     translation_code = language_preferences["translation_language"]
+    stored_currency_format = normalize_currency_format_key(
+        stored_preferences.get("currency_format"),
+        default=DEFAULT_CURRENCY_FORMAT_KEY,
+    ) or DEFAULT_CURRENCY_FORMAT_KEY
+    currency_preferences = build_currency_format_preferences(
+        currency_format_override,
+        default_currency_format=stored_currency_format,
+        translation_code=translation_code,
+    )
     palette_key = _resolve_palette_key(stored_preferences)
     palette = build_brand_palette(palette_key, translation_code=translation_code)
 
@@ -427,7 +598,7 @@ def load_brand_preferences(language_override: str | None = None) -> dict[str, An
         else default_favicon_url
     )
 
-    return {
+    preferences = {
         "available_palettes": get_available_palettes(translation_code),
         "brand_name": DEFAULT_BRAND_NAME,
         "default_favicon_url": default_favicon_url,
@@ -441,8 +612,23 @@ def load_brand_preferences(language_override: str | None = None) -> dict[str, An
         "palette": palette,
         "palette_key": palette["key"],
         "primary_color": palette["primary"],
+        **currency_preferences,
         **language_preferences,
     }
+    preferences["client_locale"] = {
+        "language": preferences["language"],
+        "translationLanguage": preferences["translation_language"],
+        "currency": {
+            "format": preferences["currency_format"],
+            "label": preferences["currency_format_label"],
+            "symbol": preferences["currency_symbol"],
+            "symbolSpacing": preferences["currency_symbol_spacing"],
+            "decimalSeparator": preferences["currency_decimal_separator"],
+            "thousandsSeparator": preferences["currency_thousands_separator"],
+            "example": preferences["currency_example"],
+        },
+    }
+    return preferences
 
 
 def save_brand_preferences(
@@ -450,6 +636,7 @@ def save_brand_preferences(
     palette_key: str | None = None,
     primary_color: str | None = None,
     language: str | None = None,
+    currency_format: str | None = None,
     logo_file=None,
     remove_logo: bool = False,
     favicon_file=None,
@@ -461,6 +648,7 @@ def save_brand_preferences(
     submitted_palette_key = (palette_key or "").strip()
     submitted_primary_color = (primary_color or "").strip()
     submitted_language = (language or "").strip()
+    submitted_currency_format = (currency_format or "").strip()
 
     if submitted_palette_key and not is_valid_palette_key(submitted_palette_key):
         raise ValueError(_("Paleta inválida. Escolha uma das opções disponíveis."))
@@ -470,6 +658,12 @@ def save_brand_preferences(
 
     if submitted_language and normalize_language_code(submitted_language, default=None) is None:
         raise ValueError(_("Idioma inválido. Escolha Português (Moçambique) ou English."))
+
+    if submitted_currency_format and normalize_currency_format_key(
+        submitted_currency_format,
+        default=None,
+    ) is None:
+        raise ValueError(_("Formato monetário inválido. Escolha uma das opções disponíveis."))
 
     if submitted_palette_key:
         normalized_palette_key = normalize_palette_key(submitted_palette_key, default=None) or DEFAULT_PALETTE_KEY
@@ -487,6 +681,10 @@ def save_brand_preferences(
     stored_preferences["language"] = normalize_language_code(
         language,
         default=stored_preferences.get("language", DEFAULT_LANGUAGE),
+    )
+    stored_preferences["currency_format"] = normalize_currency_format_key(
+        currency_format,
+        default=stored_preferences.get("currency_format", DEFAULT_CURRENCY_FORMAT_KEY),
     )
 
     if remove_logo:
