@@ -27,6 +27,7 @@ def preferences_view(request):
 def update_brand_preferences(request):
     try:
         preferences = save_brand_preferences(
+            palette_key=request.POST.get("palette_key"),
             primary_color=request.POST.get("primary_color"),
             language=request.POST.get("language"),
             logo_file=request.FILES.get("logo"),
@@ -50,6 +51,8 @@ def update_brand_preferences(request):
             "favicon_url": preferences["favicon_url"],
             "language": preferences["language"],
             "logo_url": preferences["logo_url"],
+            "palette_key": preferences["palette_key"],
+            "palette_label": preferences["palette"]["label"],
             "primary_color": preferences["primary_color"],
         }
     )

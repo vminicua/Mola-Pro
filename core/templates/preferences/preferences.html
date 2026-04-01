@@ -17,7 +17,7 @@
             <div class="mb-4">
               <h6 class="mb-1">{% trans "Preferências da aplicação" %}</h6>
               <p class="text-sm text-muted mb-0">
-                {% trans "Defina a língua, a cor primária, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências." %}
+                {% trans "Defina a língua, a paleta de cores, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências." %}
               </p>
             </div>
 
@@ -30,72 +30,113 @@
                     class="preferences-toggle collapsed"
                     type="button"
                     data-bs-toggle="collapse"
-                    data-bs-target="#preferencePrimaryColor"
+                    data-bs-target="#preferencePalette"
                     aria-expanded="false"
-                    aria-controls="preferencePrimaryColor"
+                    aria-controls="preferencePalette"
                   >
                     <span class="preferences-title-group">
                       <span class="preferences-icon">
                         <i class="material-symbols-rounded">palette</i>
                       </span>
                       <span>
-                        <span class="preferences-title">{% trans "Cor primária" %}</span>
-                        <span class="preferences-description">{% trans "Escolha no selector ou introduza um código hexadecimal." %}</span>
+                        <span class="preferences-title">{% trans "Paleta de cores" %}</span>
+                        <span class="preferences-description">{% trans "Escolha uma das cinco paletas. Cada opção actualiza a cor primária, secundária e estados da interface." %}</span>
                       </span>
                     </span>
 
                     <span class="preferences-meta">
-                      <span class="color-chip" id="primaryColorSwatch"></span>
-                      <span class="preferences-value" id="primaryColorValue">{{ brand_preferences.primary_color }}</span>
+                      <span class="palette-chip-stack" aria-hidden="true">
+                        <span class="palette-chip palette-chip-primary"></span>
+                        <span class="palette-chip palette-chip-secondary"></span>
+                        <span class="palette-chip palette-chip-info"></span>
+                      </span>
+                      <span class="preferences-value" id="paletteNameValue">{{ brand_preferences.palette.label }}</span>
                       <span class="preferences-chevron">
                         <i class="material-symbols-rounded">expand_more</i>
                       </span>
                     </span>
                   </button>
 
-                  <div class="collapse" id="preferencePrimaryColor">
+                  <div class="collapse" id="preferencePalette">
                     <div class="preferences-body">
-                      <div class="row g-3 align-items-end">
-                        <div class="col-sm-4">
-                          <label class="form-label">{% trans "Selector" %}</label>
+                      <div class="palette-grid">
+                        {% for palette in brand_preferences.available_palettes %}
                           <input
-                            type="color"
-                            id="id_primary_color_picker"
-                            class="form-control form-control-color w-100"
-                            value="{{ brand_preferences.primary_color }}"
-                            title="{% trans 'Escolher cor primária' %}"
+                            class="palette-option-input"
+                            type="radio"
+                            name="palette_key"
+                            id="id_palette_{{ palette.key }}"
+                            value="{{ palette.key }}"
+                            {% if palette.key == brand_preferences.palette_key %}checked{% endif %}
                           >
-                        </div>
-                        <div class="col-sm-8">
-                          <label class="form-label">{% trans "Código HEX" %}</label>
-                          <input
-                            type="text"
-                            class="form-control"
-                            name="primary_color"
-                            id="id_primary_color"
-                            value="{{ brand_preferences.primary_color }}"
-                            maxlength="7"
-                            placeholder="#064E3B"
+                          <label
+                            class="palette-option"
+                            for="id_palette_{{ palette.key }}"
+                            style="
+                              --palette-primary: {{ palette.primary }};
+                              --palette-primary-rgb: {{ palette.primary_rgb }};
+                              --palette-soft: {{ palette.primary_soft_2 }};
+                              --palette-strong: {{ palette.primary_strong }};
+                            "
                           >
-                        </div>
-                      </div>
+                            <span class="palette-option-header">
+                              <span class="palette-option-title-group">
+                                <span class="palette-option-title">{{ palette.label }}</span>
+                                <span class="palette-option-description">{{ palette.description }}</span>
+                              </span>
+                              <span class="palette-option-check">
+                                <i class="material-symbols-rounded">done</i>
+                              </span>
+                            </span>
 
-                      <div class="text-xs text-muted mt-2">
-                        {% trans "Exemplo:" %} <code>#064E3B</code>, <code>#2196F3</code>, <code>FF5722</code>.
+                            <span class="palette-swatches">
+                              <span class="palette-swatch" style="background-color: {{ palette.primary }};"></span>
+                              <span class="palette-swatch" style="background-color: {{ palette.secondary }};"></span>
+                              <span class="palette-swatch" style="background-color: {{ palette.info }};"></span>
+                              <span class="palette-swatch" style="background-color: {{ palette.success }};"></span>
+                              <span class="palette-swatch" style="background-color: {{ palette.warning }};"></span>
+                              <span class="palette-swatch" style="background-color: {{ palette.danger }};"></span>
+                            </span>
+                          </label>
+                        {% endfor %}
                       </div>
 
                       <div class="preview-panel mt-4">
-                        <div class="preview-sidebar mb-3">
-                          <div class="preview-sidebar-badge">
-                            <i class="material-symbols-rounded">palette</i>
-                            <span>{% trans "Sidebar activa" %}</span>
+                        <div class="preview-panel-header">
+                          <div class="preview-sidebar">
+                            <div class="preview-sidebar-badge">
+                              <i class="material-symbols-rounded">palette</i>
+                              <span>{% trans "Sidebar activa" %}</span>
+                            </div>
+                          </div>
+
+                          <div class="preview-status">
+                            <span class="badge bg-info">{% trans "Informação" %}</span>
+                            <span class="badge bg-success">{% trans "Sucesso" %}</span>
+                            <span class="badge bg-warning">{% trans "Atenção" %}</span>
+                            <span class="badge bg-danger">{% trans "Alerta" %}</span>
                           </div>
                         </div>
 
-                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
                           <button type="button" class="btn btn-sm bg-gradient-primary mb-0">{% trans "Botão principal" %}</button>
+                          <button type="button" class="btn btn-sm bg-gradient-secondary mb-0">{% trans "Botão secundário" %}</button>
                           <button type="button" class="btn btn-sm btn-outline-primary mb-0">{% trans "Botão contornado" %}</button>
-                          <span class="badge bg-primary">{% trans "Etiqueta" %}</span>
+                        </div>
+
+                        <div class="preview-metrics">
+                          <div class="preview-metric preview-metric-primary">
+                            <span class="preview-metric-label">{% trans "Primária" %}</span>
+                            <span class="preview-metric-value">{% trans "CTA & Navegação" %}</span>
+                          </div>
+                          <div class="preview-metric preview-metric-secondary">
+                            <span class="preview-metric-label">{% trans "Secundária" %}</span>
+                            <span class="preview-metric-value">{% trans "Apoio Visual" %}</span>
+                          </div>
+                          <div class="preview-metric preview-metric-info">
+                            <span class="preview-metric-label">{% trans "Outras cores" %}</span>
+                            <span class="preview-metric-value">{% trans "Feedback & Estados" %}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -428,6 +469,218 @@
     background: linear-gradient(180deg, rgba(var(--mola-pro-primary-rgb), 0.04) 0%, #ffffff 100%);
   }
 
+  .palette-chip-stack {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .palette-chip {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06);
+  }
+
+  .palette-chip + .palette-chip {
+    margin-left: -0.35rem;
+  }
+
+  .palette-chip-primary {
+    background: var(--mola-pro-primary);
+  }
+
+  .palette-chip-secondary {
+    background: var(--mola-pro-secondary);
+  }
+
+  .palette-chip-info {
+    background: var(--mola-pro-info);
+  }
+
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .palette-option-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .palette-option {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    min-height: 180px;
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    padding: 1rem;
+    cursor: pointer;
+    background: linear-gradient(180deg, var(--palette-soft) 0%, #ffffff 100%);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .palette-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+  }
+
+  .palette-option-input:checked + .palette-option {
+    border-color: var(--palette-primary);
+    box-shadow: 0 18px 36px rgba(var(--palette-primary-rgb), 0.16);
+  }
+
+  .palette-option-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .palette-option-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .palette-option-title {
+    color: #111827;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .palette-option-description {
+    color: #6b7280;
+    font-size: 0.82rem;
+    line-height: 1.45;
+  }
+
+  .palette-option-check {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: #fff;
+    color: rgba(15, 23, 42, 0.25);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .palette-option-input:checked + .palette-option .palette-option-check {
+    background: var(--palette-primary);
+    border-color: var(--palette-primary);
+    color: #fff;
+  }
+
+  .palette-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: auto;
+  }
+
+  .palette-swatch {
+    width: 34px;
+    height: 34px;
+    border-radius: 0.8rem;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 10px 20px rgba(15, 23, 42, 0.08);
+  }
+
+  .preview-panel {
+    border-radius: 1rem;
+    background: linear-gradient(180deg, #ffffff 0%, var(--mola-pro-primary-soft-2) 100%);
+    border: 1px solid rgba(var(--mola-pro-primary-rgb), 0.12);
+    padding: 1rem;
+  }
+
+  .preview-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .preview-sidebar {
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+  }
+
+  .preview-sidebar-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.85rem;
+    border-radius: 0.85rem;
+    background: var(--mola-pro-primary);
+    color: #fff;
+    font-size: 0.875rem;
+    box-shadow: 0 12px 24px rgba(var(--mola-pro-primary-rgb), 0.22);
+  }
+
+  .preview-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .preview-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.85rem;
+    margin-top: 1rem;
+  }
+
+  .preview-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    padding: 0.95rem 1rem;
+    background: #fff;
+  }
+
+  .preview-metric-label {
+    color: #6b7280;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .preview-metric-value {
+    color: #111827;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .preview-metric-primary {
+    background: linear-gradient(180deg, var(--mola-pro-primary-soft) 0%, #ffffff 100%);
+    border-color: rgba(var(--mola-pro-primary-rgb), 0.18);
+  }
+
+  .preview-metric-secondary {
+    background: linear-gradient(180deg, var(--mola-pro-secondary-soft) 0%, #ffffff 100%);
+    border-color: rgba(var(--mola-pro-secondary-rgb), 0.18);
+  }
+
+  .preview-metric-info {
+    background: linear-gradient(180deg, var(--mola-pro-info-soft) 0%, #ffffff 100%);
+    border-color: rgba(var(--mola-pro-info-rgb), 0.18);
+  }
+
   .logo-mini {
     width: 44px;
     height: 44px;
@@ -465,42 +718,6 @@
     width: 24px;
     height: 24px;
     object-fit: contain;
-  }
-
-  .color-chip {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-    border: 3px solid rgba(255, 255, 255, 0.9);
-    background: var(--mola-pro-primary);
-    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.08), 0 12px 30px rgba(var(--mola-pro-primary-rgb), 0.22);
-    flex-shrink: 0;
-  }
-
-  .preview-panel {
-    border-radius: 1rem;
-    background: linear-gradient(180deg, #ffffff 0%, var(--mola-pro-primary-soft-2) 100%);
-    border: 1px solid rgba(var(--mola-pro-primary-rgb), 0.12);
-    padding: 1rem;
-  }
-
-  .preview-sidebar {
-    padding: 0.75rem;
-    border-radius: 1rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-  }
-
-  .preview-sidebar-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 0.85rem;
-    border-radius: 0.85rem;
-    background: var(--mola-pro-primary);
-    color: #fff;
-    font-size: 0.875rem;
-    box-shadow: 0 12px 24px rgba(var(--mola-pro-primary-rgb), 0.22);
   }
 
   .logo-preview-wrap {
@@ -572,8 +789,14 @@
     .preferences-value {
       white-space: normal;
     }
+
+    .palette-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
+
+{{ brand_preferences.available_palettes|json_script:"brandPaletteData" }}
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
@@ -582,17 +805,20 @@
       default: "{% trans 'Padrão' %}",
       preview: "{% trans 'Pré-visualização' %}",
       validationTitle: "{% trans 'Validação' %}",
-      invalidColorMessage: "{% trans 'Introduza uma cor hexadecimal válida, por exemplo #064E3B.' %}",
+      invalidPaletteMessage: "{% trans 'Escolha uma paleta válida.' %}",
       successTitle: "{% trans 'Preferências guardadas' %}",
       errorTitle: "{% trans 'Erro' %}",
       saveErrorMessage: "{% trans 'Não foi possível guardar as preferências.' %}"
     };
 
+    const paletteData = JSON.parse(document.getElementById('brandPaletteData').textContent).reduce(function (accumulator, palette) {
+      accumulator[palette.key] = palette;
+      return accumulator;
+    }, {});
+
     const form = document.getElementById('brandPreferencesForm');
-    const colorInput = document.getElementById('id_primary_color');
-    const colorPicker = document.getElementById('id_primary_color_picker');
-    const colorSwatch = document.getElementById('primaryColorSwatch');
-    const primaryColorValue = document.getElementById('primaryColorValue');
+    const paletteInputs = Array.from(document.querySelectorAll('input[name="palette_key"]'));
+    const paletteNameValue = document.getElementById('paletteNameValue');
     const languageSelect = document.getElementById('id_language');
     const languageValue = document.getElementById('languageValue');
     const logoInput = document.getElementById('id_logo');
@@ -607,14 +833,10 @@
     const faviconModeLabel = document.getElementById('faviconModeLabel');
     const resetPreviewButton = document.getElementById('btnResetPreview');
 
-    function normalizeHex(value) {
-      let normalized = (value || '').trim().toUpperCase();
-      if (!normalized) return null;
-      if (!normalized.startsWith('#')) normalized = '#' + normalized;
-      return /^#[0-9A-F]{6}$/.test(normalized) ? normalized : null;
-    }
-
-    const initialColor = normalizeHex(colorInput.value) || '#064E3B';
+    const initialPaletteInput = paletteInputs.find(function (input) {
+      return input.checked;
+    }) || paletteInputs[0] || null;
+    const initialPaletteKey = initialPaletteInput ? initialPaletteInput.value : null;
     const initialLanguage = languageSelect.value;
     const languageLabels = Array.from(languageSelect.options).reduce(function (labels, option) {
       labels[option.value] = option.textContent.trim();
@@ -627,57 +849,22 @@
     const defaultFaviconSrc = faviconPreview.dataset.defaultSrc;
     const initialFaviconMode = faviconModeLabel.textContent.trim();
 
-    function hexToRgb(hex) {
-      const normalized = normalizeHex(hex);
-      if (!normalized) return null;
-      return [
-        parseInt(normalized.slice(1, 3), 16),
-        parseInt(normalized.slice(3, 5), 16),
-        parseInt(normalized.slice(5, 7), 16)
-      ];
-    }
-
-    function rgbToHex(rgb) {
-      return '#' + rgb.map(function (channel) {
-        return Math.max(0, Math.min(255, channel)).toString(16).padStart(2, '0');
-      }).join('').toUpperCase();
-    }
-
-    function mix(rgb, target, ratio) {
-      return rgb.map(function (channel, index) {
-        return Math.round(channel + (target[index] - channel) * ratio);
+    function getSelectedPaletteKey() {
+      const selectedInput = paletteInputs.find(function (input) {
+        return input.checked;
       });
+      return selectedInput ? selectedInput.value : null;
     }
 
-    function applyPreviewColor(hex) {
-      const normalized = normalizeHex(hex);
-      if (!normalized) return;
+    function applyPreviewPalette(paletteKey) {
+      const selectedPalette = paletteData[paletteKey];
+      if (!selectedPalette) return;
 
-      const rgb = hexToRgb(normalized);
-      const brightness = (rgb[0] + rgb[1] + rgb[2]) / 3;
-      const hover = brightness < 110 ? mix(rgb, [255, 255, 255], 0.12) : mix(rgb, [0, 0, 0], 0.08);
-      const strong = mix(rgb, [0, 0, 0], brightness < 90 ? 0.08 : 0.18);
-      const soft = mix(rgb, [255, 255, 255], 0.88);
-      const soft2 = mix(rgb, [255, 255, 255], 0.94);
-      const light = mix(rgb, [255, 255, 255], 0.55);
-      const light2 = mix(rgb, [255, 255, 255], 0.72);
+      Object.entries(selectedPalette.css_variables || {}).forEach(function (entry) {
+        document.documentElement.style.setProperty(entry[0], entry[1]);
+      });
 
-      const root = document.documentElement;
-      root.style.setProperty('--mola-pro-primary', normalized);
-      root.style.setProperty('--mola-pro-primary-rgb', rgb.join(', '));
-      root.style.setProperty('--mola-pro-primary-hover', rgbToHex(hover));
-      root.style.setProperty('--mola-pro-primary-hover-rgb', hover.join(', '));
-      root.style.setProperty('--mola-pro-primary-active', normalized);
-      root.style.setProperty('--mola-pro-primary-active-rgb', rgb.join(', '));
-      root.style.setProperty('--mola-pro-primary-strong', rgbToHex(strong));
-      root.style.setProperty('--mola-pro-primary-strong-rgb', strong.join(', '));
-      root.style.setProperty('--mola-pro-primary-soft', rgbToHex(soft));
-      root.style.setProperty('--mola-pro-primary-soft-2', rgbToHex(soft2));
-      root.style.setProperty('--mola-pro-primary-light', rgbToHex(light));
-      root.style.setProperty('--mola-pro-primary-light-2', rgbToHex(light2));
-
-      colorSwatch.style.background = normalized;
-      primaryColorValue.textContent = normalized;
+      paletteNameValue.textContent = selectedPalette.label;
     }
 
     function setLogoPreview(src, modeLabel) {
@@ -697,8 +884,9 @@
     }
 
     function resetPreview() {
-      colorInput.value = initialColor;
-      colorPicker.value = initialColor;
+      paletteInputs.forEach(function (input) {
+        input.checked = input.value === initialPaletteKey;
+      });
       languageSelect.value = initialLanguage;
       removeLogoInput.checked = false;
       removeFaviconInput.checked = false;
@@ -707,21 +895,13 @@
       setLogoPreview(initialLogoSrc, initialLogoMode);
       setFaviconPreview(initialFaviconSrc, initialFaviconMode);
       updateLanguageLabel();
-      applyPreviewColor(initialColor);
+      applyPreviewPalette(initialPaletteKey);
     }
 
-    colorPicker.addEventListener('input', function () {
-      colorInput.value = this.value.toUpperCase();
-      applyPreviewColor(this.value);
-    });
-
-    colorInput.addEventListener('input', function () {
-      const normalized = normalizeHex(this.value);
-      if (normalized) {
-        this.value = normalized;
-        colorPicker.value = normalized;
-        applyPreviewColor(normalized);
-      }
+    paletteInputs.forEach(function (input) {
+      input.addEventListener('change', function () {
+        applyPreviewPalette(this.value);
+      });
     });
 
     languageSelect.addEventListener('change', updateLanguageLabel);
@@ -789,16 +969,14 @@
     form.addEventListener('submit', function (event) {
       event.preventDefault();
 
-      const normalizedColor = normalizeHex(colorInput.value);
-      if (!normalizedColor) {
-        Swal.fire(uiText.validationTitle, uiText.invalidColorMessage, 'warning');
+      const selectedPaletteKey = getSelectedPaletteKey();
+      if (!paletteData[selectedPaletteKey]) {
+        Swal.fire(uiText.validationTitle, uiText.invalidPaletteMessage, 'warning');
         return;
       }
 
-      colorInput.value = normalizedColor;
-      colorPicker.value = normalizedColor;
-
       const formData = new FormData(form);
+      formData.set('palette_key', selectedPaletteKey);
 
       $.ajax({
         url: "{% url 'core:update_brand_preferences' %}",
@@ -829,7 +1007,7 @@
     });
 
     updateLanguageLabel();
-    applyPreviewColor(initialColor);
+    applyPreviewPalette(initialPaletteKey);
   });
 </script>
 {% endblock extra_js %}

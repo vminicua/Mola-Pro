@@ -56,18 +56,9 @@
 
 <style>
     :root {
-        --mola-pro-primary: {{ brand_preferences.palette.primary }};
-        --mola-pro-primary-rgb: {{ brand_preferences.palette.primary_rgb }};
-        --mola-pro-primary-hover: {{ brand_preferences.palette.primary_hover }};
-        --mola-pro-primary-hover-rgb: {{ brand_preferences.palette.primary_hover_rgb }};
-        --mola-pro-primary-active: {{ brand_preferences.palette.primary_active }};
-        --mola-pro-primary-active-rgb: {{ brand_preferences.palette.primary_active_rgb }};
-        --mola-pro-primary-strong: {{ brand_preferences.palette.primary_strong }};
-        --mola-pro-primary-strong-rgb: {{ brand_preferences.palette.primary_strong_rgb }};
-        --mola-pro-primary-soft: {{ brand_preferences.palette.primary_soft }};
-        --mola-pro-primary-soft-2: {{ brand_preferences.palette.primary_soft_2 }};
-        --mola-pro-primary-light: {{ brand_preferences.palette.primary_light }};
-        --mola-pro-primary-light-2: {{ brand_preferences.palette.primary_light_2 }};
+        {% for css_variable, css_value in brand_preferences.palette.css_variables.items %}
+        {{ css_variable }}: {{ css_value }};
+        {% endfor %}
     }
 
     /* Cor para o menu activo */

@@ -117,8 +117,14 @@ msgstr "Generate"
 msgid "Preferências da aplicação"
 msgstr "Application preferences"
 
-msgid "Defina a língua, a cor primária, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências."
-msgstr "Set the language, primary color, logo, and favicon. After saving, the application will use these preferences."
+msgid "Defina a língua, a paleta de cores, o logotipo e o favicon. Depois de guardar, a aplicação passa a usar estas preferências."
+msgstr "Set the language, color palette, logo, and favicon. After saving, the application will use these preferences."
+
+msgid "Paleta de cores"
+msgstr "Color palette"
+
+msgid "Escolha uma das cinco paletas. Cada opção actualiza a cor primária, secundária e estados da interface."
+msgstr "Choose one of the five palettes. Each option updates the primary, secondary, and feedback colors of the interface."
 
 msgid "Cor primária"
 msgstr "Primary color"
@@ -144,11 +150,44 @@ msgstr "Active sidebar"
 msgid "Botão principal"
 msgstr "Primary button"
 
+msgid "Botão secundário"
+msgstr "Secondary button"
+
 msgid "Botão contornado"
 msgstr "Outline button"
 
 msgid "Etiqueta"
 msgstr "Badge"
+
+msgid "Informação"
+msgstr "Info"
+
+msgid "Sucesso"
+msgstr "Success"
+
+msgid "Atenção"
+msgstr "Warning"
+
+msgid "Alerta"
+msgstr "Alert"
+
+msgid "Primária"
+msgstr "Primary"
+
+msgid "Secundária"
+msgstr "Secondary"
+
+msgid "Outras cores"
+msgstr "Other colors"
+
+msgid "CTA & Navegação"
+msgstr "CTA & Navigation"
+
+msgid "Apoio Visual"
+msgstr "Visual support"
+
+msgid "Feedback & Estados"
+msgstr "Feedback & States"
 
 msgid "Idioma da aplicação"
 msgstr "Application language"
@@ -207,6 +246,9 @@ msgstr "Validation"
 msgid "Introduza uma cor hexadecimal válida, por exemplo #064E3B."
 msgstr "Enter a valid hexadecimal color, for example #064E3B."
 
+msgid "Escolha uma paleta válida."
+msgstr "Choose a valid palette."
+
 msgid "Preferências guardadas"
 msgstr "Preferences saved"
 
@@ -218,6 +260,21 @@ msgstr "Could not save the preferences."
 
 msgid "Preferências actualizadas com sucesso."
 msgstr "Preferences updated successfully."
+
+msgid "Paleta inválida. Escolha uma das opções disponíveis."
+msgstr "Invalid palette. Choose one of the available options."
+
+msgid "Cor primária inválida. Use um valor hexadecimal no formato #RRGGBB."
+msgstr "Invalid primary color. Use a hexadecimal value in the #RRGGBB format."
+
+msgid "Idioma inválido. Escolha Português (Moçambique) ou English."
+msgstr "Invalid language. Choose Portuguese (Mozambique) or English."
+
+msgid "Formato de logotipo inválido. Use PNG, JPG, JPEG, SVG ou WEBP."
+msgstr "Invalid logo format. Use PNG, JPG, JPEG, SVG, or WEBP."
+
+msgid "Formato de favicon inválido. Use PNG, JPG, JPEG, SVG, WEBP ou ICO."
+msgstr "Invalid favicon format. Use PNG, JPG, JPEG, SVG, WEBP, or ICO."
 
 msgid "Iniciar sessão"
 msgstr "Sign in"
