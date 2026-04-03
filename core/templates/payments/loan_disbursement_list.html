@@ -6,6 +6,9 @@
     <div class="row">
       <div class="col-12 col-xl-10 mx-auto">
         <style>
+          .disburse-modal-dialog {
+            max-width: min(980px, 95vw);
+          }
           .loan-row-actions {
             min-width: 180px;
           }
@@ -66,7 +69,7 @@
                   </thead>
                   <tbody>
                     {% for loan in loans %}
-                      <tr data-loan-id="{{ loan.id }}" data-principal="{{ loan.principal_amount|floatformat:2 }}" data-client-account-name="{{ loan.client_account_name_to_credit|default_if_none:'' }}" data-client-account-number="{{ loan.client_account_identifier_to_credit|default_if_none:'' }}">
+                      <tr data-loan-id="{{ loan.id }}" data-principal="{{ loan.principal_amount|floatformat:2 }}" data-total-repay="{{ loan.total_to_repay|default_if_none:loan.principal_amount|floatformat:2 }}" data-client-account-name="{{ loan.client_account_name_to_credit|default_if_none:'' }}" data-client-account-number="{{ loan.client_account_identifier_to_credit|default_if_none:'' }}">
                         <!-- ID -->
                         <td>{{ loan.id }}</td>
 
@@ -192,7 +195,7 @@
 
   <!-- MODAL: REGISTAR DESEMBOLSO -->
   <div class="modal fade" id="disburseLoanModal" tabindex="-1" aria-labelledby="disburseLoanModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered disburse-modal-dialog">
       <div class="modal-content">
         <form id="disburseLoanForm" enctype="multipart/form-data">
           {% csrf_token %}
@@ -264,10 +267,11 @@
             <hr class="my-3" />
 
             <div class="mb-3">
-              <label class="form-label">Comprovativo (opcional)</label>
+              <label class="form-label">Comprovativo *</label>
               <div class="input-group input-group-outline">
-                <input type="file" class="form-control" name="attachment" id="id_disb_attachment" />
+                <input type="file" class="form-control" name="attachment" id="id_disb_attachment" required />
               </div>
+              <small class="text-muted">Anexe o comprovativo do desembolso antes de confirmar.</small>
             </div>
 
             <div class="mb-3">
@@ -806,13 +810,15 @@
         const tr = $(this).closest('tr');
         const loanId = tr.data('loan-id');
         const principal = tr.data('principal');
+        const totalRepay = tr.data('totalRepay');
         const clientAccName = tr.data('client-account-name') || '';
         const clientAccNumber = tr.data('client-account-number') || '';
+        const defaultAmount = totalRepay || principal;
     
         $('#id_disb_loan_id').val(loanId);
         $('#id_disb_company_account').val('').trigger('change');
         $('#id_disb_date').val(todayStr);
-        $('#id_disb_amount').val(principal);
+        $('#id_disb_amount').val(defaultAmount);
         $('#id_disb_method').val('cash').trigger('change');
         $('#id_disb_attachment').val('');
         $('#id_disb_notes').val('');
@@ -830,9 +836,15 @@
         const companyAccount = $('#id_disb_company_account').val();
         const disbDate = $('#id_disb_date').val();
         const amount = $('#id_disb_amount').val().trim();
+        const attachmentInput = $('#id_disb_attachment')[0];
     
         if (!companyAccount || !disbDate || !amount) {
           Swal.fire('Validação', 'Preencha conta, data e valor do desembolso.', 'warning');
+          return;
+        }
+
+        if (!attachmentInput || !attachmentInput.files || attachmentInput.files.length === 0) {
+          Swal.fire('Validação', 'Anexe o comprovativo do desembolso.', 'warning');
           return;
         }
     

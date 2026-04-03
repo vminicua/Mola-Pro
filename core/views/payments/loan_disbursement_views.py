@@ -88,6 +88,7 @@ def register_disbursement(request, loan_id):
     """
     Regista o desembolso de um empréstimo:
     - verifica saldo disponível na conta da empresa
+    - exige comprovativo do desembolso
     - cria LoanDisbursement
     - cria Transaction (saída)
     - actualiza saldo da conta da empresa
@@ -163,6 +164,12 @@ def register_disbursement(request, loan_id):
     except Exception:
         return JsonResponse(
             {"success": False, "message": _("Valor de desembolso inválido.")},
+            status=400,
+        )
+
+    if not attachment:
+        return JsonResponse(
+            {"success": False, "message": _("Anexe o comprovativo do desembolso.")},
             status=400,
         )
 
