@@ -190,6 +190,12 @@
         <td>{{ loan.term_periods }} {{ loan.get_period_type_display|default:loan.period_type }}</td>
       </tr>
       <tr>
+        <td class="label">Estado</td>
+        <td>{{ loan.get_status_display|default:loan.status }}</td>
+        <td class="label">Criado em</td>
+        <td>{{ loan.created_at|date:"d/m/Y H:i"|default:"—" }}</td>
+      </tr>
+      <tr>
         <td class="label">Data de Libertação</td>
         <td>{{ loan.release_date|date:"d/m/Y"|default:"—" }}</td>
         <td class="label">Data de Pagamento</td>

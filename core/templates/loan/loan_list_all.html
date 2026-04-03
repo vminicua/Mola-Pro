@@ -91,12 +91,27 @@
           cursor: pointer;
         }
         .loan-row-actions {
-          min-width: 230px;
+          min-width: 120px;
         }
-        .loan-row-actions .btn {
+        .action-icon-btn {
           display: inline-flex;
           align-items: center;
-          gap: 0.2rem;
+          justify-content: center;
+          width: 2rem;
+          height: 2rem;
+          padding: 0;
+          border-radius: 999px;
+          border-width: 1px;
+          box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+          transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+        .action-icon-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+        }
+        .action-icon-btn .material-symbols-rounded {
+          font-size: 17px;
+          line-height: 1;
         }
       </style>
 
@@ -360,26 +375,29 @@
                         <div class="d-flex flex-wrap gap-1">
                           <button
                             type="button"
-                            class="btn btn-outline-danger btn-xs btn-download-loan-pdf"
+                            class="btn btn-outline-danger btn-xs action-icon-btn btn-download-loan-pdf"
                             data-loan-id="{{ loan.id }}"
-                            data-download-url="{% url 'core:download_loan_pdf' loan.id %}">
-                            <i class="material-symbols-rounded" style="font-size:16px;">picture_as_pdf</i>
-                            PDF
+                            data-download-url="{% url 'core:download_loan_pdf' loan.id %}"
+                            title="Baixar PDF"
+                            aria-label="Baixar PDF">
+                            <i class="material-symbols-rounded">picture_as_pdf</i>
                           </button>
-                          {% if loan.status == "pending" %}
+                          {% if can_manage_loan_actions and loan.status == "pending" %}
                             <button
                               type="button"
-                              class="btn btn-outline-success btn-xs btn-approve-loan"
-                              data-loan-id="{{ loan.id }}">
-                              <i class="material-symbols-rounded" style="font-size:16px;">check_circle</i>
-                              Approve
+                              class="btn btn-outline-success btn-xs action-icon-btn btn-approve-loan"
+                              data-loan-id="{{ loan.id }}"
+                              title="Aprovar empréstimo"
+                              aria-label="Aprovar empréstimo">
+                              <i class="material-symbols-rounded">check_circle</i>
                             </button>
                             <button
                               type="button"
-                              class="btn btn-outline-danger btn-xs btn-reject-loan"
-                              data-loan-id="{{ loan.id }}">
-                              <i class="material-symbols-rounded" style="font-size:16px;">cancel</i>
-                              Reject
+                              class="btn btn-outline-danger btn-xs action-icon-btn btn-reject-loan"
+                              data-loan-id="{{ loan.id }}"
+                              title="Rejeitar empréstimo"
+                              aria-label="Rejeitar empréstimo">
+                              <i class="material-symbols-rounded">cancel</i>
                             </button>
                           {% endif %}
                         </div>

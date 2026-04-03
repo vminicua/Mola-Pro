@@ -161,6 +161,10 @@ def _pdf_error_response(request, loan, message, status):
     return redirect(f"{reverse('core:loan_list_all')}?status={loan.status}&pdf_error=1&loan_id={loan.id}")
 
 
+def _can_manage_pending_loans(user):
+    return bool(user and user.is_authenticated and (user.is_superuser or user.groups.filter(id=1).exists()))
+
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def new_loan(request):
@@ -432,8 +436,15 @@ def pending_loans_list(request):
 
 #============================================================================================================
 #============================================================================================================
+@login_required
 @require_POST
 def confirm_loan(request, loan_id):
+    if not _can_manage_pending_loans(request.user):
+        return JsonResponse(
+            {"success": False, "message": _("Não tem permissão para aprovar empréstimos.")},
+            status=403,
+        )
+
     loan = get_object_or_404(Loan, pk=loan_id)
 
     if loan.status != "pending":
@@ -453,12 +464,19 @@ def confirm_loan(request, loan_id):
 
 #============================================================================================================
 #============================================================================================================
+@login_required
 @require_POST
 def reject_loan(request, loan_id):
     """
     Rejeita um empréstimo pendente.
     Muda o status para 'cancelled'.
     """
+    if not _can_manage_pending_loans(request.user):
+        return JsonResponse(
+            {"success": False, "message": _("Não tem permissão para rejeitar empréstimos.")},
+            status=403,
+        )
+
     loan = get_object_or_404(Loan, pk=loan_id)
 
     if loan.status != "pending":
