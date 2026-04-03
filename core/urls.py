@@ -9,7 +9,7 @@ from core.views.expense.expense_view import expense_list, create_expense, downlo
 from core.views.income.income_view import income_category_list, create_income_category, income_list, create_income, download_income_attachment, update_income_category, toggle_income_category_status
 from core.views.transaction.transaction_view import transaction_list
 from core.views.interest.interest_view import interest_type_list, create_interest_type, interest_calculator, update_interest_type, toggle_interest_type_status
-from core.views.loan.loan_views import new_loan
+from core.views.loan.loan_views import download_loan_pdf, new_loan
 from core.views.loan.loan_type_views import loan_type_list, create_loan_type, update_loan_type, toggle_loan_type
 from core.views.loan.loan_views import pending_loans_list, confirm_loan, reject_loan
 from core.views.payments.loan_disbursement_views import loan_disbursement_list, register_disbursement
@@ -94,6 +94,7 @@ urlpatterns = [
     
     
     path("loans/new/", new_loan, name="new_loan"),
+    path("loans/<int:loan_id>/pdf/", download_loan_pdf, name="download_loan_pdf"),
     
     
         # Tipos de Empréstimos

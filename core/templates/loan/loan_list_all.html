@@ -90,6 +90,14 @@
         #all-loans-table tbody tr {
           cursor: pointer;
         }
+        .loan-row-actions {
+          min-width: 230px;
+        }
+        .loan-row-actions .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2rem;
+        }
       </style>
 
       <div class="card my-4">
@@ -239,6 +247,7 @@
                     <th>1ª Prestação</th>
                     <th>Aprovado por</th>
                     <th>Desembolso</th>
+                    <th style="width: 230px;">Actions</th>
                     <!-- Coluna oculta com o código do status -->
                     <th>StatusCode</th>
                   </tr>
@@ -345,6 +354,35 @@
                         {% else %}
                           —
                         {% endif %}
+                      </td>
+
+                      <td class="text-nowrap loan-row-actions">
+                        <div class="d-flex flex-wrap gap-1">
+                          <button
+                            type="button"
+                            class="btn btn-outline-danger btn-xs btn-download-loan-pdf"
+                            data-loan-id="{{ loan.id }}"
+                            data-download-url="{% url 'core:download_loan_pdf' loan.id %}">
+                            <i class="material-symbols-rounded" style="font-size:16px;">picture_as_pdf</i>
+                            PDF
+                          </button>
+                          {% if loan.status == "pending" %}
+                            <button
+                              type="button"
+                              class="btn btn-outline-success btn-xs btn-approve-loan"
+                              data-loan-id="{{ loan.id }}">
+                              <i class="material-symbols-rounded" style="font-size:16px;">check_circle</i>
+                              Approve
+                            </button>
+                            <button
+                              type="button"
+                              class="btn btn-outline-danger btn-xs btn-reject-loan"
+                              data-loan-id="{{ loan.id }}">
+                              <i class="material-symbols-rounded" style="font-size:16px;">cancel</i>
+                              Reject
+                            </button>
+                          {% endif %}
+                        </div>
                       </td>
 
                       <!-- StatusCode (oculto, para filtragem) -->
@@ -579,7 +617,12 @@
         // esconder a coluna StatusCode (última)
         columnDefs: [
           {
-            targets: 12,    // índice da coluna StatusCode
+            targets: 12,
+            orderable: false,
+            searchable: false
+          },
+          {
+            targets: 13,    // índice da coluna StatusCode
             visible: false,
             searchable: true
           }
@@ -594,9 +637,9 @@
         $('.loan-status-filter[data-status="' + filterStatus + '"]').addClass('active');
 
         if (filterStatus === 'all') {
-          table.column(12).search('').draw();
+          table.column(13).search('').draw();
         } else {
-          table.column(12).search('^' + filterStatus + '$', true, false).draw();
+          table.column(13).search('^' + filterStatus + '$', true, false).draw();
         }
 
         updateFilterCaption(filterStatus);
@@ -632,8 +675,192 @@
         window.history.replaceState({}, '', initialUrl);
       }
 
+      if (initialParams.get('pdf_error') === '1') {
+        const loanId = initialParams.get('loan_id');
+        Swal.fire(
+          'Erro',
+          loanId
+            ? `Não foi possível gerar o PDF do empréstimo #${loanId}.`
+            : 'Não foi possível gerar o PDF do empréstimo.',
+          'error'
+        );
+
+        initialUrl.searchParams.delete('pdf_error');
+        initialUrl.searchParams.delete('loan_id');
+        window.history.replaceState({}, '', initialUrl);
+      }
+
+      const triggerBrowserDownload = function (blob, filename) {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = downloadUrl;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.setTimeout(function () {
+          window.URL.revokeObjectURL(downloadUrl);
+        }, 1000);
+      };
+
+      const getPdfFilename = function (headerValue, fallback) {
+        if (!headerValue) {
+          return fallback;
+        }
+
+        const utfMatch = headerValue.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utfMatch && utfMatch[1]) {
+          return decodeURIComponent(utfMatch[1]);
+        }
+
+        const asciiMatch = headerValue.match(/filename="?([^"]+)"?/i);
+        if (asciiMatch && asciiMatch[1]) {
+          return asciiMatch[1];
+        }
+
+        return fallback;
+      };
+
+      $(document).on('click', '.btn-download-loan-pdf', async function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const button = $(this);
+        const downloadUrl = button.attr('data-download-url');
+        const loanId = button.data('loan-id');
+        const originalHtml = button.html();
+
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> PDF');
+
+        try {
+          const response = await fetch(downloadUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          const contentType = response.headers.get('content-type') || '';
+
+          if (!response.ok || !contentType.includes('application/pdf')) {
+            let message = 'Falha ao gerar o PDF do empréstimo.';
+            try {
+              const errorData = await response.json();
+              if (errorData && errorData.message) {
+                message = errorData.message;
+              }
+            } catch (parseError) {
+              // Ignorar resposta não JSON.
+            }
+
+            throw new Error(message);
+          }
+
+          const blob = await response.blob();
+          const filename = getPdfFilename(
+            response.headers.get('content-disposition'),
+            'emprestimo_' + loanId + '.pdf'
+          );
+
+          triggerBrowserDownload(blob, filename);
+
+          Swal.fire({
+            icon: 'success',
+            title: 'PDF pronto',
+            text: `O PDF do empréstimo #${loanId} foi baixado com sucesso.`,
+            timer: 2200,
+            timerProgressBar: true,
+            showConfirmButton: false
+          });
+        } catch (error) {
+          Swal.fire('Erro', error.message || 'Falha ao gerar o PDF do empréstimo.', 'error');
+        } finally {
+          button.prop('disabled', false).html(originalHtml);
+        }
+      });
+
+      $(document).on('click', '.btn-approve-loan', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const loanId = $(this).data('loan-id');
+
+        Swal.fire({
+          title: 'Aprovar Empréstimo?',
+          text: 'O empréstimo será aprovado e poderá seguir para desembolso.',
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Sim, aprovar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (!result.isConfirmed) return;
+
+          $.ajax({
+            url: "{% url 'core:confirm_loan' 0 %}".replace('/0/', '/' + loanId + '/'),
+            type: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            success: function (resp) {
+              if (resp.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Aprovado',
+                  text: resp.message,
+                  timer: 2000,
+                  showConfirmButton: false
+                }).then(() => window.location.reload());
+              } else {
+                Swal.fire('Erro', resp.message || 'Falha ao aprovar empréstimo.', 'error');
+              }
+            },
+            error: function (xhr) {
+              Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao aprovar empréstimo.', 'error');
+            }
+          });
+        });
+      });
+
+      $(document).on('click', '.btn-reject-loan', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const loanId = $(this).data('loan-id');
+
+        Swal.fire({
+          title: 'Rejeitar Empréstimo?',
+          text: 'Esta acção irá marcar o empréstimo como rejeitado/cancelado.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sim, rejeitar',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (!result.isConfirmed) return;
+
+          $.ajax({
+            url: "{% url 'core:reject_loan' 0 %}".replace('/0/', '/' + loanId + '/'),
+            type: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            success: function (resp) {
+              if (resp.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Rejeitado',
+                  text: resp.message,
+                  timer: 2000,
+                  showConfirmButton: false
+                }).then(() => window.location.reload());
+              } else {
+                Swal.fire('Erro', resp.message || 'Falha ao rejeitar empréstimo.', 'error');
+              }
+            },
+            error: function (xhr) {
+              Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao rejeitar empréstimo.', 'error');
+            }
+          });
+        });
+      });
+
       // Clique em qualquer linha -> abrir modal com detalhes (mesmo esquema de Empréstimos Activos)
-      $('#all-loans-table tbody').on('click', 'tr', function () {
+      $('#all-loans-table tbody').on('click', 'tr', function (event) {
+        if ($(event.target).closest('.loan-row-actions').length) {
+          return;
+        }
+
         const loanId = $(this).data('loan-id');
         if (!loanId) return;
 
