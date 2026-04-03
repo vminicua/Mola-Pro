@@ -5,6 +5,69 @@
   <div class="container-fluid py-2">
     <div class="row">
       <div class="col-12 col-xl-11 mx-auto">
+        <style>
+          .repayment-modal-dialog {
+            max-width: min(1080px, 96vw);
+          }
+
+          .repayment-cycle-summary {
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f6fa 100%);
+            border: 1px solid #dae4ef;
+            border-radius: 1rem;
+            color: #223044;
+            padding: 1rem;
+          }
+
+          .repayment-cycle-title {
+            color: #61748a;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+          }
+
+          .repayment-cycle-grid {
+            display: grid;
+            gap: 0.85rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-top: 0.85rem;
+          }
+
+          .repayment-cycle-stat {
+            background: #fff;
+            border: 1px solid #e3ebf3;
+            border-radius: 0.85rem;
+            padding: 0.85rem 0.9rem;
+          }
+
+          .repayment-cycle-stat-label {
+            color: #6d7b8a;
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+          }
+
+          .repayment-cycle-stat-value {
+            color: #1f2f44;
+            font-size: 1rem;
+            font-weight: 700;
+          }
+
+          .repayment-cycle-note {
+            color: #5d6b7d;
+            font-size: 0.84rem;
+            margin-top: 0.9rem;
+          }
+
+          .repayment-table-meta {
+            line-height: 1.35;
+          }
+        </style>
+
         <div class="card my-4">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
@@ -53,7 +116,7 @@
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                   <h6 class="mb-0">Empréstimos com saldo em dívida</h6>
-                  <p class="text-sm text-muted mb-0">Saldo em dívida = principal em aberto + juros em falta no ciclo actual. Validade indica o fim do ciclo de 30 dias.</p>
+                  <p class="text-sm text-muted mb-0">Saldo em dívida = principal em aberto + juros em falta no ciclo actual. A tabela mostra também o plano do empréstimo, a prestação prevista e o próximo vencimento.</p>
                 </div>
               </div>
 
@@ -63,20 +126,22 @@
                     <tr>
                       <th>ID</th>
                       <th>Cliente</th>
-                      <th>Tipo</th>
+                      <th>Tipo de Empréstimo</th>
+                      <th>Períodos</th>
                       <th>Taxa de Juro</th>
+                      <th>Prestação Prevista (MT)</th>
                       <th>Principal (MT)</th>
                       <th>Principal em dívida (MT)</th>
                       <th>Juros em falta (MT)</th>
                       <th>Saldo em dívida (MT)</th>
-                      <th>Validade</th>
+                      <th>Próximo vencimento</th>
                       <th>Último pagamento</th>
                       <th style="width: 180px;">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for loan in loans %}
-                      <tr data-loan-id="{{ loan.id }}" data-outstanding="{{ loan.outstanding_principal|floatformat:2 }}" data-interest-remaining="{{ loan.period_interest_remaining|floatformat:2 }}" data-interest-rate="{{ loan.interest_type.rate|default_if_none:'0.0000' }}" data-cycle-due="{{ loan.current_cycle_due|default_if_none:'' }}" data-member-name="{{ loan.member.first_name }} {{ loan.member.last_name }}">
+                      <tr data-loan-id="{{ loan.id }}" data-outstanding="{{ loan.outstanding_principal|floatformat:2 }}" data-interest-remaining="{{ loan.period_interest_remaining|floatformat:2 }}" data-interest-rate="{{ loan.interest_type.rate|default_if_none:'0.0000' }}" data-cycle-due="{{ loan.current_cycle_due|default_if_none:'' }}" data-member-name="{{ loan.member.first_name }} {{ loan.member.last_name }}" data-loan-type-label="{{ loan.loan_type.name|default:'—' }}" data-loan-periods="{{ loan.term_periods|default:0 }}" data-loan-period-label="{% if loan.period_type == 'daily' %}dias{% elif loan.period_type == 'monthly' %}meses{% else %}períodos{% endif %}" data-scheduled-payment="{{ loan.scheduled_payment_per_period|floatformat:2 }}" data-cycle-payment="{{ loan.payment_due_this_cycle|floatformat:2 }}">
                         <td>{{ loan.id }}</td>
                         <td data-order="{{ loan.outstanding_with_interest|default:0|floatformat:2 }}">
                           {{ loan.member.first_name }} {{ loan.member.last_name }}
@@ -88,12 +153,30 @@
                           </small>
                         </td>
                         <td>{{ loan.loan_type.name|default:'—' }}</td>
+                        <td data-order="{{ loan.term_periods|default:0 }}">
+                          <div class="repayment-table-meta">
+                            <strong>{{ loan.term_periods|default:0 }}</strong>
+                            {% if loan.period_type == 'daily' %}
+                              dias
+                            {% elif loan.period_type == 'monthly' %}
+                              meses
+                            {% else %}
+                              períodos
+                            {% endif %}
+                          </div>
+                        </td>
                         <td>
                           {% if loan.interest_type %}
                             {{ loan.interest_type.rate|floatformat:2 }}% / {{ loan.interest_type.get_period_type_display }}
                           {% else %}
                             —
                           {% endif %}
+                        </td>
+                        <td data-order="{{ loan.payment_due_this_cycle|default:0|floatformat:2 }}">
+                          <div class="repayment-table-meta">
+                            <strong>{{ loan.payment_due_this_cycle|money }}</strong><br />
+                            <small class="text-muted">Plano: {{ loan.scheduled_payment_per_period|money }} / período</small>
+                          </div>
                         </td>
                         <td data-order="{{ loan.principal_amount|default:0|floatformat:2 }}">{{ loan.principal_amount|money }}</td>
                         <td data-order="{{ loan.outstanding_principal|default:0|floatformat:2 }}">{{ loan.outstanding_principal|money }}</td>
@@ -105,9 +188,10 @@
                             <span class="badge bg-success">{{ 0|money }}</span>
                           {% endif %}
                         </td>
-                        <td>
+                        <td data-order="{{ loan.current_cycle_due|date:'Y-m-d' }}">
                           {% if loan.current_cycle_due %}
-                            {{ loan.current_cycle_due }}
+                            {{ loan.current_cycle_due|date:"d/m/Y" }}
+                            <br /><small class="text-muted">Até esta data</small>
                             {% if loan.current_cycle_due < today %}
                               <br /><span class="badge bg-danger mt-1">Vencido</span>
                             {% endif %}
@@ -117,7 +201,7 @@
                         </td>
                         <td>
                           {% if loan.last_repayment %}
-                            {{ loan.last_repayment.payment_date }}<br />
+                            {{ loan.last_repayment.payment_date|date:"d/m/Y" }}<br />
                             <small class="text-muted">
                               {{ loan.last_repayment.amount|money_with_symbol }}
                               (J: {{ loan.last_repayment.interest_amount|money }}
@@ -153,7 +237,7 @@
 
   <!-- MODAL: REGISTAR REEMBOLSO -->
   <div class="modal fade" id="repaymentModal" tabindex="-1" aria-labelledby="repaymentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered repayment-modal-dialog">
       <div class="modal-content">
         <form id="repaymentForm" enctype="multipart/form-data">
           {% csrf_token %}
@@ -166,7 +250,7 @@
             <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div class="alert alert-info py-2 px-3 mb-3" id="repaymentInfoBox" style="font-size: 0.85rem;">A calcular informações deste empréstimo...</div>
+            <div class="repayment-cycle-summary mb-3" id="repaymentInfoBox">A calcular informações deste empréstimo...</div>
 
             <!-- TIPO DE REEMBOLSO -->
             <div class="mb-3">
@@ -277,6 +361,25 @@
 
         return Number(value || 0).toFixed(2) + '%';
       };
+      const formatDate = function (value, options) {
+        if (window.MolaLocale && typeof window.MolaLocale.formatDate === 'function') {
+          return window.MolaLocale.formatDate(value, options);
+        }
+
+        if (!value) {
+          return '—';
+        }
+
+        const dateValue = new Date(`${value}T00:00:00`);
+        if (Number.isNaN(dateValue.getTime())) {
+          return value;
+        }
+
+        const year = dateValue.getFullYear();
+        const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+        const day = String(dateValue.getDate()).padStart(2, '0');
+        return `${day}/${month}/${year}`;
+      };
 
       const table = $('#loan-repayment-table').DataTable({
         pageLength: 25,
@@ -310,26 +413,62 @@
       let currentInterestRemaining = 0
       let currentRate = 0
       let currentDue = ''
+      let currentLoanType = '—'
+      let currentLoanPeriods = 0
+      let currentLoanPeriodLabel = 'Período'
+      let currentScheduledPayment = 0
+      let currentCyclePayment = 0
     
       function updateInfoBox() {
         const principal = currentOutstanding
         const interestRemaining = currentInterestRemaining
         const rate = currentRate
         const totalDueNow = +(principal + interestRemaining).toFixed(2)
+        const termSummary = currentLoanPeriods > 0
+          ? `${currentLoanPeriods} ${currentLoanPeriodLabel}`
+          : '—'
+        const paymentDueNow = currentCyclePayment > 0 ? currentCyclePayment : totalDueNow
     
         const html = `
-              <strong>Resumo deste ciclo:</strong><br>
-              Principal em dívida: <strong>${formatMoney(principal)}</strong><br>
-              Taxa de juro do período: <strong>${formatPercent(rate)}</strong><br>
-              Juros em falta neste ciclo: <strong>${formatMoney(interestRemaining)}</strong><br>
-              Saldo em dívida (principal + juros em falta): <strong>${formatMoney(totalDueNow)}</strong><br>
-              ${currentDue ? `<span class="badge bg-secondary mt-1">Validade: ${currentDue}</span><br>` : ''}
-              <small class="text-muted">
-                - "Liquidar apenas juros": paga os juros em falta e renova a validade (novo ciclo).<br>
-                - "Liquidar toda a conta": paga principal + juros em falta e encerra o empréstimo.<br>
-                - "Pagamento parcial": paga juros em falta + parte do principal.
-              </small>
-            `
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3">
+            <div>
+              <div class="repayment-cycle-title">Resumo deste ciclo</div>
+              <h6 class="mb-1">${currentLoanType || 'Empréstimo'}</h6>
+              <p class="text-sm text-muted mb-0">Plano contratado: ${termSummary}</p>
+            </div>
+            ${currentDue ? `<span class="badge bg-light text-dark border">Vence em ${formatDate(currentDue)}</span>` : ''}
+          </div>
+          <div class="repayment-cycle-grid">
+            <div class="repayment-cycle-stat">
+              <span class="repayment-cycle-stat-label">Prestação até o vencimento</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(paymentDueNow)}</span>
+            </div>
+            <div class="repayment-cycle-stat">
+              <span class="repayment-cycle-stat-label">Prestação do plano</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(currentScheduledPayment)}</span>
+            </div>
+            <div class="repayment-cycle-stat">
+              <span class="repayment-cycle-stat-label">Principal em dívida</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(principal)}</span>
+            </div>
+            <div class="repayment-cycle-stat">
+              <span class="repayment-cycle-stat-label">Juros em falta</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(interestRemaining)}</span>
+            </div>
+            <div class="repayment-cycle-stat">
+              <span class="repayment-cycle-stat-label">Taxa do período</span>
+              <span class="repayment-cycle-stat-value">${formatPercent(rate)}</span>
+            </div>
+            <div class="repayment-cycle-stat">
+              <span class="repayment-cycle-stat-label">Saldo em dívida</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(totalDueNow)}</span>
+            </div>
+          </div>
+          <div class="repayment-cycle-note">
+            "Liquidar apenas juros" paga só os juros e renova o vencimento. "Liquidar toda a conta" fecha o empréstimo.
+            "Pagamento parcial" cobre os juros do ciclo e ainda reduz o principal.
+          </div>
+        `
         $('#repaymentInfoBox').html(html)
       }
     
@@ -345,19 +484,25 @@
         if (type === 'interest_only') {
           amountField.val(interestRemaining.toFixed(2))
           amountField.prop('readonly', true)
+          amountField.attr('min', interestRemaining.toFixed(2))
+          amountField.attr('max', interestRemaining.toFixed(2))
           hintField.text(`Será liquidado apenas o valor de juros em falta neste ciclo (${formatMoney(interestRemaining)}). ` + `O principal mantém-se igual e a validade é renovada.`)
         } else if (type === 'full') {
           amountField.val(totalDueNow.toFixed(2))
           amountField.prop('readonly', true)
+          amountField.attr('min', totalDueNow.toFixed(2))
+          amountField.attr('max', totalDueNow.toFixed(2))
           hintField.text(`Será liquidado o valor total em dívida (principal + juros em falta: ${formatMoney(totalDueNow)}). ` + `O empréstimo será encerrado.`)
         } else {
           // partial
           amountField.val('')
           amountField.prop('readonly', false)
+          amountField.attr('min', interestRemaining > 0 ? (interestRemaining + 0.01).toFixed(2) : '0.01')
+          amountField.attr('max', totalDueNow > 0.01 ? (totalDueNow - 0.01).toFixed(2) : totalDueNow.toFixed(2))
           if (interestRemaining > 0) {
-            hintField.text('O valor pago será aplicado primeiro aos juros em falta deste ciclo ' + ` (mínimo ${formatMoney(interestRemaining)}) e depois à amortização de principal.`)
+            hintField.text('O valor parcial deve ser superior aos juros em falta ' + `(${formatMoney(interestRemaining)}) e inferior ao saldo total (${formatMoney(totalDueNow)}), para amortizar principal.`)
           } else {
-            hintField.text('Não há juros em falta neste ciclo. O valor pago será aplicado integralmente à amortização do principal.')
+            hintField.text(`Não há juros em falta neste ciclo. O valor parcial deve ser inferior ao saldo total (${formatMoney(totalDueNow)}).`)
           }
         }
       }
@@ -371,11 +516,21 @@
         const interestRemaining = parseFloat(tr.data('interest-remaining') || '0') || 0
         const rate = parseFloat(tr.data('interest-rate') || '0') || 0
         const due = tr.data('cycle-due') || ''
+        const loanType = tr.data('loanTypeLabel') || '—'
+        const loanPeriods = parseInt(tr.data('loanPeriods') || '0', 10) || 0
+        const loanPeriodLabel = tr.data('loanPeriodLabel') || 'Período'
+        const scheduledPayment = parseFloat(tr.data('scheduledPayment') || '0') || 0
+        const cyclePayment = parseFloat(tr.data('cyclePayment') || '0') || 0
     
         currentOutstanding = outstanding
         currentInterestRemaining = interestRemaining
         currentRate = rate
         currentDue = due
+        currentLoanType = loanType
+        currentLoanPeriods = loanPeriods
+        currentLoanPeriodLabel = loanPeriodLabel
+        currentScheduledPayment = scheduledPayment
+        currentCyclePayment = cyclePayment
     
         $('#id_rep_loan_id').val(loanId)
         $('#id_rep_company_account').val('').trigger('change')

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+from datetime import date
+from decimal import Decimal
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -15,6 +17,7 @@ from core.branding import (
     save_brand_preferences,
     set_active_brand_preferences,
 )
+from core.loan_repayment_logic import RepaymentAllocationError, add_period, allocate_repayment
 from core.templatetags.core_i18n import format_money_value
 from core.views.preferences_view import update_user_currency_format, update_user_language
 
@@ -148,3 +151,55 @@ class BrandPalettePreferenceTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(request.session[USER_CURRENCY_FORMAT_SESSION_KEY], "intl")
         self.assertEqual(payload["currency_format"], "intl")
+
+
+class LoanRepaymentLogicTests(SimpleTestCase):
+    def test_add_period_uses_the_loan_period_type(self) -> None:
+        self.assertEqual(add_period(date(2026, 1, 31), "monthly"), date(2026, 2, 28))
+        self.assertEqual(add_period(date(2026, 4, 3), "daily"), date(2026, 4, 4))
+
+    def test_partial_repayment_splits_interest_then_principal(self) -> None:
+        allocation = allocate_repayment(
+            amount=Decimal("80.00"),
+            interest_remaining=Decimal("30.00"),
+            outstanding_principal=Decimal("200.00"),
+            repayment_type="partial",
+        )
+
+        self.assertEqual(allocation.interest_amount, Decimal("30.00"))
+        self.assertEqual(allocation.principal_amount, Decimal("50.00"))
+        self.assertEqual(allocation.principal_balance_after, Decimal("150.00"))
+
+    def test_partial_repayment_requires_a_real_principal_reduction(self) -> None:
+        with self.assertRaises(RepaymentAllocationError) as context:
+            allocate_repayment(
+                amount=Decimal("30.00"),
+                interest_remaining=Decimal("30.00"),
+                outstanding_principal=Decimal("200.00"),
+                repayment_type="partial",
+            )
+
+        self.assertEqual(context.exception.code, "partial_must_reduce_principal")
+
+    def test_partial_repayment_rejects_values_that_close_the_loan(self) -> None:
+        with self.assertRaises(RepaymentAllocationError) as context:
+            allocate_repayment(
+                amount=Decimal("230.00"),
+                interest_remaining=Decimal("30.00"),
+                outstanding_principal=Decimal("200.00"),
+                repayment_type="partial",
+            )
+
+        self.assertEqual(context.exception.code, "partial_must_be_less_than_total_due")
+
+    def test_full_repayment_closes_the_loan(self) -> None:
+        allocation = allocate_repayment(
+            amount=Decimal("230.00"),
+            interest_remaining=Decimal("30.00"),
+            outstanding_principal=Decimal("200.00"),
+            repayment_type="full",
+        )
+
+        self.assertEqual(allocation.interest_amount, Decimal("30.00"))
+        self.assertEqual(allocation.principal_amount, Decimal("200.00"))
+        self.assertEqual(allocation.principal_balance_after, Decimal("0.00"))
