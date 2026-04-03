@@ -266,7 +266,7 @@
                       {% endif %}
                     </td>
                     <td class="text-xs text-muted text-end pe-3">
-                      {{ loan.created_at|date:"m/d/Y H:i" }}
+                      {{ loan.created_at|date:"d/m/Y H:i" }}
                     </td>
                   </tr>
                 {% empty %}
@@ -314,7 +314,7 @@
                       {{ item.amount|money }}
                     </td>
                     <td class="text-xs text-muted text-end pe-3">
-                      {{ item.tx_date|date:"m/d/Y" }}
+                      {{ item.tx_date|date:"d/m/Y" }}
                     </td>
                   </tr>
                 {% empty %}
@@ -360,7 +360,7 @@
                       {{ item.member.first_name }} {{ item.member.last_name }}
                     </td>
                     <td class="text-xs text-center">
-                      {{ item.next_due_date|date:"m/d/Y" }}
+                      {{ item.next_due_date|date:"d/m/Y" }}
                     </td>
                     <td class="text-xs text-center pe-3">
                       {% if item.days_to_due < 0 %}

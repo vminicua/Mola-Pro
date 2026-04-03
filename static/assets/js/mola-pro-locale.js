@@ -225,7 +225,7 @@
       );
 
       if (isoMatch) {
-        var datePart = isoMatch[2] + '/' + isoMatch[3] + '/' + isoMatch[1];
+        var datePart = isoMatch[3] + '/' + isoMatch[2] + '/' + isoMatch[1];
 
         if (includeTime && isoMatch[4] && isoMatch[5]) {
           return datePart + ' ' + isoMatch[4] + ':' + isoMatch[5];
@@ -241,8 +241,8 @@
     }
 
     var formattedDate = [
-      padNumber(parsedDate.getMonth() + 1),
       padNumber(parsedDate.getDate()),
+      padNumber(parsedDate.getMonth() + 1),
       parsedDate.getFullYear()
     ].join('/');
 

@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static core_i18n %}
+{% load static core_i18n l10n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -17,7 +17,7 @@
               <div class="row g-4">
                 <!-- FORMULÁRIO DE SIMULAÇÃO -->
                 <div class="col-lg-4">
-                  <h6 class="mb-3">Simulador de Microcrédito (Taxa Fixa sobre Saldo)</h6>
+                  <h6 class="mb-3">Simulador de Microcrédito (Juro Flat)</h6>
 
                   <form id="interestCalcForm" data-skip-processing="true">
                     {% csrf_token %}
@@ -28,7 +28,7 @@
                         <select class="form-select" name="interest_type" id="id_interest_type">
                           <option value="">— Seleccione —</option>
                           {% for it in interest_types %}
-                            <option value="{{ it.id }}" data-rate="{{ it.rate }}" data-period-type="{{ it.period_type }}" data-method="{{ it.calculation_method }}">{{ it.name }} ({{ it.rate|floatformat:2 }}% / {{ it.get_period_type_display }})</option>
+                            <option value="{{ it.id }}" data-rate="{{ it.rate|unlocalize }}" data-period-type="{{ it.period_type }}" data-method="{{ it.calculation_method }}">{{ it.name }} ({{ it.rate|floatformat:2 }}% / {{ it.get_period_type_display }})</option>
                           {% endfor %}
                         </select>
                       </div>
@@ -91,7 +91,7 @@
                         <strong id="sumInterest">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
-                        <span>Total Pago:</span>
+                        <span>A Reembolsar:</span>
                         <strong id="sumTotalPaid">{{ 0|money_with_symbol }}</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
@@ -104,7 +104,7 @@
 
                 <!-- TABELA DE SIMULAÇÃO -->
                 <div class="col-lg-8">
-                  <h6 class="mb-3">Simulação por Ciclo (Taxa Fixa sobre Saldo)</h6>
+                  <h6 class="mb-3">Simulação por Ciclo (Juro Flat)</h6>
                   <div class="table-responsive">
                     <table id="schedule-table" class="table table-bordered table-striped align-items-center mb-0" style="width:100%">
                       <thead>
@@ -148,16 +148,24 @@
       const n = Number(value || 0)
       return 'MT ' + n.toFixed(2)
     }
+
+    function parseNumericValue(value) {
+      if (typeof value === 'number') {
+        return Number.isFinite(value) ? value : 0
+      }
+
+      const normalized = String(value ?? '')
+        .trim()
+        .replace(/\s+/g, '')
+        .replace(',', '.')
+      const numericValue = Number(normalized)
+      return Number.isFinite(numericValue) ? numericValue : 0
+    }
     
-    // Sugestão de pagamento por ciclo (amortização clássica)
     function sugerirPagamentoPorCiclo(principal, r, periods) {
       if (periods <= 0) return 0
-      if (r === 0) {
-        return principal / periods
-      }
-      const pow = Math.pow(1 + r, periods)
-      const pmt = (principal * (r * pow)) / (pow - 1)
-      return pmt
+      const totalInterest = principal * r * periods
+      return (principal + totalInterest) / periods
     }
     
     document.addEventListener('DOMContentLoaded', function () {
@@ -205,13 +213,13 @@
         const principalRaw = principalInput.value.trim()
         if (!principalRaw) return
     
-        const principal = Number(principalRaw)
+        const principal = parseNumericValue(principalRaw)
         if (principal <= 0) return
     
         const selectedOption = interestSelect.options[interestSelect.selectedIndex]
         if (!selectedOption || !selectedOption.value) return
     
-        const ratePercent = Number(selectedOption.dataset.rate || 0)
+        const ratePercent = parseNumericValue(selectedOption.dataset.rate || 0)
         if (ratePercent < 0) return
     
         const mode = modeSelect.value
@@ -219,11 +227,11 @@
         if (mode === 'monthly') {
           const m = monthsInput.value.trim()
           if (!m || Number(m) <= 0) return
-          periods = Number(m)
+          periods = parseNumericValue(m)
         } else {
           const d = daysInput.value.trim()
           if (!d || Number(d) <= 0) return
-          periods = Number(d)
+          periods = parseNumericValue(d)
         }
     
         const r = ratePercent / 100.0
@@ -272,11 +280,11 @@
           periods = Number(days)
         }
     
-        const ratePercent = Number(selectedOption.dataset.rate || 0)
+        const ratePercent = parseNumericValue(selectedOption.dataset.rate || 0)
         const periodType = selectedOption.dataset.periodType || ''
         const method = selectedOption.dataset.method || 'flat'
-        const principal = Number(principalRaw)
-        let paymentPerCycle = Number(paymentRaw)
+        const principal = parseNumericValue(principalRaw)
+        let paymentPerCycle = parseNumericValue(paymentRaw)
     
         if (!ratePercent || ratePercent < 0) {
           Swal.fire('Validação', 'A taxa de juro configurada para este tipo é inválida.', 'warning')
@@ -305,54 +313,33 @@
     
         const r = ratePercent / 100.0
     
+        const interestPerCycle = principal * r
+        const totalInterest = interestPerCycle * periods
+        const totalPaid = principal + totalInterest
         let saldo = principal
-        let totalInterest = 0
-        let totalPaid = 0
-    
+        let remainingTotal = totalPaid
+
         scheduleTable.clear()
-    
+
         for (let i = 1; i <= periods; i++) {
-          if (saldo <= 0) {
-            // já liquidou antes do fim dos períodos
+          if (remainingTotal <= 0) {
             break
           }
-    
+
           const saldoInicial = saldo
-          const jurosCiclo = saldoInicial * r
-          let pagamento = paymentPerCycle
-          let amortizacao = 0
-          let obs = ''
-    
-          const isLast = i === periods
-    
-          if (isLast) {
-            // Na última parcela, ajustamos o pagamento para liquidar tudo:
-            // pagamento = juros do ciclo + saldo
-            pagamento = jurosCiclo + saldoInicial
-            amortizacao = saldoInicial
-            saldo = 0
-            obs = 'Parcela ajustada para liquidar o empréstimo.'
-          } else {
-            // Ciclos anteriores: usa pagamento indicado (que pode ter sido sugerido ou editado)
-            if (pagamento <= jurosCiclo) {
-              // Paga só juros ou nem isso: saldo não reduz, mas será corrigido na última
-              amortizacao = 0
-              saldo = saldoInicial // não reduz aqui
-              obs = 'Pagamento abaixo ou igual aos juros; saldo será corrigido na última parcela.'
-            } else {
-              amortizacao = pagamento - jurosCiclo
-              saldo = saldoInicial - amortizacao
-              if (saldo < 0) {
-                amortizacao += saldo // ajustar caso passe um pouco
-                saldo = 0
-              }
-              obs = 'Reduziu principal.'
-            }
+          const jurosCiclo = interestPerCycle
+          const pagamento = Math.min(paymentPerCycle, remainingTotal)
+          const amortizacao = Math.min(saldoInicial, Math.max(pagamento - jurosCiclo, 0))
+          saldo = Math.max(saldoInicial - amortizacao, 0)
+          remainingTotal = Math.max(remainingTotal - pagamento, 0)
+          let obs = 'Prestação regular.'
+
+          if (pagamento <= jurosCiclo) {
+            obs = 'Prestação abaixo dos juros do ciclo; ajuste final necessário.'
+          } else if (pagamento !== paymentPerCycle || i === periods) {
+            obs = 'Prestação ajustada para encerrar o empréstimo.'
           }
-    
-          totalInterest += jurosCiclo
-          totalPaid += pagamento
-    
+
           scheduleTable.row.add([i, mode === 'monthly' ? `Mês ${i}` : `Dia ${i}`, formatMoney(saldoInicial), formatMoney(jurosCiclo), formatMoney(pagamento), formatMoney(amortizacao), formatMoney(saldo), obs])
         }
     

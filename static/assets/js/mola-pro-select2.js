@@ -45,7 +45,7 @@
       width: '100%',
       placeholder: getPlaceholder($select),
       allowClear: !$select.prop('multiple') && $select.find('option[value=""]').length > 0,
-      dropdownAutoWidth: true
+      dropdownAutoWidth: false
     };
 
     const $modal = $select.closest('.modal');

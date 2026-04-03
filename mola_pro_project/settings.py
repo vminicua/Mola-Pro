@@ -125,10 +125,10 @@ LOCALE_PATHS = [
 TIME_ZONE = 'UTC'  # se quiseres podemos mudar depois para Africa/Maputo
 USE_I18N = True
 USE_TZ = True
-DATE_FORMAT = "m/d/Y"
-SHORT_DATE_FORMAT = "m/d/Y"
-DATETIME_FORMAT = "m/d/Y H:i"
-SHORT_DATETIME_FORMAT = "m/d/Y H:i"
+DATE_FORMAT = "d/m/Y"
+SHORT_DATE_FORMAT = "d/m/Y"
+DATETIME_FORMAT = "d/m/Y H:i"
+SHORT_DATETIME_FORMAT = "d/m/Y H:i"
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'

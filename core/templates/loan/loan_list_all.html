@@ -250,7 +250,7 @@
                       <td>{{ loan.id }}</td>
 
                       <!-- Data criação -->
-                      <td data-order="{{ loan.created_at|date:'Y-m-d H:i:s' }}">{{ loan.created_at|date:"m/d/Y H:i" }}</td>
+                      <td data-order="{{ loan.created_at|date:'Y-m-d H:i:s' }}">{{ loan.created_at|date:"d/m/Y H:i" }}</td>
 
                       <!-- Membro -->
                       <td data-order="{{ loan.total_to_repay|default:0|floatformat:2 }}">
@@ -308,7 +308,7 @@
                       <!-- Data Início -->
                       <td data-order="{{ loan.release_date|date:'Y-m-d' }}">
                         {% if loan.release_date %}
-                          {{ loan.release_date|date:"m/d/Y" }}
+                          {{ loan.release_date|date:"d/m/Y" }}
                         {% else %}
                           —
                         {% endif %}
@@ -317,7 +317,7 @@
                       <!-- 1ª Prestação -->
                       <td data-order="{{ loan.first_payment_date|date:'Y-m-d' }}">
                         {% if loan.first_payment_date %}
-                          {{ loan.first_payment_date|date:"m/d/Y" }}
+                          {{ loan.first_payment_date|date:"d/m/Y" }}
                         {% else %}
                           —
                         {% endif %}
@@ -335,7 +335,7 @@
                       <!-- Data Desembolso -->
                       <td data-order="{{ loan.disbursed_date|date:'Y-m-d' }}">
                         {% if loan.disbursed_date %}
-                          {{ loan.disbursed_date|date:"m/d/Y" }}
+                          {{ loan.disbursed_date|date:"d/m/Y" }}
                           <br>
                           {% if loan.disbursed_amount %}
                             <small class="text-muted">
@@ -493,10 +493,10 @@
           return value;
         }
 
-        const month = String(dateValue.getMonth() + 1).padStart(2, '0');
         const day = String(dateValue.getDate()).padStart(2, '0');
+        const month = String(dateValue.getMonth() + 1).padStart(2, '0');
         const year = dateValue.getFullYear();
-        const datePart = `${month}/${day}/${year}`;
+        const datePart = `${day}/${month}/${year}`;
 
         if (!includeTime) {
           return datePart;

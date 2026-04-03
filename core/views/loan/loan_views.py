@@ -1,8 +1,8 @@
+from calendar import monthrange
+from datetime import date
 from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
-from django.contrib.auth import get_user_model
-from datetime import datetime
 
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -15,6 +15,31 @@ from core.models import Member, LoanType, InterestType, CompanyAccount, Loan, Lo
 #============================================================================================================
 #============================================================================================================
 
+
+def _add_months(base_date: date, months: int = 1) -> date:
+    month_index = (base_date.month - 1) + months
+    year = base_date.year + (month_index // 12)
+    month = (month_index % 12) + 1
+    day = min(base_date.day, monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def _build_new_loan_form_defaults(loan_types, interest_types):
+    release_date = timezone.localdate()
+    first_payment_date = _add_months(release_date, 1)
+    default_loan_type = loan_types.first()
+    default_interest_type = interest_types.first()
+
+    return {
+        "loan_type": str(default_loan_type.id) if default_loan_type else "",
+        "interest_type": str(default_interest_type.id) if default_interest_type else "",
+        "term_periods": "1",
+        "period_type": "monthly",
+        "disburse_method": "cash",
+        "release_date": release_date.isoformat(),
+        "first_payment_date": first_payment_date.isoformat(),
+    }
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def new_loan(request):
@@ -24,7 +49,7 @@ def new_loan(request):
     company_accounts = CompanyAccount.objects.filter(is_active=True).order_by("name")
 
     errors = {}
-    form_data = {}
+    form_data = _build_new_loan_form_defaults(loan_types, interest_types)
 
     if request.method == "POST":
         member_id = request.POST.get("member", "").strip()
@@ -55,9 +80,7 @@ def new_loan(request):
         guarantor_account = request.POST.get("guarantor_account", "").strip()
         guarantor_amount_raw = request.POST.get("guarantor_amount", "").strip()
 
-        attachment = request.FILES.get("attachment")
-
-        form_data = request.POST.dict()
+        form_data.update(request.POST.dict())
 
         # Validar cliente
         member = None
@@ -150,7 +173,6 @@ def new_loan(request):
                 company_account=company_account,
                 purpose=purpose or None,
                 remarks=remarks or None,
-                attachment=attachment,
                 status="pending",
                 created_by=request.user if request.user.is_authenticated else None,
             )
@@ -215,6 +237,7 @@ def new_loan(request):
                     "loan_types": loan_types,
                     "interest_types": interest_types,
                     "company_accounts": company_accounts,
+                    "form_data": _build_new_loan_form_defaults(loan_types, interest_types),
                     "loan_created": True,
                     "new_loan_id": loan.id,
                 },

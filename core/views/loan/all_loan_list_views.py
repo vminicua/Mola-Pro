@@ -4,6 +4,7 @@ from decimal import Decimal
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
+from core.loan_math import calculate_flat_loan_metrics
 from core.models import Loan
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -41,13 +42,14 @@ def loan_list_all(request):
     }
 
     for loan in loans:
-        principal = loan.principal_amount or Decimal("0")
-        rate = getattr(loan.interest_type, "rate", Decimal("0")) or Decimal("0")
-        periods = loan.term_periods or 1
-
-        # Juros simples “flat”: principal * (taxa% * períodos)
-        interest = (principal * rate * periods) / Decimal("100")
-        total_amount = principal + interest
+        metrics = calculate_flat_loan_metrics(
+            loan.principal_amount,
+            getattr(loan.interest_type, "rate", Decimal("0")) or Decimal("0"),
+            loan.term_periods,
+        )
+        principal = metrics["principal"]
+        interest = metrics["total_interest"]
+        total_amount = metrics["total_to_repay"]
 
         loan.total_interest = interest
         loan.total_to_repay = total_amount
@@ -116,11 +118,14 @@ def loan_details_any_status(request, loan_id):
     )  # 👈 SEM filtro de status
 
     # cálculo juros / total a reembolsar
-    total_to_repay = None
-    total_interest = None
-    if loan.payment_per_period and loan.term_periods:
-        total_to_repay = loan.payment_per_period * loan.term_periods
-        total_interest = total_to_repay - loan.principal_amount
+    metrics = calculate_flat_loan_metrics(
+        loan.principal_amount,
+        getattr(loan.interest_type, "rate", Decimal("0")) or Decimal("0"),
+        loan.term_periods,
+    )
+    total_to_repay = metrics["total_to_repay"]
+    total_interest = metrics["total_interest"]
+    payment_per_period = loan.payment_per_period or metrics["suggested_payment_per_period"]
 
     member = loan.member
 
@@ -171,9 +176,9 @@ def loan_details_any_status(request, loan_id):
             "principal_amount": float(loan.principal_amount),
             "term_periods": loan.term_periods,
             "period_type": loan.period_type,
-            "payment_per_period": float(loan.payment_per_period) if loan.payment_per_period else None,
-            "total_to_repay": float(total_to_repay) if total_to_repay is not None else None,
-            "total_interest": float(total_interest) if total_interest is not None else None,
+            "payment_per_period": float(payment_per_period) if payment_per_period is not None else None,
+            "total_to_repay": float(total_to_repay),
+            "total_interest": float(total_interest),
             "release_date": loan.release_date.isoformat() if loan.release_date else None,
             "first_payment_date": loan.first_payment_date.isoformat() if loan.first_payment_date else None,
             "disburse_method": loan.disburse_method,

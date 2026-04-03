@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
+from core.loan_math import calculate_flat_loan_metrics
 from core.models import (
     Loan,
 )
@@ -47,11 +48,14 @@ def active_loan_details(request, loan_id):
     )
 
     # cálculo juros / total a reembolsar
-    total_to_repay = None
-    total_interest = None
-    if loan.payment_per_period and loan.term_periods:
-        total_to_repay = loan.payment_per_period * loan.term_periods
-        total_interest = total_to_repay - loan.principal_amount
+    metrics = calculate_flat_loan_metrics(
+        loan.principal_amount,
+        getattr(loan.interest_type, "rate", 0),
+        loan.term_periods,
+    )
+    total_to_repay = metrics["total_to_repay"]
+    total_interest = metrics["total_interest"]
+    payment_per_period = loan.payment_per_period or metrics["suggested_payment_per_period"]
 
     member = loan.member
 
@@ -102,9 +106,9 @@ def active_loan_details(request, loan_id):
             "principal_amount": float(loan.principal_amount),
             "term_periods": loan.term_periods,
             "period_type": loan.period_type,
-            "payment_per_period": float(loan.payment_per_period) if loan.payment_per_period else None,
-            "total_to_repay": float(total_to_repay) if total_to_repay is not None else None,
-            "total_interest": float(total_interest) if total_interest is not None else None,
+            "payment_per_period": float(payment_per_period) if payment_per_period is not None else None,
+            "total_to_repay": float(total_to_repay),
+            "total_interest": float(total_interest),
             "release_date": loan.release_date.isoformat() if loan.release_date else None,
             "first_payment_date": loan.first_payment_date.isoformat() if loan.first_payment_date else None,
             "disburse_method": loan.disburse_method,
