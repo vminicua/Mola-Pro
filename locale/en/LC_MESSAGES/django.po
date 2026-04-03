@@ -60,6 +60,9 @@ msgstr "Accounts"
 msgid "Conta dos Clientes"
 msgstr "Client Accounts"
 
+msgid "Contas dos Clientes"
+msgstr "Client Accounts"
+
 msgid "Conta da Empresa"
 msgstr "Company Account"
 
@@ -116,6 +119,15 @@ msgstr "Preferences"
 
 msgid "Relatórios"
 msgstr "Reports"
+
+msgid "Principal"
+msgstr "Main"
+
+msgid "Operações"
+msgstr "Operations"
+
+msgid "Administração"
+msgstr "Administration"
 
 msgid "Gerar"
 msgstr "Generate"
