@@ -26,30 +26,11 @@
 
             {# ========= CLIENTES ========= #}
             <li class="nav-item">
-                <a class="nav-link text-dark {% if segment == 'members_list' or segment == 'member_add' %}active{% endif %}"
-                   data-bs-toggle="collapse" href="#menu-clientes" role="button"
-                   aria-expanded="false" aria-controls="menu-clientes">
+                <a class="nav-link text-dark {% if segment == 'clients' or request.resolver_match.url_name == 'member_list' %}active{% endif %}"
+                   href="{% url 'core:member_list' %}">
                     <i class="material-symbols-rounded opacity-5">groups</i>
-                    <span class="nav-link-text ms-2 ps-1">{% trans "Clientes" %}</span>
+                    <span class="nav-link-text ms-1">{% trans "Clientes" %}</span>
                 </a>
-                <div class="collapse {% if segment == 'members_list' or segment == 'member_add' %}show{% endif %}" id="menu-clientes">
-                    <ul class="nav ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'members_list' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:member_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">list</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Lista de Membros" %} </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'member_add' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:add_member' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">person_add</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Adicionar Membros" %} </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
             {# ========= EMPRÉSTIMOS ========= #}
@@ -73,24 +54,10 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'loans_active' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:active_loans_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">check_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Empréstimos Activos" %} </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'loans_pending' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:pending_loans' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">pending</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Empréstimos Pendentes" %} </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'loans_all' %}active fw-bold text-primary{% endif %}"
+                            <a class="nav-link text-dark {% if segment == 'loans_all' or segment == 'loans_active' or segment == 'loans_pending' %}active fw-bold text-primary{% endif %}"
                                href="{% url 'core:loan_list_all' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">view_list</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Todos os Empréstimos" %} </span>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Empréstimos" %} </span>
                             </a>
                         </li>
                     </ul>

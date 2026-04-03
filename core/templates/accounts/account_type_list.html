@@ -268,7 +268,7 @@
         const name = row.data('name');
 
         $('#edit_account_id').val(id);
-        $('#edit_category').val(category);
+        $('#edit_category').val(category).trigger('change');
         $('#edit_account_name').val(name);
 
         // Ajustar floating label do edit

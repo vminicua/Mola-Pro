@@ -52,7 +52,7 @@
                     <h6 class="mb-3">Passo 1 · Detalhes do Empréstimo</h6>
 
                     <div class="mb-3">
-                      <label class="form-label">Membro / Cliente *</label>
+                      <label class="form-label">Cliente *</label>
                       <div class="input-group input-group-outline">
                         <select class="form-select" name="member" id="id_member">
                           <option value="">— Seleccione —</option>
@@ -310,11 +310,11 @@
                   <div class="loan-step-panel d-none" data-step-panel="3">
                     <h6 class="mb-3">Passo 3 · Avalista</h6>
                     <p class="text-sm text-muted">
-                      Opcional. O avalista deve existir como membro na base de dados.
+                      Opcional. O avalista deve existir como cliente na base de dados.
                     </p>
 
                     <div class="mb-3">
-                      <label class="form-label">Avalista (Membro)</label>
+                      <label class="form-label">Avalista (Cliente)</label>
                       <div class="input-group input-group-outline">
                         <select class="form-select" name="guarantor_member" id="id_guarantor_member">
                           <option value="">— Seleccione —</option>
@@ -579,7 +579,7 @@
       // Só validamos o Passo 1 (Detalhes). Garantias e Avalista são opcionais.
       if (currentStep === 1) {
         if (!document.getElementById('id_member').value) {
-          Swal.fire('Validação', 'Selecione o membro/cliente.', 'warning');
+          Swal.fire('Validação', 'Selecione o cliente.', 'warning');
           return false;
         }
         if (!interestSelect.value) {

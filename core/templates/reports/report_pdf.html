@@ -217,7 +217,7 @@
 
       {% if member %}
       <div class="info-item">
-        <div class="info-label">Membro</div>
+        <div class="info-label">Cliente</div>
         <div class="info-value">
           {{ member.first_name }} {{ member.last_name }}
           {% if member.phone %} · {{ member.phone }}{% endif %}
@@ -395,7 +395,7 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Membro</th>
+          <th>Cliente</th>
           <th>Tipo</th>
           <th class="text-right">Principal (MT)</th>
           <th>Períodos</th>
@@ -413,7 +413,7 @@
             <td class="text-right">{{ r.principal_amount|money }}</td>
             <td>{{ r.term_periods }} {{ r.get_period_type_display }}</td>
             <td>{{ r.get_status_display|default:r.status }}</td>
-            <td>{{ r.created_at|date:"Y-m-d H:i" }}</td>
+            <td>{{ r.created_at|date:"m/d/Y H:i" }}</td>
             <td>
               {% if r.created_by %}
                 {{ r.created_by.get_full_name|default:r.created_by.username }}
@@ -458,7 +458,7 @@
         <tr>
           <th>ID</th>
           <th>Data</th>
-          <th>Membro</th>
+          <th>Cliente</th>
           <th>Conta</th>
           <th class="text-right">Valor (MT)</th>
           <th>Método</th>
@@ -469,7 +469,7 @@
         {% for r in rows %}
           <tr>
             <td>{{ r.id }}</td>
-            <td>{{ r.disburse_date }}</td>
+            <td>{{ r.disburse_date|date:"m/d/Y" }}</td>
             <td>{{ r.member.first_name }} {{ r.member.last_name }}</td>
             <td>{{ r.company_account.name }}</td>
             <td class="text-right">{{ r.amount|money }}</td>
@@ -518,7 +518,7 @@
         <tr>
           <th>ID</th>
           <th>Data</th>
-          <th>Membro</th>
+          <th>Cliente</th>
           <th>Conta</th>
           <th class="text-right">Total (MT)</th>
           <th class="text-right">Juros</th>

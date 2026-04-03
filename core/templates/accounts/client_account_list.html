@@ -340,8 +340,8 @@
         const balance = row.data('balance');
 
         $('#edit_account_id').val(id);
-        $('#edit_member').val(memberId);
-        $('#edit_account_type').val(accountTypeId);
+        $('#edit_member').val(memberId).trigger('change');
+        $('#edit_account_type').val(accountTypeId).trigger('change');
         $('#edit_account_identifier').val(identifier);
         $('#edit_balance').val(balance);
 

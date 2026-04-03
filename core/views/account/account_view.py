@@ -153,7 +153,7 @@ def create_client_account(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": _("Membro, tipo de conta e identificador são obrigatórios."),
+                "message": _("Cliente, tipo de conta e identificador são obrigatórios."),
             },
             status=400,
         )
@@ -162,7 +162,7 @@ def create_client_account(request):
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": _("Membro inválido.")},
+            {"success": False, "message": _("Cliente inválido.")},
             status=400,
         )
 
@@ -214,7 +214,7 @@ def update_client_account(request):
         return JsonResponse(
             {
                 "success": False,
-                "message": _("Membro, tipo de conta e identificador são obrigatórios."),
+                "message": _("Cliente, tipo de conta e identificador são obrigatórios."),
             },
             status=400,
         )
@@ -225,7 +225,7 @@ def update_client_account(request):
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
         return JsonResponse(
-            {"success": False, "message": _("Membro inválido.")},
+            {"success": False, "message": _("Cliente inválido.")},
             status=400,
         )
 

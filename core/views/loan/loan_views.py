@@ -6,6 +6,7 @@ from datetime import datetime
 
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
@@ -58,15 +59,15 @@ def new_loan(request):
 
         form_data = request.POST.dict()
 
-        # Validar member
+        # Validar cliente
         member = None
         if not member_id:
-            errors["member"] = _("Selecione o membro/cliente.")
+            errors["member"] = _("Selecione o cliente.")
         else:
             try:
                 member = members.get(pk=member_id)
             except Member.DoesNotExist:
-                errors["member"] = _("Membro inválido.")
+                errors["member"] = _("Cliente inválido.")
 
         # Validar interest_type
         interest_type = None
@@ -182,7 +183,7 @@ def new_loan(request):
                     description=guarantee_description or None,
                 )
 
-            # --- Avalista (opcional, precisa ser membro válido) ---
+            # --- Avalista (opcional, precisa ser cliente válido) ---
             if guarantor_member_id:
                 try:
                     guarantor_member = Member.objects.get(pk=guarantor_member_id)
@@ -235,22 +236,13 @@ def new_loan(request):
 #============================================================================================================
 #============================================================================================================
 
+@login_required
 def pending_loans_list(request):
     """
-    Lista de empréstimos com status 'pending'.
+    Rota legada.
+    Redirecciona para a listagem única de empréstimos filtrada por pendentes.
     """
-    loans = (
-        Loan.objects
-        .select_related("member", "loan_type", "interest_type", "created_by")
-        .filter(status="pending")
-        .order_by("-id")
-    )
-    context = {
-        "loans": loans,
-        "segment": "loans_pending",
-    }
-    
-    return render(request, "loan/pending_loans_list.html", context)
+    return redirect(f"{reverse('core:loan_list_all')}?status=pending")
 
 
 #============================================================================================================

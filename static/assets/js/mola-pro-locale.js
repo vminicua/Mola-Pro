@@ -204,6 +204,55 @@
     return formatNumber(normalizedValue, typeof decimals === 'number' ? decimals : 2) + '%';
   }
 
+  function padNumber(value) {
+    return String(value).padStart(2, '0');
+  }
+
+  function formatDate(value, options) {
+    var settings = options || {};
+    var includeTime = settings.includeTime === true;
+    var emptyValue = Object.prototype.hasOwnProperty.call(settings, 'empty')
+      ? settings.empty
+      : '—';
+
+    if (value === null || value === undefined || value === '') {
+      return emptyValue;
+    }
+
+    if (typeof value === 'string') {
+      var isoMatch = value.match(
+        /^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2})(?::(\d{2}))?)?/
+      );
+
+      if (isoMatch) {
+        var datePart = isoMatch[2] + '/' + isoMatch[3] + '/' + isoMatch[1];
+
+        if (includeTime && isoMatch[4] && isoMatch[5]) {
+          return datePart + ' ' + isoMatch[4] + ':' + isoMatch[5];
+        }
+
+        return datePart;
+      }
+    }
+
+    var parsedDate = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return value;
+    }
+
+    var formattedDate = [
+      padNumber(parsedDate.getMonth() + 1),
+      padNumber(parsedDate.getDate()),
+      parsedDate.getFullYear()
+    ].join('/');
+
+    if (!includeTime) {
+      return formattedDate;
+    }
+
+    return formattedDate + ' ' + padNumber(parsedDate.getHours()) + ':' + padNumber(parsedDate.getMinutes());
+  }
+
   function translateSwalOptions(options) {
     var translatedOptions = Object.assign({}, options);
     [
@@ -266,6 +315,7 @@
   window.MolaLocale = {
     config: parsedConfig,
     currency: currencyConfig,
+    formatDate: formatDate,
     formatMoney: formatMoney,
     formatNumber: formatNumber,
     formatPercent: formatPercent,

@@ -26,7 +26,7 @@
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Membro</th>
+                      <th>Cliente</th>
                       <th>Tipo</th>
                       <th>Valor Empréstimo (MT)</th>
                       <th>Valor Juros (MT)</th>
@@ -282,10 +282,10 @@
         const clientAccNumber = tr.data('client-account-number') || ''
     
         $('#id_disb_loan_id').val(loanId)
-        $('#id_disb_company_account').val('')
+        $('#id_disb_company_account').val('').trigger('change')
         $('#id_disb_date').val(todayStr)
         $('#id_disb_amount').val(principal)
-        $('#id_disb_method').val('cash')
+        $('#id_disb_method').val('cash').trigger('change')
         $('#id_disb_attachment').val('')
         $('#id_disb_notes').val('')
     

@@ -24,11 +24,11 @@ msgstr "Quick language"
 msgid "Clientes"
 msgstr "Clients"
 
-msgid "Lista de Membros"
-msgstr "Member List"
+msgid "Lista de Clientes"
+msgstr "Client List"
 
-msgid "Adicionar Membros"
-msgstr "Add Members"
+msgid "Adicionar Clientes"
+msgstr "Add Clients"
 
 msgid "Empréstimos"
 msgstr "Loans"
@@ -477,17 +477,17 @@ msgstr "Invalid manager."
 msgid "Método inválido."
 msgstr "Invalid method."
 
-msgid "Membro não encontrado."
-msgstr "Member not found."
+msgid "Cliente não encontrado."
+msgstr "Client not found."
 
 msgid "Nome, apelido, telefone e gestor são obrigatórios."
 msgstr "First name, last name, phone, and manager are required."
 
-msgid "Membro actualizado com sucesso."
-msgstr "Member updated successfully."
+msgid "Cliente actualizado com sucesso."
+msgstr "Client updated successfully."
 
-msgid "Membro desactivado com sucesso."
-msgstr "Member deactivated successfully."
+msgid "Cliente desactivado com sucesso."
+msgstr "Client deactivated successfully."
 
 msgid "Não autenticado."
 msgstr "Not authenticated."
@@ -516,11 +516,17 @@ msgstr "deactivated"
 msgid "Tipo de conta {status_label} com sucesso."
 msgstr "Account type {status_label} successfully."
 
-msgid "Membro, tipo de conta e identificador são obrigatórios."
-msgstr "Member, account type, and identifier are required."
+msgid "Cliente, tipo de conta e identificador são obrigatórios."
+msgstr "Client, account type, and identifier are required."
 
-msgid "Membro inválido."
-msgstr "Invalid member."
+msgid "Cliente inválido."
+msgstr "Invalid client."
+
+msgid "Cliente registado com sucesso."
+msgstr "Client registered successfully."
+
+msgid "Não foi possível registar o cliente."
+msgstr "Could not register the client."
 
 msgid "Tipo de conta inválido."
 msgstr "Invalid account type."
@@ -657,8 +663,8 @@ msgstr "Interest type updated successfully."
 msgid "Tipo de juro {status_label} com sucesso."
 msgstr "Interest type {status_label} successfully."
 
-msgid "Selecione o membro/cliente."
-msgstr "Select the member/client."
+msgid "Selecione o cliente."
+msgstr "Select the client."
 
 msgid "Selecione o tipo de juro."
 msgstr "Select the interest type."

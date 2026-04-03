@@ -9,7 +9,7 @@
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
-            <h6 class="text-white text-capitalize ps-3">Lista de Membros</h6>
+            <h6 class="text-white text-capitalize ps-3">Clientes</h6>
           </div>
         </div>
 
@@ -17,15 +17,15 @@
           <div class="p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <div>
-                <h6 class="mb-0">Membros registados</h6>
+                <h6 class="mb-0">Clientes registados</h6>
                 <p class="text-sm text-muted mb-0">
                   Gestão de clientes da carteira de microcrédito.
                 </p>
               </div>
-              <a href="{% url 'core:add_member' %}" class="btn bg-gradient-dark btn-sm">
+              <button type="button" class="btn bg-gradient-dark btn-sm" data-bs-toggle="modal" data-bs-target="#addClientModal">
                 <i class="material-symbols-rounded me-1">person_add</i>
-                Adicionar Membro
-              </a>
+                Adicionar Cliente
+              </button>
             </div>
 
             <div class="table-responsive">
@@ -39,7 +39,7 @@
                     <th>Email</th>
                     <th>Cidade</th>
                     <th>Gestor</th>
-                    <th>Actions</th>
+                    <th>Acções</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -119,6 +119,186 @@
   {% include "includes/sl_footer.html" %}
 </div>
 
+<!-- MODAL ADICIONAR CLIENTE -->
+<div class="modal fade" id="addClientModal" tabindex="-1" aria-labelledby="addClientModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="addClientForm" action="{% url 'core:add_member' %}" method="post">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="addClientModalLabel">Adicionar Cliente</h5>
+          <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs" id="addClientTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="add-tab-dados-tab" data-bs-toggle="tab"
+                      data-bs-target="#add-tab-dados" type="button" role="tab"
+                      aria-controls="add-tab-dados" aria-selected="true">
+                Dados principais
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="add-tab-kyc-tab" data-bs-toggle="tab"
+                      data-bs-target="#add-tab-kyc" type="button" role="tab"
+                      aria-controls="add-tab-kyc" aria-selected="false">
+                KYC & Documentos
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content pt-3" id="addClientTabsContent">
+            <div class="tab-pane fade show active" id="add-tab-dados" role="tabpanel" aria-labelledby="add-tab-dados-tab">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Nome *</label>
+                    <input type="text" class="form-control" name="first_name" id="create_first_name">
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Apelido *</label>
+                    <input type="text" class="form-control" name="last_name" id="create_last_name">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="create_is_company" name="is_company">
+                <label class="form-check-label" for="create_is_company">É uma empresa?</label>
+              </div>
+
+              <div class="mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label">Nome Legal</label>
+                  <input type="text" class="form-control" name="legal_name" id="create_legal_name">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Telefone *</label>
+                    <input type="text" class="form-control" name="phone" id="create_phone">
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Telefone alternativo</label>
+                    <input type="text" class="form-control" name="alt_phone" id="create_alt_phone">
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">NUIT</label>
+                    <input type="text" class="form-control" name="nuit" id="create_nuit">
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" id="create_email">
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Cidade</label>
+                    <input type="text" class="form-control" name="city" id="create_city">
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="input-group input-group-outline">
+                  <label class="form-label">Endereço</label>
+                  <textarea class="form-control" name="address" id="create_address"></textarea>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="input-group input-group-outline">
+                    <label class="form-label">Profissão</label>
+                    <input type="text" class="form-control" name="profession" id="create_profession">
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label d-block">Estado civil</label>
+                  <select class="form-select" name="marital_status" id="create_marital_status">
+                    <option value="">— Seleccione —</option>
+                    <option value="solteiro">Solteiro(a)</option>
+                    <option value="casado">Casado(a)</option>
+                    <option value="divorciado">Divorciado(a)</option>
+                    <option value="viuvo">Viúvo(a)</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label class="form-label d-block">Sexo</label>
+                  <select class="form-select" name="gender" id="create_gender">
+                    <option value="">— Seleccione —</option>
+                    <option value="masculino">Masculino</option>
+                    <option value="feminino">Feminino</option>
+                    <option value="outro">Outro</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label d-block">Gestor responsável *</label>
+                <select class="form-select" name="manager" id="create_manager">
+                  <option value="">— Seleccione —</option>
+                  {% for g in gestores %}
+                    <option value="{{ g.id }}">{{ g.get_full_name|default:g.username }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="add-tab-kyc" role="tabpanel" aria-labelledby="add-tab-kyc-tab">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Tipo de Documento</label>
+                  <input type="text" class="form-control" name="id_type" id="create_id_type"
+                         placeholder="BI, Passaporte, Carta de Condução, etc.">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Nº do Documento</label>
+                  <input type="text" class="form-control" name="id_number" id="create_id_number">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Data de Emissão</label>
+                  <input type="date" class="form-control" name="id_issue_date" id="create_id_issue_date">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label">Validade</label>
+                  <input type="date" class="form-control" name="id_expiry_date" id="create_id_expiry_date">
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Notas KYC / Observações</label>
+                <textarea class="form-control" name="kyc_notes" id="create_kyc_notes" rows="3"
+                          placeholder="Notas sobre verificação de morada, referências, risco, etc."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn bg-gradient-dark">Guardar cliente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL EDITAR MEMBRO -->
 <!-- MODAL EDITAR MEMBRO (com tabs) -->
 <div class="modal fade" id="editMemberModal" tabindex="-1" aria-labelledby="editMemberModalLabel" aria-hidden="true">
@@ -127,7 +307,7 @@
       <form id="editMemberForm">
         {% csrf_token %}
         <div class="modal-header">
-          <h5 class="modal-title" id="editMemberModalLabel">Editar Membro</h5>
+          <h5 class="modal-title" id="editMemberModalLabel">Editar Cliente</h5>
           <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -316,7 +496,7 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="memberDetailModalLabel">Detalhes do Membro</h5>
+        <h5 class="modal-title" id="memberDetailModalLabel">Detalhes do Cliente</h5>
         <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -367,7 +547,7 @@
 
         <hr>
 
-        <h6 class="text-xs text-uppercase text-muted mb-2">Empréstimos do Membro</h6>
+        <h6 class="text-xs text-uppercase text-muted mb-2">Empréstimos do Cliente</h6>
         <div class="table-responsive">
           <table class="table table-sm" id="detail_loans_table">
             <thead>
@@ -430,9 +610,10 @@
         }
       });
 
-      // Função para actualizar estados das labels flutuantes
-      function refreshEditModalOutlineStates() {
-        $('#editMemberModal .input-group.input-group-outline .form-control, #editMemberModal .input-group.input-group-outline textarea').each(function () {
+      const addClientModalEl = document.getElementById('addClientModal');
+
+      function refreshOutlineStates(modalSelector) {
+        $(`${modalSelector} .input-group.input-group-outline .form-control, ${modalSelector} .input-group.input-group-outline textarea`).each(function () {
           const wrapper = this.closest('.input-group.input-group-outline');
           if (!wrapper) return;
           if (this.value && this.value.toString().trim() !== '') {
@@ -444,11 +625,11 @@
       }
 
       // Focus/blur
-      $(document).on('focus', '#editMemberModal .input-group.input-group-outline .form-control, #editMemberModal .input-group.input-group-outline textarea', function () {
+      $(document).on('focus', '#addClientModal .input-group.input-group-outline .form-control, #addClientModal .input-group.input-group-outline textarea, #editMemberModal .input-group.input-group-outline .form-control, #editMemberModal .input-group.input-group-outline textarea', function () {
         const wrapper = this.closest('.input-group.input-group-outline');
         if (wrapper) wrapper.classList.add('is-focused');
       });
-      $(document).on('blur', '#editMemberModal .input-group.input-group-outline .form-control, #editMemberModal .input-group.input-group-outline textarea', function () {
+      $(document).on('blur', '#addClientModal .input-group.input-group-outline .form-control, #addClientModal .input-group.input-group-outline textarea, #editMemberModal .input-group.input-group-outline .form-control, #editMemberModal .input-group.input-group-outline textarea', function () {
         const wrapper = this.closest('.input-group.input-group-outline');
         if (!wrapper) return;
         wrapper.classList.remove('is-focused');
@@ -464,12 +645,81 @@
       if (params.get('created') === '1') {
         Swal.fire({
           icon: "success",
-          title: "Membro registado!",
-          text: "O membro foi registado com sucesso.",
+          title: "Cliente registado!",
+          text: "O cliente foi registado com sucesso.",
           timer: 2500,
           showConfirmButton: false
         });
       }
+
+      function resetAddClientForm() {
+        const form = document.getElementById('addClientForm');
+        if (!form) return;
+
+        form.reset();
+        $('#create_marital_status').val('').trigger('change');
+        $('#create_gender').val('').trigger('change');
+        $('#create_manager').val('').trigger('change');
+
+        const firstTab = document.querySelector('#addClientTabs button[data-bs-target="#add-tab-dados"]');
+        if (firstTab) {
+          const tabObj = new bootstrap.Tab(firstTab);
+          tabObj.show();
+        }
+
+        refreshOutlineStates('#addClientModal');
+      }
+
+      if (addClientModalEl) {
+        addClientModalEl.addEventListener('hidden.bs.modal', resetAddClientForm);
+      }
+
+      $('#addClientForm').on('submit', function (e) {
+        e.preventDefault();
+
+        const form = $(this);
+
+        $.ajax({
+          url: form.attr('action'),
+          type: 'POST',
+          data: form.serialize(),
+          headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          success: function (resp) {
+            if (resp.success) {
+              const modal = bootstrap.Modal.getInstance(addClientModalEl);
+              if (modal) {
+                modal.hide();
+              }
+
+              Swal.fire({
+                icon: 'success',
+                title: 'Cliente registado',
+                text: resp.message,
+                timer: 2000,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.reload();
+              });
+            } else {
+              Swal.fire('Erro', resp.message || 'Falha ao registar cliente.', 'error');
+            }
+          },
+          error: function (xhr) {
+            const response = xhr.responseJSON || {};
+            const errors = response.errors || {};
+            const errorMessages = Object.values(errors);
+
+            Swal.fire({
+              icon: 'error',
+              title: 'Falha ao registar cliente',
+              html: errorMessages.length ? errorMessages.join('<br>') : (response.message || 'Falha ao registar cliente.')
+            });
+          }
+        });
+      });
 
       // EDITAR - abrir modal com dados (inclui NUIT + KYC)
       $(document).on('click', '.btn-edit-member', function (e) {
@@ -487,9 +737,9 @@
         $('#edit_city').val(btn.data('city') || '');
         $('#edit_address').val(btn.data('address') || '');
         $('#edit_profession').val(btn.data('profession') || '');
-        $('#edit_marital_status').val(btn.data('marital-status') || '');
-        $('#edit_gender').val(btn.data('gender') || '');
-        $('#edit_manager').val(String(btn.data('manager') || ''));
+        $('#edit_marital_status').val(btn.data('marital-status') || '').trigger('change');
+        $('#edit_gender').val(btn.data('gender') || '').trigger('change');
+        $('#edit_manager').val(String(btn.data('manager') || '')).trigger('change');
 
         $('#edit_nuit').val(btn.data('nuit') || '');
         $('#edit_id_type').val(btn.data('id-type') || '');
@@ -505,7 +755,7 @@
           tabObj.show();
         }
 
-        refreshEditModalOutlineStates();
+        refreshOutlineStates('#editMemberModal');
 
         var modalEl = document.getElementById('editMemberModal');
         var modal = new bootstrap.Modal(modalEl);
@@ -535,11 +785,11 @@
                 window.location.reload();
               });
             } else {
-              Swal.fire('Erro', resp.message || 'Falha ao actualizar membro.', 'error');
+              Swal.fire('Erro', resp.message || 'Falha ao actualizar cliente.', 'error');
             }
           },
           error: function (xhr) {
-            Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao actualizar membro.', 'error');
+            Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao actualizar cliente.', 'error');
           }
         });
       });
@@ -553,7 +803,7 @@
         const memberName = btn.data('name');
 
         Swal.fire({
-          title: 'Desactivar membro?',
+          title: 'Desactivar cliente?',
           text: `Tem a certeza que pretende desactivar ${memberName}?`,
           icon: 'warning',
           showCancelButton: true,
@@ -580,11 +830,11 @@
                 const row = btn.closest('tr');
                 table.row(row).remove().draw();
               } else {
-                Swal.fire('Erro', resp.message || 'Falha ao desactivar membro.', 'error');
+                Swal.fire('Erro', resp.message || 'Falha ao desactivar cliente.', 'error');
               }
             },
             error: function (xhr) {
-              Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao desactivar membro.', 'error');
+              Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao desactivar cliente.', 'error');
             }
           });
         });
@@ -603,7 +853,7 @@
 
         $.get(url, function (resp) {
           if (!resp.success) {
-            Swal.fire('Erro', resp.message || 'Falha ao carregar detalhes do membro.', 'error');
+            Swal.fire('Erro', resp.message || 'Falha ao carregar detalhes do cliente.', 'error');
             return;
           }
 
@@ -653,7 +903,7 @@
           var modal = new bootstrap.Modal(modalEl);
           modal.show();
         }).fail(function () {
-          Swal.fire('Erro', 'Falha ao carregar detalhes do membro.', 'error');
+          Swal.fire('Erro', 'Falha ao carregar detalhes do cliente.', 'error');
         });
       });
 

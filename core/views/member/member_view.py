@@ -7,118 +7,174 @@ from datetime import datetime
 from django.utils.translation import gettext as _
 
 
-def add_member(request):
+def _get_gestores():
     User = get_user_model()
-    gestores = User.objects.filter(is_active=True, is_superuser=False).order_by("first_name", "last_name")
+    return User.objects.filter(is_active=True, is_superuser=False).order_by("first_name", "last_name")
+
+
+def _get_members_queryset():
+    return (
+        Member.objects.filter(is_active=True)
+        .select_related("manager")
+        .prefetch_related("loans")
+        .order_by("-id")
+    )
+
+
+def _parse_optional_date(value):
+    if not value:
+        return None
+
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _build_member_payload(request, gestores):
+    User = get_user_model()
 
     errors = {}
-    form_data = {}
+    first_name = request.POST.get("first_name", "").strip()
+    last_name = request.POST.get("last_name", "").strip()
+    legal_name = request.POST.get("legal_name", "").strip()
+    is_company = request.POST.get("is_company") == "on"
+    phone = request.POST.get("phone", "").strip()
+    alt_phone = request.POST.get("alt_phone", "").strip()
+    email = request.POST.get("email", "").strip()
+    city = request.POST.get("city", "").strip()
+    address = request.POST.get("address", "").strip()
+    profession = request.POST.get("profession", "").strip()
+    marital_status = request.POST.get("marital_status", "").strip()
+    gender = request.POST.get("gender", "").strip()
+    manager_id = request.POST.get("manager", "").strip()
+    nuit = request.POST.get("nuit", "").strip()
+    id_type = request.POST.get("id_type", "").strip()
+    id_number = request.POST.get("id_number", "").strip()
+    id_issue_date_str = request.POST.get("id_issue_date", "").strip()
+    id_expiry_date_str = request.POST.get("id_expiry_date", "").strip()
+    kyc_notes = request.POST.get("kyc_notes", "").strip()
 
-    if request.method == "POST":
-        first_name = request.POST.get("first_name", "").strip()
-        last_name = request.POST.get("last_name", "").strip()
-        legal_name = request.POST.get("legal_name", "").strip()
-        is_company = request.POST.get("is_company") == "on"
-        phone = request.POST.get("phone", "").strip()
-        alt_phone = request.POST.get("alt_phone", "").strip()
-        email = request.POST.get("email", "").strip()
-        city = request.POST.get("city", "").strip()
-        address = request.POST.get("address", "").strip()
-        profession = request.POST.get("profession", "").strip()
-        marital_status = request.POST.get("marital_status", "").strip()
-        gender = request.POST.get("gender", "").strip()
-        manager_id = request.POST.get("manager", "").strip()
+    form_data = {
+        "first_name": first_name,
+        "last_name": last_name,
+        "legal_name": legal_name,
+        "is_company": is_company,
+        "phone": phone,
+        "alt_phone": alt_phone,
+        "email": email,
+        "city": city,
+        "address": address,
+        "profession": profession,
+        "marital_status": marital_status,
+        "gender": gender,
+        "manager": manager_id,
+        "nuit": nuit,
+        "id_type": id_type,
+        "id_number": id_number,
+        "id_issue_date": id_issue_date_str,
+        "id_expiry_date": id_expiry_date_str,
+        "kyc_notes": kyc_notes,
+    }
 
-        # NOVO: NUIT (no add)
-        nuit = request.POST.get("nuit", "").strip()
+    if not first_name:
+        errors["first_name"] = _("Nome é obrigatório.")
+    if not last_name:
+        errors["last_name"] = _("Apelido é obrigatório.")
+    if not phone:
+        errors["phone"] = _("Telefone é obrigatório.")
+    if not manager_id:
+        errors["manager"] = _("Selecione o gestor responsável.")
 
-        form_data = {
+    manager = None
+    if manager_id:
+        try:
+            manager = gestores.get(pk=manager_id)
+        except User.DoesNotExist:
+            errors["manager"] = _("Gestor inválido.")
+
+    return {
+        "errors": errors,
+        "form_data": form_data,
+        "member_data": {
             "first_name": first_name,
             "last_name": last_name,
-            "legal_name": legal_name,
+            "legal_name": legal_name or None,
             "is_company": is_company,
             "phone": phone,
-            "alt_phone": alt_phone,
-            "email": email,
-            "city": city,
-            "address": address,
-            "profession": profession,
-            "marital_status": marital_status,
-            "gender": gender,
-            "manager": manager_id,
-            "nuit": nuit,
-        }
+            "alt_phone": alt_phone or None,
+            "email": email or None,
+            "city": city or None,
+            "address": address or None,
+            "profession": profession or None,
+            "marital_status": marital_status or None,
+            "gender": gender or None,
+            "manager": manager,
+            "nuit": nuit or None,
+            "id_type": id_type or None,
+            "id_number": id_number or None,
+            "id_issue_date": _parse_optional_date(id_issue_date_str),
+            "id_expiry_date": _parse_optional_date(id_expiry_date_str),
+            "kyc_notes": kyc_notes or None,
+        },
+    }
 
-        if not first_name:
-            errors["first_name"] = _("Nome é obrigatório.")
-        if not last_name:
-            errors["last_name"] = _("Apelido é obrigatório.")
-        if not phone:
-            errors["phone"] = _("Telefone é obrigatório.")
-        if not manager_id:
-            errors["manager"] = _("Selecione o gestor responsável.")
 
-        manager = None
-        if manager_id:
-            try:
-                manager = gestores.get(pk=manager_id)
-            except User.DoesNotExist:
-                errors["manager"] = _("Gestor inválido.")
+def _member_list_context(*, create_errors=None, create_form_data=None, open_create_modal=False):
+    gestores = _get_gestores()
+    return {
+        "members": _get_members_queryset(),
+        "gestores": gestores,
+        "segment": "clients",
+        "create_errors": create_errors or {},
+        "create_form_data": create_form_data or {},
+        "open_create_modal": open_create_modal,
+    }
 
-        if not errors and manager is not None:
-            Member.objects.create(
-                first_name=first_name,
-                last_name=last_name,
-                legal_name=legal_name or None,
-                is_company=is_company,
-                phone=phone,
-                alt_phone=alt_phone or None,
-                email=email or None,
-                city=city or None,
-                address=address or None,
-                profession=profession or None,
-                marital_status=marital_status or None,
-                gender=gender or None,
-                manager=manager,
-                nuit=nuit or None,  # NOVO
+
+def add_member(request):
+    if request.method == "GET":
+        return redirect("core:member_list")
+
+    gestores = _get_gestores()
+    payload = _build_member_payload(request, gestores)
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+    if payload["errors"] or payload["member_data"]["manager"] is None:
+        if is_ajax:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "message": _("Não foi possível registar o cliente."),
+                    "errors": payload["errors"],
+                },
+                status=400,
             )
 
-            url = reverse("core:member_list")
-            return redirect(f"{url}?created=1")
+        return render(
+            request,
+            "member/list_members.html",
+            _member_list_context(
+                create_errors=payload["errors"],
+                create_form_data=payload["form_data"],
+                open_create_modal=True,
+            ),
+        )
 
-    return render(
-        request,
-        "member/add_member.html",
-        {
-            "gestores": gestores,
-            "errors": errors,
-            "form_data": form_data,
-            "segment": "member_add",
-        },
-    )
+    Member.objects.create(**payload["member_data"])
+
+    if is_ajax:
+        return JsonResponse({"success": True, "message": _("Cliente registado com sucesso.")})
+
+    url = reverse("core:member_list")
+    return redirect(f"{url}?created=1")
 
 
 
 #============================================================================================================
 #============================================================================================================
 def member_list(request):
-    User = get_user_model()
-    gestores = User.objects.filter(is_active=True, is_superuser=False).order_by("first_name", "last_name")
-    members = (
-        Member.objects.filter(is_active=True)
-        .select_related("manager")
-        .prefetch_related("loans")
-        .order_by("-id")
-    )
-    return render(
-        request,
-        "member/list_members.html",
-        {
-            "members": members,
-            "gestores": gestores,
-            "segment": "members_list",
-        },
-    )
+    return render(request, "member/list_members.html", _member_list_context())
 
 
 #============================================================================================================
@@ -130,10 +186,9 @@ def update_member(request, member_id):
     try:
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
-        return JsonResponse({"success": False, "message": _("Membro não encontrado.")}, status=404)
+        return JsonResponse({"success": False, "message": _("Cliente não encontrado.")}, status=404)
 
-    User = get_user_model()
-    gestores = User.objects.filter(is_active=True, is_superuser=False)
+    gestores = _get_gestores()
 
     first_name = request.POST.get("first_name", "").strip()
     last_name = request.POST.get("last_name", "").strip()
@@ -231,7 +286,7 @@ def update_member(request, member_id):
         ]
     )
 
-    return JsonResponse({"success": True, "message": _("Membro actualizado com sucesso.")})
+    return JsonResponse({"success": True, "message": _("Cliente actualizado com sucesso.")})
 
 
 
@@ -245,12 +300,12 @@ def deactivate_member(request, member_id):
     try:
         member = Member.objects.get(pk=member_id, is_active=True)
     except Member.DoesNotExist:
-        return JsonResponse({"success": False, "message": _("Membro não encontrado.")}, status=404)
+        return JsonResponse({"success": False, "message": _("Cliente não encontrado.")}, status=404)
 
     member.is_active = False
     member.save(update_fields=["is_active"])
 
-    return JsonResponse({"success": True, "message": _("Membro desactivado com sucesso.")})
+    return JsonResponse({"success": True, "message": _("Cliente desactivado com sucesso.")})
 
 
 
@@ -268,7 +323,7 @@ def member_detail_json(request, member_id):
             .get(pk=member_id, is_active=True)
         )
     except Member.DoesNotExist:
-        return JsonResponse({"success": False, "message": _("Membro não encontrado.")}, status=404)
+        return JsonResponse({"success": False, "message": _("Cliente não encontrado.")}, status=404)
 
     loans = (
         Loan.objects

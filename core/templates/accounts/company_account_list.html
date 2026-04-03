@@ -244,7 +244,7 @@
       $(document).on('click', '.btn-edit-company-account', function () {
         const btn = $(this)
         $('#edit_company_account_id').val(btn.data('id'))
-        $('#edit_company_account_type').val(String(btn.data('account-type') || ''))
+        $('#edit_company_account_type').val(String(btn.data('account-type') || '')).trigger('change')
         $('#edit_company_name').val(btn.data('name'))
         $('#edit_company_identifier').val(btn.data('identifier'))
         $('#edit_company_balance').val(btn.data('balance'))

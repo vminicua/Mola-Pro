@@ -49,15 +49,44 @@
           color: #b71c1c;
         }
 
-        .loan-filter-pills .btn {
-          border-radius: 999px !important;
+        .loan-filter-shell {
+          padding: 0.35rem;
+          background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          border-radius: 999px;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
         }
-        .loan-filter-pills .btn.active {
+        .loan-filter-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.35rem;
+        }
+        .loan-filter-pills .loan-status-filter {
+          border: 0;
+          border-radius: 999px !important;
+          background: transparent;
+          color: #546e7a;
+          font-weight: 600;
+          padding: 0.55rem 0.95rem;
+          transition: all 0.2s ease;
+        }
+        .loan-filter-pills .loan-status-filter:hover {
+          background-color: rgba(255,255,255,0.95);
+          color: var(--mola-pro-primary-active);
+        }
+        .loan-filter-pills .loan-status-filter.active {
           background-color: var(--mola-pro-primary-active);
           color: #fff;
+          box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+        }
+        .loan-filter-pills .loan-status-filter:focus {
+          box-shadow: none;
         }
 
-        /* cursor pointer nas linhas */
+        #loanFilterCaption {
+          min-height: 1.25rem;
+        }
+
         #all-loans-table tbody tr {
           cursor: pointer;
         }
@@ -66,7 +95,7 @@
       <div class="card my-4">
         <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
           <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
-            <h6 class="text-white text-capitalize ps-3">Carteira de Empréstimos · Visão Global</h6>
+            <h6 class="text-white text-capitalize ps-3">Empréstimos</h6>
           </div>
         </div>
 
@@ -120,7 +149,7 @@
                   <div class="card-body py-3">
                     <div class="d-flex justify-content-between align-items-center">
                       <div>
-                        <div class="kpi-label mb-1">Total a reembolsar (MT)</div>
+                        <div class="kpi-label mb-1">A reembolsar (MT)</div>
                         <div class="kpi-value-lg">
                           {{ kpi_total_to_repay|money }}
                         </div>
@@ -141,7 +170,7 @@
                   <div class="card-body py-3">
                     <div class="d-flex justify-content-between align-items-center">
                       <div>
-                        <div class="kpi-label mb-1">Juros totais (MT)</div>
+                        <div class="kpi-label mb-1">Juros (MT)</div>
                         <div class="kpi-value-lg">
                           {{ kpi_total_interest|money }}
                         </div>
@@ -161,30 +190,33 @@
             <!-- FILTER PILLS -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
               <div>
-                <h6 class="mb-0">Lista de todos os empréstimos</h6>
-                <p class="text-sm text-muted mb-0">
-                  Use os filtros rápidos para ver apenas pendentes, aprovados, desembolsados, fechados ou cancelados.
+                <h6 class="mb-0">Tabela de empréstimos</h6>
+                <p class="text-sm text-muted mb-1">
+                  Uma única lista com filtros rápidos por estado.
                 </p>
+                <div id="loanFilterCaption" class="text-xs text-muted"></div>
               </div>
-              <div class="loan-filter-pills btn-group btn-group-sm" role="group" aria-label="Filtro de status">
-                <button type="button" class="btn btn-outline-secondary loan-status-filter active" data-status="all">
+              <div class="loan-filter-shell">
+                <div class="loan-filter-pills" role="group" aria-label="Filtro de status">
+                  <button type="button" class="btn btn-sm loan-status-filter active" data-status="all">
                   Todos ({{ kpi_total_loans }})
-                </button>
-                <button type="button" class="btn btn-outline-secondary loan-status-filter" data-status="pending">
+                  </button>
+                  <button type="button" class="btn btn-sm loan-status-filter" data-status="pending">
                   Pendentes ({{ kpi_status_pending }})
-                </button>
-                <button type="button" class="btn btn-outline-secondary loan-status-filter" data-status="approved">
+                  </button>
+                  <button type="button" class="btn btn-sm loan-status-filter" data-status="approved">
                   Aprovados ({{ kpi_status_approved }})
-                </button>
-                <button type="button" class="btn btn-outline-secondary loan-status-filter" data-status="disbursed">
+                  </button>
+                  <button type="button" class="btn btn-sm loan-status-filter" data-status="disbursed">
                   Desembolsados ({{ kpi_status_disbursed }})
-                </button>
-                <button type="button" class="btn btn-outline-secondary loan-status-filter" data-status="closed">
+                  </button>
+                  <button type="button" class="btn btn-sm loan-status-filter" data-status="closed">
                   Fechados ({{ kpi_status_closed }})
-                </button>
-                <button type="button" class="btn btn-outline-secondary loan-status-filter" data-status="cancelled">
+                  </button>
+                  <button type="button" class="btn btn-sm loan-status-filter" data-status="cancelled">
                   Cancelados ({{ kpi_status_cancelled }})
-                </button>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -196,17 +228,17 @@
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Data Criação</th>
-                    <th>Membro</th>
+                    <th>Criado</th>
+                    <th>Cliente</th>
                     <th>Tipo</th>
                     <th>Principal (MT)</th>
-                    <th>Total a Reembolsar (MT)</th>
+                    <th>A Reembolsar (MT)</th>
                     <th>Status</th>
                     <th>Prazo</th>
-                    <th>Data Início</th>
+                    <th>Início</th>
                     <th>1ª Prestação</th>
                     <th>Aprovado por</th>
-                    <th>Data Desembolso</th>
+                    <th>Desembolso</th>
                     <!-- Coluna oculta com o código do status -->
                     <th>StatusCode</th>
                   </tr>
@@ -218,7 +250,7 @@
                       <td>{{ loan.id }}</td>
 
                       <!-- Data criação -->
-                      <td>{{ loan.created_at }}</td>
+                      <td data-order="{{ loan.created_at|date:'Y-m-d H:i:s' }}">{{ loan.created_at|date:"m/d/Y H:i" }}</td>
 
                       <!-- Membro -->
                       <td data-order="{{ loan.total_to_repay|default:0|floatformat:2 }}">
@@ -274,18 +306,18 @@
                       </td>
 
                       <!-- Data Início -->
-                      <td>
+                      <td data-order="{{ loan.release_date|date:'Y-m-d' }}">
                         {% if loan.release_date %}
-                          {{ loan.release_date }}
+                          {{ loan.release_date|date:"m/d/Y" }}
                         {% else %}
                           —
                         {% endif %}
                       </td>
 
                       <!-- 1ª Prestação -->
-                      <td>
+                      <td data-order="{{ loan.first_payment_date|date:'Y-m-d' }}">
                         {% if loan.first_payment_date %}
-                          {{ loan.first_payment_date }}
+                          {{ loan.first_payment_date|date:"m/d/Y" }}
                         {% else %}
                           —
                         {% endif %}
@@ -301,9 +333,9 @@
                       </td>
 
                       <!-- Data Desembolso -->
-                      <td>
+                      <td data-order="{{ loan.disbursed_date|date:'Y-m-d' }}">
                         {% if loan.disbursed_date %}
-                          {{ loan.disbursed_date }}
+                          {{ loan.disbursed_date|date:"m/d/Y" }}
                           <br>
                           {% if loan.disbursed_amount %}
                             <small class="text-muted">
@@ -352,7 +384,7 @@
           <li class="nav-item" role="presentation">
             <button class="nav-link active" id="overview-tab" data-bs-toggle="tab"
                     data-bs-target="#overview-pane" type="button" role="tab">
-              Overview
+              Resumo
             </button>
           </li>
           <li class="nav-item" role="presentation">
@@ -446,6 +478,88 @@
           ? numericValue.toFixed(2)
           : 'MT ' + numericValue.toFixed(2);
       };
+      const formatDate = function (value, options) {
+        if (!value) {
+          return '—';
+        }
+
+        if (window.MolaLocale && typeof window.MolaLocale.formatDate === 'function') {
+          return window.MolaLocale.formatDate(value, options);
+        }
+
+        const includeTime = options && options.includeTime;
+        const dateValue = new Date(value);
+        if (Number.isNaN(dateValue.getTime())) {
+          return value;
+        }
+
+        const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+        const day = String(dateValue.getDate()).padStart(2, '0');
+        const year = dateValue.getFullYear();
+        const datePart = `${month}/${day}/${year}`;
+
+        if (!includeTime) {
+          return datePart;
+        }
+
+        const hours = String(dateValue.getHours()).padStart(2, '0');
+        const minutes = String(dateValue.getMinutes()).padStart(2, '0');
+        return `${datePart} ${hours}:${minutes}`;
+      };
+      const statusLabels = {
+        all: 'Todos',
+        pending: 'Pendentes',
+        approved: 'Aprovados',
+        disbursed: 'Desembolsados',
+        closed: 'Fechados',
+        cancelled: 'Cancelados'
+      };
+      const statusDescriptions = {
+        all: 'A mostrar toda a carteira de empréstimos.',
+        pending: 'A mostrar apenas empréstimos pendentes.',
+        approved: 'A mostrar apenas empréstimos aprovados.',
+        disbursed: 'A mostrar apenas empréstimos desembolsados.',
+        closed: 'A mostrar apenas empréstimos fechados.',
+        cancelled: 'A mostrar apenas empréstimos cancelados.'
+      };
+      const formatLoanStatus = function (value) {
+        const labels = {
+          pending: 'Pendente',
+          approved: 'Aprovado',
+          disbursed: 'Desembolsado',
+          closed: 'Fechado',
+          cancelled: 'Cancelado'
+        };
+
+        return labels[value] || value || '—';
+      };
+      const formatPeriodType = function (value) {
+        const labels = {
+          monthly: 'meses',
+          daily: 'dias'
+        };
+
+        return labels[value] || 'períodos';
+      };
+      const updateFilterCaption = function (status) {
+        const caption = document.getElementById('loanFilterCaption');
+        if (!caption) {
+          return;
+        }
+
+        caption.textContent = statusDescriptions[status] || statusDescriptions.all;
+      };
+      const syncFilterInUrl = function (status) {
+        const url = new URL(window.location.href);
+
+        if (!status || status === 'all') {
+          url.searchParams.delete('status');
+        } else {
+          url.searchParams.set('status', status);
+        }
+
+        window.history.replaceState({}, '', url);
+      };
 
       const table = $('#all-loans-table').DataTable({
         pageLength: 25,
@@ -472,20 +586,31 @@
         ]
       });
 
-      // Filtro pelos pills
-      $('.loan-status-filter').on('click', function () {
-        const status = $(this).data('status'); // all / pending / approved / ...
+      const applyStatusFilter = function (status, options) {
+        const filterStatus = statusLabels[status] ? status : 'all';
+        const shouldSyncUrl = !options || options.syncUrl !== false;
 
         $('.loan-status-filter').removeClass('active');
-        $(this).addClass('active');
+        $('.loan-status-filter[data-status="' + filterStatus + '"]').addClass('active');
 
-        if (status === 'all') {
+        if (filterStatus === 'all') {
           table.column(12).search('').draw();
         } else {
-          // procura exacto pelo código do status
-          table.column(12).search('^' + status + '$', true, false).draw();
+          table.column(12).search('^' + filterStatus + '$', true, false).draw();
         }
+
+        updateFilterCaption(filterStatus);
+
+        if (shouldSyncUrl) {
+          syncFilterInUrl(filterStatus);
+        }
+      };
+
+      $('.loan-status-filter').on('click', function () {
+        applyStatusFilter($(this).data('status'));
       });
+
+      applyStatusFilter(new URLSearchParams(window.location.search).get('status') || 'all', { syncUrl: false });
 
       // Clique em qualquer linha -> abrir modal com detalhes (mesmo esquema de Empréstimos Activos)
       $('#all-loans-table tbody').on('click', 'tr', function () {
@@ -538,16 +663,16 @@
                     <li><strong>Tipo de juro:</strong> ${loan.interest_type || '—'}</li>
                     <li><strong>Principal:</strong> ${loan.principal_amount != null ? formatMoney(loan.principal_amount) : '—'}</li>
                     <li><strong>Juros:</strong> ${loan.total_interest != null ? formatMoney(loan.total_interest) : '—'}</li>
-                    <li><strong>Total a reembolsar:</strong> ${loan.total_to_repay != null ? formatMoney(loan.total_to_repay) : '—'}</li>
+                    <li><strong>A reembolsar:</strong> ${loan.total_to_repay != null ? formatMoney(loan.total_to_repay) : '—'}</li>
                   </ul>
                 </div>
                 <div class="col-md-6">
                   <h6 class="mb-2">Termos</h6>
                   <ul class="list-unstyled mb-3">
-                    <li><strong>Período:</strong> ${loan.term_periods || '—'} ${loan.period_type || ''}</li>
+                    <li><strong>Período:</strong> ${loan.term_periods || '—'} ${formatPeriodType(loan.period_type)}</li>
                     <li><strong>Prestação por período:</strong> ${loan.payment_per_period != null ? formatMoney(loan.payment_per_period) : '—'}</li>
-                    <li><strong>Data início:</strong> ${loan.release_date || '—'}</li>
-                    <li><strong>1ª prestação:</strong> ${loan.first_payment_date || '—'}</li>
+                    <li><strong>Data início:</strong> ${formatDate(loan.release_date)}</li>
+                    <li><strong>1ª prestação:</strong> ${formatDate(loan.first_payment_date)}</li>
                     <li><strong>Método de desembolso:</strong> ${loan.disburse_method || '—'}</li>
                   </ul>
                 </div>
@@ -558,8 +683,8 @@
                   <ul class="list-unstyled mb-0">
                     <li><strong>Criado por:</strong> ${loan.created_by || '—'}</li>
                     <li><strong>Aprovado por:</strong> ${loan.approved_by || '—'}</li>
-                    <li><strong>Criado em:</strong> ${loan.created_at || '—'}</li>
-                    <li><strong>Status actual:</strong> ${loan.status}</li>
+                    <li><strong>Criado em:</strong> ${formatDate(loan.created_at, { includeTime: true })}</li>
+                    <li><strong>Status actual:</strong> ${formatLoanStatus(loan.status)}</li>
                   </ul>
                 </div>
                 <div class="col-md-6">
@@ -640,7 +765,7 @@
               disbHtml += `
                 <ul class="list-unstyled mb-3">
                   <li><strong>Valor desembolsado:</strong> ${disb.amount != null ? formatMoney(disb.amount) : '—'}</li>
-                  <li><strong>Data:</strong> ${disb.date || '—'}</li>
+                  <li><strong>Data:</strong> ${formatDate(disb.date)}</li>
                   <li><strong>Método:</strong> ${disb.method || '—'}</li>
                   <li><strong>Conta da empresa:</strong> ${disb.company_account || '—'}</li>
                   <li><strong>Nº conta da empresa:</strong> ${disb.company_account_identifier || '—'}</li>

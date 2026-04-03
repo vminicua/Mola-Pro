@@ -62,7 +62,7 @@
                   <thead>
                     <tr>
                       <th>ID</th>
-                      <th>Membro</th>
+                      <th>Cliente</th>
                       <th>Tipo</th>
                       <th>Taxa de Juro</th>
                       <th>Principal (MT)</th>
@@ -378,10 +378,10 @@
         currentDue = due
     
         $('#id_rep_loan_id').val(loanId)
-        $('#id_rep_company_account').val('')
+        $('#id_rep_company_account').val('').trigger('change')
         $('#id_rep_payment_date').val(todayStr)
         $('#id_rep_amount').val('')
-        $('#id_rep_method').val('cash')
+        $('#id_rep_method').val('cash').trigger('change')
         $('#id_rep_attachment').val('')
         $('#id_rep_notes').val('')
     

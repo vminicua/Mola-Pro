@@ -17,7 +17,7 @@
           <div class="p-4">
 
             <p class="text-sm text-muted mb-4">
-              Seleccione o tipo de relatório, o período e, se necessário, Membro, Utilizador ou Conta da Empresa.
+              Seleccione o tipo de relatório, o período e, se necessário, Cliente, Utilizador ou Conta da Empresa.
               O resultado será gerado em PDF.
             </p>
 
@@ -60,7 +60,7 @@
 
               <!-- Filtros opcionais -->
               <div class="col-md-6">
-                <label for="id_member" class="form-label">Membro (opcional)</label>
+                <label for="id_member" class="form-label">Cliente (opcional)</label>
                 <select name="member" id="id_member" class="form-select select2">
                   <option value="">-- Todos --</option>
                   {% for m in members %}
@@ -123,18 +123,4 @@
 </div>
 {% endblock content %}
 
-{% block extra_js %}
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Se estiveres a usar Select2 globalmente, só activa aqui
-    if ($.fn.select2) {
-      $('.select2').select2({
-        width: '100%',
-        theme: 'classic',
-        placeholder: 'Selecione...',
-        allowClear: true
-      });
-    }
-  });
-</script>
-{% endblock extra_js %}
+{% block extra_js %}{% endblock extra_js %}

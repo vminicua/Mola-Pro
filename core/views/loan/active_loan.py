@@ -1,22 +1,10 @@
-# core/views/payments/loan_disbursement_views.py  (ou outro módulo de loans)
-
-from decimal import Decimal
-from datetime import datetime
-
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, ExpressionWrapper, DecimalField
-from django.utils import timezone
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 
 from core.models import (
     Loan,
-    LoanDisbursement,
-    LoanGuarantor,
-    LoanGuarantee,
-    CompanyAccount,
-    ClientAccount,
-    Member,
 )
 
 #============================================================================================================
@@ -24,72 +12,10 @@ from core.models import (
 @login_required
 def active_loans_list(request):
     """
-    Lista de empréstimos activos (status='disbursed'):
-    - Mostra info base + conta da empresa usada no desembolso
-    - Calcula juros e total a reembolsar
-    - Gera KPIs para o topo da página
+    Rota legada.
+    Redirecciona para a listagem única de empréstimos filtrada por desembolsados.
     """
-
-    loans_qs = (
-        Loan.objects
-        .select_related("member", "loan_type", "approved_by")
-        .prefetch_related(
-            "disbursements",
-            "disbursements__company_account",
-        )
-        .filter(status="disbursed")
-        .annotate(
-            total_to_repay=ExpressionWrapper(
-                F("payment_per_period") * F("term_periods"),
-                output_field=DecimalField(max_digits=15, decimal_places=2),
-            ),
-            total_interest=ExpressionWrapper(
-                F("payment_per_period") * F("term_periods") - F("principal_amount"),
-                output_field=DecimalField(max_digits=15, decimal_places=2),
-            ),
-        )
-        .order_by("-id")
-    )
-
-    loans = list(loans_qs)
-
-    total_principal = Decimal("0")
-    total_to_repay = Decimal("0")
-    total_interest_sum = Decimal("0")
-
-    for loan in loans:
-        # último desembolso associado
-        last_disb = loan.disbursements.order_by("-disburse_date", "-id").first()
-        loan.last_disbursement = last_disb
-
-        if last_disb:
-            loan.disbursed_amount = last_disb.amount
-            loan.disbursed_date = last_disb.disburse_date
-            loan.disbursed_company_account = last_disb.company_account
-        else:
-            loan.disbursed_amount = None
-            loan.disbursed_date = None
-            loan.disbursed_company_account = None
-
-        # KPIs
-        if loan.principal_amount:
-            total_principal += loan.principal_amount
-        if getattr(loan, "total_to_repay", None):
-            total_to_repay += loan.total_to_repay
-        if getattr(loan, "total_interest", None):
-            total_interest_sum += loan.total_interest
-
-    total_active_loans = len(loans)
-
-    context = {
-        "loans": loans,
-        "kpi_total_loans": total_active_loans,
-        "kpi_total_principal": total_principal,
-        "kpi_total_to_repay": total_to_repay,
-        "kpi_total_interest": total_interest_sum,
-        "segment": "loans_active",
-    }
-    return render(request, "loan/active_loans_list.html", context)
+    return redirect(f"{reverse('core:loan_list_all')}?status=disbursed")
 
 
 #============================================================================================================

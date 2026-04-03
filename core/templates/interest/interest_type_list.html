@@ -296,8 +296,8 @@
         $('#edit_interest_name').val(name)
         $('#edit_interest_description').val(description)
         $('#edit_interest_rate').val(rate)
-        $('#edit_interest_period_type').val(periodType)
-        $('#edit_interest_calc_method').val(calcMethod || 'flat')
+        $('#edit_interest_period_type').val(periodType).trigger('change')
+        $('#edit_interest_calc_method').val(calcMethod || 'flat').trigger('change')
 
         editModal.show()
       })
