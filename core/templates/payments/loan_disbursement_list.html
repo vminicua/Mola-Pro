@@ -9,6 +9,42 @@
           .disburse-modal-dialog {
             max-width: min(980px, 95vw);
           }
+          .loan-filter-shell {
+            padding: 0.35rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 999px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+          }
+          .loan-filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+          }
+          .loan-filter-pills .loan-status-filter {
+            border: 0;
+            border-radius: 999px !important;
+            background: transparent;
+            color: #546e7a;
+            font-weight: 600;
+            padding: 0.55rem 0.95rem;
+            transition: all 0.2s ease;
+          }
+          .loan-filter-pills .loan-status-filter:hover {
+            background-color: rgba(255,255,255,0.95);
+            color: var(--mola-pro-primary-active);
+          }
+          .loan-filter-pills .loan-status-filter.active {
+            background-color: var(--mola-pro-primary-active);
+            color: #fff;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+          }
+          .loan-filter-pills .loan-status-filter:focus {
+            box-shadow: none;
+          }
+          #loanFilterCaption {
+            min-height: 1.25rem;
+          }
           .loan-row-actions {
             min-width: 180px;
           }
@@ -45,9 +81,20 @@
             <div class="p-4">
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                  <h6 class="mb-0">Empréstimos aprovados à espera de desembolso</h6>
-                  <p class="text-sm text-muted mb-0">Confirme a saída de valores da conta da {{ brand_preferences.brand_name }} para o cliente. Cada desembolso regista uma transacção de saída.</p>
+                  <h6 class="mb-0">Acompanhamento de desembolsos de empréstimos</h6>
+                  <p class="text-sm text-muted mb-0">Confirme a saída de valores da conta da {{ brand_preferences.brand_name }} para o cliente e use os filtros para alternar entre empréstimos por desembolsar e já desembolsados.</p>
                 </div>
+              </div>
+
+              <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-3">
+                <div class="loan-filter-shell">
+                  <div class="loan-filter-pills">
+                    <button type="button" class="btn btn-sm loan-status-filter" data-status="awaiting">A desembolsar</button>
+                    <button type="button" class="btn btn-sm loan-status-filter" data-status="disbursed">Desembolsados</button>
+                    <button type="button" class="btn btn-sm loan-status-filter" data-status="all">Todos</button>
+                  </div>
+                </div>
+                <p class="text-sm text-muted mb-0" id="loanFilterCaption">A mostrar apenas empréstimos aprovados à espera de desembolso.</p>
               </div>
 
               <div class="table-responsive">
@@ -65,6 +112,7 @@
                       <th>Requisitado por</th>
                       <th>Status</th>
                       <th style="width: 210px;">Actions</th>
+                      <th>StatusCode</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -132,7 +180,7 @@
 
                         <!-- Status -->
                         <td>
-                          {% if loan.disbursements.exists %}
+                          {% if loan.has_disbursement %}
                             <span class="badge bg-success text-white">Desembolsado</span>
                           {% else %}
                             <span class="badge bg-warning text-dark">Aguardando desembolso</span>
@@ -159,7 +207,7 @@
                               aria-label="Baixar PDF">
                               <i class="material-symbols-rounded">picture_as_pdf</i>
                             </button>
-                            {% if loan.disbursements.exists %}
+                            {% if loan.has_disbursement %}
                               <button
                                 type="button"
                                 class="btn btn-outline-secondary btn-xs action-icon-btn"
@@ -179,6 +227,7 @@
                             {% endif %}
                           </div>
                         </td>
+                        <td>{% if loan.has_disbursement %}disbursed{% else %}awaiting{% endif %}</td>
                       </tr>
                     {% endfor %}
                   </tbody>
@@ -444,6 +493,30 @@
 
         return labels[value] || 'períodos';
       };
+      const statusDescriptions = {
+        awaiting: 'A mostrar apenas empréstimos aprovados à espera de desembolso.',
+        disbursed: 'A mostrar apenas empréstimos que já foram desembolsados.',
+        all: 'A mostrar todos os registos de desembolso.'
+      };
+      const updateFilterCaption = function (status) {
+        const caption = document.getElementById('loanFilterCaption');
+        if (!caption) {
+          return;
+        }
+
+        caption.textContent = statusDescriptions[status] || statusDescriptions.awaiting;
+      };
+      const syncFilterInUrl = function (status) {
+        const url = new URL(window.location.href);
+
+        if (!status || status === 'awaiting') {
+          url.searchParams.delete('disbursement_status');
+        } else {
+          url.searchParams.set('disbursement_status', status);
+        }
+
+        window.history.replaceState({}, '', url);
+      };
       const triggerBrowserDownload = function (blob, filename) {
         const downloadUrl = window.URL.createObjectURL(blob);
         const anchor = document.createElement('a');
@@ -491,8 +564,39 @@
         ],
         language: {
           url: '{{ brand_preferences.datatables_language_url }}'
-        }
+        },
+        columnDefs: [
+          {
+            targets: 10,
+            orderable: false,
+            searchable: false
+          },
+          {
+            targets: 11,
+            visible: false,
+            searchable: true
+          }
+        ]
       });
+      const applyStatusFilter = function (status, options) {
+        const filterStatus = ['awaiting', 'disbursed', 'all'].includes(status) ? status : 'awaiting';
+        const shouldSyncUrl = !options || options.syncUrl !== false;
+
+        $('.loan-status-filter').removeClass('active');
+        $('.loan-status-filter[data-status="' + filterStatus + '"]').addClass('active');
+
+        if (filterStatus === 'all') {
+          table.column(11).search('').draw();
+        } else {
+          table.column(11).search('^' + filterStatus + '$', true, false).draw();
+        }
+
+        updateFilterCaption(filterStatus);
+
+        if (shouldSyncUrl) {
+          syncFilterInUrl(filterStatus);
+        }
+      };
     
       const today = new Date();
       const yyyy = today.getFullYear();
@@ -500,6 +604,13 @@
       const dd = String(today.getDate()).padStart(2, '0');
       const todayStr = `${yyyy}-${mm}-${dd}`;
       $('#id_disb_date').val(todayStr);
+
+      $('.loan-status-filter').on('click', function () {
+        applyStatusFilter($(this).data('status'));
+      });
+
+      const initialUrl = new URL(window.location.href);
+      applyStatusFilter(initialUrl.searchParams.get('disbursement_status') || 'awaiting', { syncUrl: false });
 
       $(document).on('click', '.btn-download-loan-pdf', async function (event) {
         event.preventDefault();

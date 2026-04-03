@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from django.db import transaction as db_transaction
 from django.http import JsonResponse
-from django.db.models import F, ExpressionWrapper, DecimalField
+from django.db.models import F, ExpressionWrapper, DecimalField, Q
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
@@ -21,7 +21,7 @@ from core.models import (
 @login_required
 def loan_disbursement_list(request):
     """
-    Lista empréstimos aprovados (status='approved') e respectivos desembolsos.
+    Lista empréstimos aprovados por desembolsar e empréstimos já desembolsados.
     - Calcula total_to_repay = payment_per_period * term_periods
     - Calcula total_interest = total_to_repay - principal_amount
     - Anexa info da conta do cliente (nome + número) ao objecto loan
@@ -34,7 +34,7 @@ def loan_disbursement_list(request):
             "disbursements__company_account",
             "member__client_accounts__account_type",
         )
-        .filter(status="approved")
+        .filter(Q(status="approved") | Q(disbursements__isnull=False))
         .annotate(
             total_to_repay=ExpressionWrapper(
                 F("payment_per_period") * F("term_periods"),
@@ -45,6 +45,7 @@ def loan_disbursement_list(request):
                 output_field=DecimalField(max_digits=15, decimal_places=2),
             ),
         )
+        .distinct()
         .order_by("-id")
     )
 
@@ -52,6 +53,9 @@ def loan_disbursement_list(request):
     loans = list(loans_qs)
 
     for loan in loans:
+        disbursement_records = list(loan.disbursements.all())
+        loan.has_disbursement = len(disbursement_records) > 0
+
         # primeira conta activa do cliente (se existir)
         ca = (
             loan.member.client_accounts
