@@ -1,5 +1,5 @@
 {% extends 'layouts/sl_base.html' %}
-{% load static core_i18n %}
+{% load static core_i18n l10n %}
 
 {% block content %}
   <div class="container-fluid py-2">
@@ -69,7 +69,7 @@
                   </thead>
                   <tbody>
                     {% for loan in loans %}
-                      <tr data-loan-id="{{ loan.id }}" data-principal="{{ loan.principal_amount|floatformat:2 }}" data-total-repay="{{ loan.total_to_repay|default_if_none:loan.principal_amount|floatformat:2 }}" data-client-account-name="{{ loan.client_account_name_to_credit|default_if_none:'' }}" data-client-account-number="{{ loan.client_account_identifier_to_credit|default_if_none:'' }}">
+                      <tr data-loan-id="{{ loan.id }}" data-principal="{{ loan.principal_amount|unlocalize }}" data-total-repay="{{ loan.total_to_repay|default_if_none:loan.principal_amount|unlocalize }}" data-client-name="{{ loan.member.first_name }} {{ loan.member.last_name }}" data-client-account-name="{{ loan.client_account_name_to_credit|default_if_none:'' }}" data-client-account-number="{{ loan.client_account_identifier_to_credit|default_if_none:'' }}">
                         <!-- ID -->
                         <td>{{ loan.id }}</td>
 
@@ -809,11 +809,10 @@
       $(document).on('click', '.btn-open-disburse-modal', function () {
         const tr = $(this).closest('tr');
         const loanId = tr.data('loan-id');
-        const principal = tr.data('principal');
-        const totalRepay = tr.data('totalRepay');
-        const clientAccName = tr.data('client-account-name') || '';
+        const principal = parseFloat(tr.attr('data-principal') || '0') || 0;
+        const clientName = tr.data('client-name') || '';
         const clientAccNumber = tr.data('client-account-number') || '';
-        const defaultAmount = totalRepay || principal;
+        const defaultAmount = principal > 0 ? principal.toFixed(2) : '';
     
         $('#id_disb_loan_id').val(loanId);
         $('#id_disb_company_account').val('').trigger('change');
@@ -823,7 +822,7 @@
         $('#id_disb_attachment').val('');
         $('#id_disb_notes').val('');
     
-        $('#id_client_account_name').val(clientAccName);
+        $('#id_client_account_name').val(clientName);
         $('#id_client_account_number').val(clientAccNumber);
     
         $('#disburseLoanModal').modal('show');
