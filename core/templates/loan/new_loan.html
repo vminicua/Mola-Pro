@@ -36,11 +36,11 @@
               </div>
               <div class="loan-step-indicator" data-step="5">
                 <div class="circle">5</div>
-                <span>Pagamentos</span>
+                <span>Resumo</span>
               </div>
             </div>
 
-            <form id="newLoanForm" method="post" enctype="multipart/form-data">
+            <form id="newLoanForm" method="post" data-processing-download="true">
               {% csrf_token %}
 
               <div class="row g-4">
@@ -176,57 +176,25 @@
 
                     <div class="row">
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Data de Libertação</label>
+                        <label class="form-label">Data de Libertação *</label>
                         <div class="input-group input-group-outline">
                           <input type="date" class="form-control" name="release_date" id="id_release_date"
                                  value="{{ form_data.release_date|default:'' }}">
                         </div>
+                        {% if errors.release_date %}
+                          <small class="text-danger">{{ errors.release_date }}</small>
+                        {% endif %}
                       </div>
                       <div class="col-md-6 mb-3">
-                        <label class="form-label">Data de Pagamento</label>
+                        <label class="form-label">Data de Pagamento *</label>
                         <div class="input-group input-group-outline">
                           <input type="date" class="form-control" name="first_payment_date" id="id_first_payment_date"
                                  value="{{ form_data.first_payment_date|default:'' }}">
                         </div>
+                        {% if errors.first_payment_date %}
+                          <small class="text-danger">{{ errors.first_payment_date }}</small>
+                        {% endif %}
                       </div>
-                    </div>
-
-                    <div class="mb-3">
-                      <label class="form-label">Método de Desembolso *</label>
-                      <div class="input-group input-group-outline">
-                        <select class="form-select" name="disburse_method" id="id_disburse_method">
-                          <option value="cash"
-                            {% if form_data.disburse_method|default:'cash' == 'cash' %}selected{% endif %}>
-                            Cash
-                          </option>
-                          <option value="company_account"
-                            {% if form_data.disburse_method|default:'' == 'company_account' %}selected{% endif %}>
-                            Transferência - Conta da Empresa
-                          </option>
-                          <option value="mobile_wallet"
-                            {% if form_data.disburse_method|default:'' == 'mobile_wallet' %}selected{% endif %}>
-                            Carteira Móvel (M-Pesa, e-Mola, etc.)
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="mb-3" id="company-account-wrapper" style="display:none;">
-                      <label class="form-label">Conta da Empresa para Desembolso *</label>
-                      <div class="input-group input-group-outline">
-                        <select class="form-select" name="company_account" id="id_company_account">
-                          <option value="">— Seleccione —</option>
-                          {% for ca in company_accounts %}
-                            <option value="{{ ca.id }}"
-                            {% if form_data.company_account|default:'' == ca.id|stringformat:'s' %}selected{% endif %}>
-                              {{ ca.name }} ({{ ca.account_type.get_category_display }}) — {{ ca.account_identifier }}
-                            </option>
-                          {% endfor %}
-                        </select>
-                      </div>
-                      {% if errors.company_account %}
-                        <small class="text-danger">{{ errors.company_account }}</small>
-                      {% endif %}
                     </div>
 
                     <div class="mb-3">
@@ -248,100 +216,194 @@
 
                   <!-- STEP 2: GARANTIAS (COLATERAL) -->
                   <div class="loan-step-panel d-none" data-step-panel="2">
-                    <h6 class="mb-3">Passo 2 · Garantias (Colateral)</h6>
-                    <p class="text-sm text-muted">
-                      Opcional. Use para registar bens usados como garantia do empréstimo.
-                    </p>
-
-                    <div class="mb-3">
-                      <label class="form-label">Nome do Bem</label>
-                      <div class="input-group input-group-outline">
-                        <input type="text" class="form-control" name="guarantee_name"
-                               value="{{ form_data.guarantee_name|default:'' }}"
-                               placeholder="Ex: Motorizada, Laptop, TV, etc.">
+                    <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+                      <div>
+                        <h6 class="mb-1">Passo 2 · Garantias (Colateral)</h6>
+                        <p class="text-sm text-muted mb-0">
+                          Opcional. Pode adicionar uma ou várias garantias.
+                        </p>
                       </div>
+                      <button type="button" class="btn btn-outline-primary btn-sm mb-0" id="btnAddGuaranteeRow">
+                        <i class="material-symbols-rounded me-1" style="font-size:18px;">add</i>
+                        Adicionar garantia
+                      </button>
                     </div>
 
-                    <div class="row">
-                      <div class="col-md-6 mb-3">
-                        <label class="form-label">Tipo de Garantia</label>
-                        <div class="input-group input-group-outline">
-                          <input type="text" class="form-control" name="guarantee_type"
-                                 value="{{ form_data.guarantee_type|default:'' }}"
-                                 placeholder="Ex: Veículo, Equipamento, Imóvel">
+                    {% if errors.guarantees %}
+                      <small class="text-danger d-block mb-3">{{ errors.guarantees }}</small>
+                    {% endif %}
+
+                    <div id="guaranteeRows" class="d-flex flex-column gap-3">
+                      {% for row in guarantee_rows %}
+                        <div class="dynamic-entry guarantee-entry card border shadow-sm">
+                          <div class="card-body py-3">
+                            <div class="row g-2 align-items-end">
+                              <div class="col-md-3">
+                                <label class="form-label mb-1">Nome</label>
+                                <div class="input-group input-group-outline">
+                                  <input type="text" class="form-control" name="guarantee_name[]"
+                                         value="{{ row.name }}" placeholder="Ex: Motorizada">
+                                </div>
+                              </div>
+                              <div class="col-md-2">
+                                <label class="form-label mb-1">Tipo</label>
+                                <div class="input-group input-group-outline">
+                                  <input type="text" class="form-control" name="guarantee_type[]"
+                                         value="{{ row.guarantee_type }}" placeholder="Ex: Veículo">
+                                </div>
+                              </div>
+                              <div class="col-md-2">
+                                <label class="form-label mb-1">Nº Série</label>
+                                <div class="input-group input-group-outline">
+                                  <input type="text" class="form-control" name="guarantee_serial[]"
+                                         value="{{ row.serial_number }}" placeholder="Ref.">
+                                </div>
+                              </div>
+                              <div class="col-md-2">
+                                <label class="form-label mb-1">Valor (MT)</label>
+                                <div class="input-group input-group-outline">
+                                  <input type="number" step="0.01" class="form-control" name="guarantee_estimated_price[]"
+                                         value="{{ row.estimated_price }}" placeholder="0.00">
+                                </div>
+                              </div>
+                              <div class="col-md-2">
+                                <label class="form-label mb-1">Descrição</label>
+                                <div class="input-group input-group-outline">
+                                  <input type="text" class="form-control" name="guarantee_description[]"
+                                         value="{{ row.description }}" placeholder="Detalhes rápidos">
+                                </div>
+                              </div>
+                              <div class="col-md-1 d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-danger btn-sm mb-0 dynamic-remove-btn" data-remove-row>
+                                  <i class="material-symbols-rounded" style="font-size:18px;">delete</i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div class="col-md-6 mb-3">
-                        <label class="form-label">Nº de Série / Identificação</label>
-                        <div class="input-group input-group-outline">
-                          <input type="text" class="form-control" name="guarantee_serial"
-                                 value="{{ form_data.guarantee_serial|default:'' }}">
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="mb-3">
-                      <label class="form-label">Valor Estimado (MT)</label>
-                      <div class="input-group input-group-outline">
-                        <input type="number" step="0.01" class="form-control"
-                               name="guarantee_estimated_price"
-                               value="{{ form_data.guarantee_estimated_price|default:'' }}">
-                      </div>
-                    </div>
-
-                    <div class="mb-3">
-                      <label class="form-label">Anexo (foto / documento)</label>
-                      <div class="input-group input-group-outline">
-                        <input type="file" class="form-control" name="guarantee_attachment" id="id_guarantee_attachment">
-                      </div>
-                    </div>
-
-                    <div class="mb-3">
-                      <label class="form-label">Descrição</label>
-                      <div class="input-group input-group-outline">
-                        <textarea class="form-control" rows="3"
-                                  name="guarantee_description">{{ form_data.guarantee_description|default:'' }}</textarea>
-                      </div>
+                      {% endfor %}
                     </div>
                   </div>
 
                   <!-- STEP 3: AVALISTA (MEMBRO) -->
                   <div class="loan-step-panel d-none" data-step-panel="3">
-                    <h6 class="mb-3">Passo 3 · Avalista</h6>
-                    <p class="text-sm text-muted">
-                      Opcional. O avalista deve existir como cliente na base de dados.
-                    </p>
-
-                    <div class="mb-3">
-                      <label class="form-label">Avalista (Cliente)</label>
-                      <div class="input-group input-group-outline">
-                        <select class="form-select" name="guarantor_member" id="id_guarantor_member">
-                          <option value="">— Seleccione —</option>
-                          {% for m in members %}
-                            <option value="{{ m.id }}"
-                              {% if form_data.guarantor_member|default:'' == m.id|stringformat:'s' %}selected{% endif %}>
-                              {{ m.first_name }} {{ m.last_name }} — {{ m.phone }}
-                            </option>
-                          {% endfor %}
-                        </select>
+                    <div class="d-flex justify-content-between align-items-center mb-3 gap-2">
+                      <div>
+                        <h6 class="mb-1">Passo 3 · Avalistas</h6>
+                        <p class="text-sm text-muted mb-0">
+                          Opcional. Pode adicionar um ou vários avalistas.
+                        </p>
                       </div>
+                      <button type="button" class="btn btn-outline-primary btn-sm mb-0" id="btnAddGuarantorRow">
+                        <i class="material-symbols-rounded me-1" style="font-size:18px;">add</i>
+                        Adicionar avalista
+                      </button>
                     </div>
 
-                    <div class="mb-3">
-                      <label class="form-label">Conta / Identificador do Avalista</label>
-                      <div class="input-group input-group-outline">
-                        <input type="text" class="form-control" name="guarantor_account"
-                               value="{{ form_data.guarantor_account|default:'' }}">
-                      </div>
+                    {% if errors.guarantors %}
+                      <small class="text-danger d-block mb-3">{{ errors.guarantors }}</small>
+                    {% endif %}
+
+                    <div id="guarantorRows" class="d-flex flex-column gap-3">
+                      {% for row in guarantor_rows %}
+                        <div class="dynamic-entry guarantor-entry card border shadow-sm">
+                          <div class="card-body py-3">
+                            <div class="row g-2 align-items-end">
+                              <div class="col-md-11">
+                                <label class="form-label mb-1">Avalista (Cliente)</label>
+                                <div class="input-group input-group-outline">
+                                  <select class="form-select guarantor-select" name="guarantor_member[]">
+                                    <option value="">— Seleccione —</option>
+                                    {% for m in members %}
+                                      <option value="{{ m.id }}"
+                                        {% if row.member_id|default:'' == m.id|stringformat:'s' %}selected{% endif %}>
+                                        {{ m.first_name }} {{ m.last_name }} — {{ m.phone }}
+                                      </option>
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                              <div class="col-md-1 d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-danger btn-sm mb-0 dynamic-remove-btn" data-remove-row>
+                                  <i class="material-symbols-rounded" style="font-size:18px;">delete</i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% endfor %}
                     </div>
 
-                    <div class="mb-3">
-                      <label class="form-label">Montante Coberto (MT)</label>
-                      <div class="input-group input-group-outline">
-                        <input type="number" step="0.01" class="form-control" name="guarantor_amount"
-                               value="{{ form_data.guarantor_amount|default:'' }}">
+                    <template id="guaranteeRowTemplate">
+                      <div class="dynamic-entry guarantee-entry card border shadow-sm">
+                        <div class="card-body py-3">
+                          <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                              <label class="form-label mb-1">Nome</label>
+                              <div class="input-group input-group-outline">
+                                <input type="text" class="form-control" name="guarantee_name[]" placeholder="Ex: Motorizada">
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <label class="form-label mb-1">Tipo</label>
+                              <div class="input-group input-group-outline">
+                                <input type="text" class="form-control" name="guarantee_type[]" placeholder="Ex: Veículo">
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <label class="form-label mb-1">Nº Série</label>
+                              <div class="input-group input-group-outline">
+                                <input type="text" class="form-control" name="guarantee_serial[]" placeholder="Ref.">
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <label class="form-label mb-1">Valor (MT)</label>
+                              <div class="input-group input-group-outline">
+                                <input type="number" step="0.01" class="form-control" name="guarantee_estimated_price[]" placeholder="0.00">
+                              </div>
+                            </div>
+                            <div class="col-md-2">
+                              <label class="form-label mb-1">Descrição</label>
+                              <div class="input-group input-group-outline">
+                                <input type="text" class="form-control" name="guarantee_description[]" placeholder="Detalhes rápidos">
+                              </div>
+                            </div>
+                            <div class="col-md-1 d-flex justify-content-end">
+                              <button type="button" class="btn btn-outline-danger btn-sm mb-0 dynamic-remove-btn" data-remove-row>
+                                <i class="material-symbols-rounded" style="font-size:18px;">delete</i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
+                    </template>
+
+                    <template id="guarantorRowTemplate">
+                      <div class="dynamic-entry guarantor-entry card border shadow-sm">
+                        <div class="card-body py-3">
+                          <div class="row g-2 align-items-end">
+                            <div class="col-md-11">
+                              <label class="form-label mb-1">Avalista (Cliente)</label>
+                              <div class="input-group input-group-outline">
+                                <select class="form-select guarantor-select" name="guarantor_member[]">
+                                  <option value="">— Seleccione —</option>
+                                  {% for m in members %}
+                                    <option value="{{ m.id }}">
+                                      {{ m.first_name }} {{ m.last_name }} — {{ m.phone }}
+                                    </option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                            </div>
+                            <div class="col-md-1 d-flex justify-content-end">
+                              <button type="button" class="btn btn-outline-danger btn-sm mb-0 dynamic-remove-btn" data-remove-row>
+                                <i class="material-symbols-rounded" style="font-size:18px;">delete</i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
                   </div>
 
                   <!-- STEP 4: PLANO DE PAGAMENTO -->
@@ -349,35 +411,20 @@
                     <h6 class="mb-3">Passo 4 · Plano de Pagamento (Simulação)</h6>
                     <p class="text-sm text-muted">
                       Simulação com juro flat sobre o principal original.
-                      A última prestação é ajustada automaticamente para fechar o saldo.
+                      Cada card mostra exactamente quando deverá ser pago.
                     </p>
 
-                    <div class="table-responsive">
-                      <table class="table table-bordered table-striped align-items-center mb-0" id="schedule-table">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>Período</th>
-                            <th>Saldo Inicial</th>
-                            <th>Juros</th>
-                            <th>Pagamento</th>
-                            <th>Amortização</th>
-                            <th>Saldo Final</th>
-                            <th>Obs</th>
-                          </tr>
-                        </thead>
-                        <tbody id="schedule-body">
-                          <!-- preenchido por JS -->
-                        </tbody>
-                      </table>
+                    <div id="schedule-empty" class="alert alert-light border mb-3">
+                      Preencha valor, taxa, prazo e data de pagamento para ver a simulação.
                     </div>
+                    <div class="row g-3" id="schedule-cards"></div>
                   </div>
 
-                  <!-- STEP 5: PAGAMENTOS -->
+                  <!-- STEP 5: RESUMO -->
                   <div class="loan-step-panel d-none" data-step-panel="5">
-                    <h6 class="mb-3">Passo 5 · Pagamentos</h6>
+                    <h6 class="mb-3">Passo 5 · Resumo</h6>
                     <p class="text-sm text-muted">
-                      Resumo do plano estimado. Depois de criar o empréstimo, os pagamentos reais serão registados noutra secção.
+                      Revise os dados finais. Ao guardar o empréstimo, o sistema vai descarregar um PDF com este resumo.
                     </p>
 
                     <ul class="list-group mb-3">
@@ -398,15 +445,24 @@
                         <strong id="sumPeriodsStep5">0</strong>
                       </li>
                       <li class="list-group-item d-flex justify-content-between">
+                        <span>Garantias</span>
+                        <strong id="sumGuaranteesStep5">0</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span>Avalistas</span>
+                        <strong id="sumGuarantorsStep5">0</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
                         <span>A Reembolsar</span>
                         <strong id="sumTotalPaidStep5">{{ 0|money_with_symbol }}</strong>
                       </li>
                     </ul>
 
-                    <p class="text-sm">
-                      Clique em <strong>Guardar Empréstimo</strong> para finalizar.  
-                      O plano de pagamento e o registo de pagamentos serão geridos noutra área da aplicação.
-                    </p>
+                    <div class="alert alert-light border mb-0">
+                      <small class="text-muted">
+                        O PDF será gerado com cliente, condições financeiras, garantias, avalistas e plano de pagamento.
+                      </small>
+                    </div>
                   </div>
 
                   <!-- NAVEGAÇÃO DO WIZARD -->
@@ -418,7 +474,7 @@
                       Próximo <i class="material-symbols-rounded ms-1">chevron_right</i>
                     </button>
                     <button type="submit" class="btn bg-gradient-success btn-sm d-none" id="btnSubmitWizard">
-                      <i class="material-symbols-rounded me-1">check_circle</i> Guardar Empréstimo
+                      <i class="material-symbols-rounded me-1">picture_as_pdf</i> Guardar e Baixar PDF
                     </button>
                   </div>
 
@@ -562,36 +618,55 @@
     return Math.round(parseNumericValue(value) * 100) / 100;
   }
 
-  function addMonthsToDateInput(value, months) {
-    if (!value) {
+  function parseDateInput(value) {
+    const match = String(value || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) {
+      return null;
+    }
+
+    return new Date(
+      Number(match[1]),
+      Number(match[2]) - 1,
+      Number(match[3]),
+      12, 0, 0, 0
+    );
+  }
+
+  function formatDateInputValue(dateObject) {
+    if (!(dateObject instanceof Date) || Number.isNaN(dateObject.getTime())) {
       return '';
     }
 
-    const parts = value.split('-').map(Number);
-    if (parts.length !== 3) {
-      return value;
+    const year = String(dateObject.getFullYear());
+    const month = String(dateObject.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObject.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function addMonthsToDateInput(value, months) {
+    const currentDate = parseDateInput(value);
+    if (!currentDate) {
+      return value || '';
     }
 
-    const [year, month, day] = parts;
-    const nextDate = new Date(year, month - 1 + months, 1);
-    const lastDay = new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0).getDate();
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const day = currentDate.getDate();
+    const nextDate = new Date(year, month + months, 1, 12, 0, 0, 0);
+    const lastDay = new Date(nextDate.getFullYear(), nextDate.getMonth() + 1, 0, 12, 0, 0, 0).getDate();
     nextDate.setDate(Math.min(day, lastDay));
 
-    return nextDate.toISOString().slice(0, 10);
+    return formatDateInputValue(nextDate);
   }
 
   function addDaysToDateInput(value, days) {
-    if (!value) {
-      return '';
+    const currentDate = parseDateInput(value);
+    if (!currentDate) {
+      return value || '';
     }
 
-    const nextDate = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(nextDate.getTime())) {
-      return value;
-    }
-
-    nextDate.setDate(nextDate.getDate() + days);
-    return nextDate.toISOString().slice(0, 10);
+    currentDate.setDate(currentDate.getDate() + days);
+    return formatDateInputValue(currentDate);
   }
 
   function calculateFlatMetrics(principal, ratePercent, periods) {
@@ -648,8 +723,12 @@
     const paymentInput = document.getElementById('id_payment_per_period');
     const releaseDateInput = document.getElementById('id_release_date');
     const firstPaymentDateInput = document.getElementById('id_first_payment_date');
-    const disburseMethodSelect = document.getElementById('id_disburse_method');
-    const companyAccountWrapper = document.getElementById('company-account-wrapper');
+    const guaranteeRowsContainer = document.getElementById('guaranteeRows');
+    const guarantorRowsContainer = document.getElementById('guarantorRows');
+    const guaranteeRowTemplate = document.getElementById('guaranteeRowTemplate');
+    const guarantorRowTemplate = document.getElementById('guarantorRowTemplate');
+    const btnAddGuaranteeRow = document.getElementById('btnAddGuaranteeRow');
+    const btnAddGuarantorRow = document.getElementById('btnAddGuarantorRow');
 
     const sumClient = document.getElementById('sumClient');
     const sumLoanType = document.getElementById('sumLoanType');
@@ -669,9 +748,12 @@
     const sumInterest5 = document.getElementById('sumInterestStep5');
     const sumPayment5 = document.getElementById('sumPaymentStep5');
     const sumPeriods5 = document.getElementById('sumPeriodsStep5');
+    const sumGuarantees5 = document.getElementById('sumGuaranteesStep5');
+    const sumGuarantors5 = document.getElementById('sumGuarantorsStep5');
     const sumTotalPaid5 = document.getElementById('sumTotalPaidStep5');
 
-    const scheduleBody = document.getElementById('schedule-body');
+    const scheduleCards = document.getElementById('schedule-cards');
+    const scheduleEmpty = document.getElementById('schedule-empty');
     let paymentManuallyEdited = false;
     let paymentDateManuallyEdited = false;
 
@@ -710,6 +792,60 @@
       metrics.periodMode = periodTypeSelect.value || 'monthly';
 
       return metrics;
+    }
+
+    function countFilledGuarantees() {
+      return Array.from(guaranteeRowsContainer.querySelectorAll('.guarantee-entry')).filter((row) => {
+        return Array.from(row.querySelectorAll('input')).some((input) => input.value.trim() !== '');
+      }).length;
+    }
+
+    function countFilledGuarantors() {
+      return Array.from(guarantorRowsContainer.querySelectorAll('.guarantor-select')).filter((select) => {
+        return Boolean(select.value);
+      }).length;
+    }
+
+    function refreshRemoveButtons(container) {
+      const rows = container.querySelectorAll('.dynamic-entry');
+      rows.forEach((row) => {
+        const button = row.querySelector('[data-remove-row]');
+        if (!button) {
+          return;
+        }
+
+        button.disabled = rows.length === 1;
+        button.classList.toggle('opacity-50', rows.length === 1);
+      });
+    }
+
+    function appendTemplateRow(template, container) {
+      if (!template || !container) {
+        return null;
+      }
+
+      const fragment = template.content.cloneNode(true);
+      const row = fragment.querySelector('.dynamic-entry');
+      container.appendChild(fragment);
+      refreshRemoveButtons(container);
+
+      if (row && window.MolaSelect2 && typeof window.MolaSelect2.init === 'function') {
+        window.MolaSelect2.init(row);
+      }
+
+      return row;
+    }
+
+    function getInstallmentDueDate(baseDate, periodMode, installmentIndex) {
+      if (!baseDate) {
+        return '';
+      }
+
+      if (periodMode === 'daily') {
+        return addDaysToDateInput(baseDate, installmentIndex);
+      }
+
+      return addMonthsToDateInput(baseDate, installmentIndex);
     }
 
     function calculatePaymentDate() {
@@ -773,6 +909,8 @@
 
       if (!metrics.valid) {
         sumSummaryHint.innerText = 'Preencha valor, taxa e prazo para ver a simulação.';
+      } else if (!releaseDateInput.value || !firstPaymentDateInput.value) {
+        sumSummaryHint.innerText = 'Defina as datas de libertação e de pagamento para ver o plano completo.';
       } else if (mismatch) {
         sumSummaryHint.innerText = 'Atenção: o tipo de juro e o tipo de período não coincidem. Verifique se a combinação está correcta.';
       } else if (paymentManuallyEdited) {
@@ -792,19 +930,10 @@
       sumInterest5.innerText = formatMoney(currentMetrics.totalInterest || 0);
       sumPayment5.innerText = formatMoney(effectivePayment || 0);
       sumPeriods5.innerText = String(currentMetrics.periods || 0);
+      sumGuarantees5.innerText = String(countFilledGuarantees());
+      sumGuarantors5.innerText = String(countFilledGuarantors());
       sumTotalPaid5.innerText = formatMoney(currentMetrics.totalToRepay || 0);
     }
-
-    function toggleCompanyAccount() {
-      const method = disburseMethodSelect.value;
-      if (method === 'company_account' || method === 'mobile_wallet') {
-        companyAccountWrapper.style.display = 'block';
-      } else {
-        companyAccountWrapper.style.display = 'none';
-      }
-    }
-    disburseMethodSelect.addEventListener('change', toggleCompanyAccount);
-    toggleCompanyAccount();
 
     function goToStep(step) {
       if (step < 1 || step > totalSteps) return;
@@ -873,13 +1002,6 @@
           Swal.fire('Validação', 'Pagamento por ciclo inválido. Pode usar o valor sugerido.', 'warning');
           return false;
         }
-
-        const method = disburseMethodSelect.value;
-        if ((method === 'company_account' || method === 'mobile_wallet')
-            && !document.getElementById('id_company_account').value) {
-          Swal.fire('Validação', 'Selecione a conta da empresa para o desembolso.', 'warning');
-          return false;
-        }
       }
       return true;
     }
@@ -891,6 +1013,52 @@
     btnNext.addEventListener('click', function () {
       if (!validateCurrentStep()) return;
       if (currentStep < totalSteps) goToStep(currentStep + 1);
+    });
+
+    btnAddGuaranteeRow.addEventListener('click', function () {
+      appendTemplateRow(guaranteeRowTemplate, guaranteeRowsContainer);
+      updateLoanSimulation();
+    });
+
+    btnAddGuarantorRow.addEventListener('click', function () {
+      appendTemplateRow(guarantorRowTemplate, guarantorRowsContainer);
+      updateLoanSimulation();
+    });
+
+    [guaranteeRowsContainer, guarantorRowsContainer].forEach((container) => {
+      container.addEventListener('click', function (event) {
+        const removeButton = event.target.closest('[data-remove-row]');
+        if (!removeButton) {
+          return;
+        }
+
+        const row = removeButton.closest('.dynamic-entry');
+        if (!row) {
+          return;
+        }
+
+        if (container.querySelectorAll('.dynamic-entry').length === 1) {
+          row.querySelectorAll('input, select').forEach((field) => {
+            field.value = '';
+            if (field.tagName === 'SELECT') {
+              field.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+          });
+        } else {
+          row.remove();
+          refreshRemoveButtons(container);
+        }
+
+        updateLoanSimulation();
+      });
+
+      container.addEventListener('input', function () {
+        updateLoanSimulation();
+      });
+
+      container.addEventListener('change', function () {
+        updateLoanSimulation();
+      });
     });
 
     function updateLoanSimulation(options) {
@@ -957,16 +1125,24 @@
 
     function generateSchedule(metrics) {
       const currentMetrics = metrics || getCurrentMetrics();
-      scheduleBody.innerHTML = '';
+      scheduleCards.innerHTML = '';
       if (!currentMetrics.valid) {
+        scheduleEmpty.classList.remove('d-none');
         return;
       }
+
+      scheduleEmpty.classList.add('d-none');
 
       const basePayment = currentMetrics.currentPayment > 0
         ? currentMetrics.currentPayment
         : currentMetrics.suggestedPayment;
       let remainingPrincipal = currentMetrics.principal;
       let remainingTotal = currentMetrics.totalToRepay;
+      const firstDueDate = firstPaymentDateInput.value || calculatePaymentDate();
+      if (!firstDueDate) {
+        scheduleEmpty.classList.remove('d-none');
+        return;
+      }
 
       for (let i = 1; i <= currentMetrics.periods; i++) {
         if (remainingTotal <= 0.009) {
@@ -991,18 +1167,33 @@
           note = 'Prestação ajustada para encerrar o empréstimo.';
         }
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${i}</td>
-          <td>${currentMetrics.periodMode === 'daily' ? `Dia ${i}` : `Mês ${i}`}</td>
-          <td>${formatMoney(principalBefore)}</td>
-          <td>${formatMoney(interest)}</td>
-          <td>${formatMoney(payment)}</td>
-          <td>${formatMoney(principalReduction)}</td>
-          <td>${formatMoney(remainingPrincipal)}</td>
-          <td>${note}</td>
+        const dueDate = getInstallmentDueDate(firstDueDate, currentMetrics.periodMode, i - 1);
+        const col = document.createElement('div');
+        col.className = 'col-md-6';
+        col.innerHTML = `
+          <div class="card schedule-card h-100 border shadow-sm">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                <div>
+                  <h6 class="mb-1">${currentMetrics.periodMode === 'daily' ? `Dia ${i}` : `Mês ${i}`}</h6>
+                  <p class="text-sm text-muted mb-0">Prestação ${i} de ${currentMetrics.periods}</p>
+                </div>
+                <span class="badge bg-light text-dark">${formatDateLabel(dueDate)}</span>
+              </div>
+              <div class="alert alert-light border py-2 px-3 mb-3">
+                <small class="text-muted d-block">Deve ser pago em</small>
+                <strong>${formatDateLabel(dueDate)}</strong>
+              </div>
+              <div class="schedule-stat"><span>Valor a pagar</span><strong>${formatMoney(payment)}</strong></div>
+              <div class="schedule-stat"><span>Juros</span><strong>${formatMoney(interest)}</strong></div>
+              <div class="schedule-stat"><span>Amortização</span><strong>${formatMoney(principalReduction)}</strong></div>
+              <div class="schedule-stat"><span>Saldo antes</span><strong>${formatMoney(principalBefore)}</strong></div>
+              <div class="schedule-stat"><span>Saldo depois</span><strong>${formatMoney(remainingPrincipal)}</strong></div>
+              <p class="text-sm text-muted mb-0 mt-3">${note}</p>
+            </div>
+          </div>
         `;
-        scheduleBody.appendChild(tr);
+        scheduleCards.appendChild(col);
       }
     }
 
@@ -1014,17 +1205,14 @@
       && initialMetrics.valid
       && Math.abs(parseNumericValue(paymentInput.value || 0) - initialMetrics.suggestedPayment) > 0.009;
 
+    refreshRemoveButtons(guaranteeRowsContainer);
+    refreshRemoveButtons(guarantorRowsContainer);
+    if (window.MolaSelect2 && typeof window.MolaSelect2.init === 'function') {
+      window.MolaSelect2.init(guarantorRowsContainer);
+    }
+
     updateLoanSimulation({ forcePayment: !paymentInput.value });
     goToStep(1);
-
-    {% if loan_created %}
-    Swal.fire({
-      icon: 'success',
-      title: 'Empréstimo criado',
-      text: 'O empréstimo #{{ new_loan_id }} foi registado com sucesso.',
-      confirmButtonText: 'OK'
-    });
-    {% endif %}
   });
 </script>
 
@@ -1089,6 +1277,30 @@
 .loan-step-indicator.completed span {
   color: var(--mola-pro-primary);
   font-weight: 600;
+}
+.dynamic-entry .form-label {
+  font-size: 0.75rem;
+  color: #67748e;
+}
+.schedule-card {
+  border-radius: 1rem;
+}
+.schedule-stat {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px dashed rgba(15, 23, 42, 0.08);
+}
+.schedule-stat:last-of-type {
+  border-bottom: 0;
+}
+.schedule-stat span {
+  color: #67748e;
+  font-size: 0.85rem;
+}
+.schedule-stat strong {
+  font-size: 0.92rem;
 }
 .card .list-group-item strong {
   max-width: 56%;

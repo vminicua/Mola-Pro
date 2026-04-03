@@ -28,9 +28,10 @@ local_settings.py
 .DS_Store
 Thumbs.db
 
-.env
+
 .htaccess
 passenger_wsgi.py
 tmp/
 staticfiles/
 stderr.log
+media/preferences/branding.json

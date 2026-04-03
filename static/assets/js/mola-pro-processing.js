@@ -162,8 +162,13 @@
     return method !== 'get';
   }
 
+  function isDownloadForm(form) {
+    return !!form && form.getAttribute('data-processing-download') === 'true';
+  }
+
   function handleFormSubmit(event) {
     var form = event.target;
+    var downloadForm = isDownloadForm(form);
 
     if (!shouldHandleForm(form)) {
       return;
@@ -182,14 +187,21 @@
     );
 
     window.setTimeout(function () {
-      if (pageUnloading || activeRequests > 0 || !pendingForms.has(form)) {
+      if (activeRequests > 0 || !pendingForms.has(form)) {
+        return;
+      }
+
+      if (pageUnloading && !downloadForm) {
         return;
       }
 
       pendingForms.delete(form);
       unlockForm(form);
+      if (downloadForm && pendingForms.size === 0) {
+        pageUnloading = false;
+      }
       refreshProcessingState();
-    }, 450);
+    }, downloadForm ? 1800 : 450);
   }
 
   function bindFetch() {

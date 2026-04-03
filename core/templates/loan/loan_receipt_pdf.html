@@ -1,0 +1,305 @@
+{% load core_i18n %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Empréstimo #{{ loan.id }}</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 14mm;
+    }
+
+    body {
+      font-family: DejaVu Sans, sans-serif;
+      font-size: 12px;
+      color: #1f2937;
+    }
+
+    h1, h2, h3, h4, p {
+      margin: 0;
+    }
+
+    .header {
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      font-size: 20px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .muted {
+      color: #6b7280;
+    }
+
+    .section {
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #334155;
+      margin-bottom: 10px;
+    }
+
+    .grid {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .grid td {
+      padding: 7px 10px;
+      border: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+
+    .label {
+      width: 26%;
+      font-weight: 700;
+      background: #f8fafc;
+    }
+
+    .stats {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 10px 0;
+      margin: 0 -10px;
+    }
+
+    .stats td {
+      width: 25%;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .stats-label {
+      display: block;
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 6px;
+    }
+
+    .stats-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    table.list {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    table.list th,
+    table.list td {
+      border: 1px solid #dbe3ec;
+      padding: 8px 9px;
+      text-align: left;
+      font-size: 11px;
+    }
+
+    table.list th {
+      background: #eff6ff;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .small {
+      font-size: 10px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #e5e7eb;
+      font-size: 10px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="brand">{{ brand_preferences.brand_name|default:"Mola Pro" }}</div>
+    <p class="muted">Resumo do Empréstimo #{{ loan.id }}</p>
+    <p class="muted small">Gerado em {{ generated_at|date:"d/m/Y H:i" }}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Cliente</div>
+    <table class="grid">
+      <tr>
+        <td class="label">Nome</td>
+        <td>{{ member }}</td>
+        <td class="label">Telefone</td>
+        <td>{{ member.phone|default:"—" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Cidade</td>
+        <td>{{ member.city|default:"—" }}</td>
+        <td class="label">Endereço</td>
+        <td>{{ member.address|default:"—" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Condições Financeiras</div>
+    <table class="stats">
+      <tr>
+        <td>
+          <span class="stats-label">Principal</span>
+          <span class="stats-value">{{ metrics.principal|money_with_symbol }}</span>
+        </td>
+        <td>
+          <span class="stats-label">Juros</span>
+          <span class="stats-value">{{ metrics.total_interest|money_with_symbol }}</span>
+        </td>
+        <td>
+          <span class="stats-label">A Reembolsar</span>
+          <span class="stats-value">{{ metrics.total_to_repay|money_with_symbol }}</span>
+        </td>
+        <td>
+          <span class="stats-label">Prestação</span>
+          <span class="stats-value">{{ loan.payment_per_period|money_with_symbol }}</span>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <table class="grid">
+      <tr>
+        <td class="label">Tipo de Empréstimo</td>
+        <td>{{ loan.loan_type.name|default:"—" }}</td>
+        <td class="label">Tipo de Juro</td>
+        <td>{{ loan.interest_type.name|default:"—" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Taxa por Período</td>
+        <td>{{ metrics.rate_percent }}%</td>
+        <td class="label">Períodos</td>
+        <td>{{ loan.term_periods }} {{ loan.get_period_type_display|default:loan.period_type }}</td>
+      </tr>
+      <tr>
+        <td class="label">Data de Libertação</td>
+        <td>{{ loan.release_date|date:"d/m/Y"|default:"—" }}</td>
+        <td class="label">Data de Pagamento</td>
+        <td>{{ loan.first_payment_date|date:"d/m/Y"|default:"—" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Finalidade</td>
+        <td colspan="3">{{ loan.purpose|default:"—" }}</td>
+      </tr>
+      <tr>
+        <td class="label">Observações</td>
+        <td colspan="3">{{ loan.remarks|default:"—" }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Garantias</div>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Tipo</th>
+          <th>Nº Série</th>
+          <th>Valor Estimado</th>
+          <th>Descrição</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for guarantee in guarantees %}
+          <tr>
+            <td>{{ guarantee.name }}</td>
+            <td>{{ guarantee.guarantee_type|default:"—" }}</td>
+            <td>{{ guarantee.serial_number|default:"—" }}</td>
+            <td>{{ guarantee.estimated_price|money_with_symbol|default:"—" }}</td>
+            <td>{{ guarantee.description|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5">Sem garantias registadas.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Avalistas</div>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>Cidade</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for guarantor in guarantors %}
+          <tr>
+            <td>{{ guarantor.guarantor }}</td>
+            <td>{{ guarantor.guarantor.phone|default:"—" }}</td>
+            <td>{{ guarantor.guarantor.city|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="3">Sem avalistas registados.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Plano de Pagamento</div>
+    <table class="list">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Período</th>
+          <th>Data</th>
+          <th>Pagamento</th>
+          <th>Juros</th>
+          <th>Amortização</th>
+          <th>Saldo Final</th>
+          <th>Obs</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in schedule_rows %}
+          <tr>
+            <td>{{ row.installment_number }}</td>
+            <td>{{ row.period_label }}</td>
+            <td>{{ row.due_date|date:"d/m/Y"|default:"—" }}</td>
+            <td>{{ row.payment|money_with_symbol }}</td>
+            <td>{{ row.interest|money_with_symbol }}</td>
+            <td>{{ row.principal_reduction|money_with_symbol }}</td>
+            <td>{{ row.remaining_principal|money_with_symbol }}</td>
+            <td>{{ row.note }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="8">Sem prestações calculadas.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Documento gerado automaticamente por {{ brand_preferences.brand_name|default:"Mola Pro" }}.
+  </div>
+</body>
+</html>
