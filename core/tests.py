@@ -5,7 +5,12 @@ from datetime import date
 from decimal import Decimal
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 
+from core.loan_installment_schedule import (
+    allocate_amount_to_installments,
+    build_loan_installment_schedule,
+)
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, SimpleTestCase, override_settings
 
@@ -203,3 +208,88 @@ class LoanRepaymentLogicTests(SimpleTestCase):
         self.assertEqual(allocation.interest_amount, Decimal("30.00"))
         self.assertEqual(allocation.principal_amount, Decimal("200.00"))
         self.assertEqual(allocation.principal_balance_after, Decimal("0.00"))
+
+
+class LoanInstallmentScheduleTests(SimpleTestCase):
+    def _build_loan(self):
+        return SimpleNamespace(
+            principal_amount=Decimal("100000.00"),
+            term_periods=3,
+            period_type="monthly",
+            payment_per_period=None,
+            first_payment_date=date(2026, 5, 3),
+            release_date=date(2026, 4, 3),
+            interest_type=SimpleNamespace(rate=Decimal("30.00")),
+        )
+
+    def test_schedule_exposes_all_installments_and_locks_future_rows(self) -> None:
+        _, rows, summary = build_loan_installment_schedule(self._build_loan(), [])
+
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows[0]["due_date"], date(2026, 5, 3))
+        self.assertEqual(rows[1]["due_date"], date(2026, 6, 3))
+        self.assertEqual(rows[2]["due_date"], date(2026, 7, 3))
+        self.assertEqual(rows[0]["expected_payment"], Decimal("63333.33"))
+        self.assertEqual(rows[1]["expected_payment"], Decimal("63333.33"))
+        self.assertEqual(rows[2]["expected_payment"], Decimal("63333.34"))
+        self.assertEqual(rows[0]["status"], "current")
+        self.assertEqual(rows[1]["status"], "locked")
+        self.assertEqual(rows[2]["status"], "locked")
+        self.assertEqual(summary["remaining_total"], Decimal("190000.00"))
+        self.assertEqual(summary["remaining_principal"], Decimal("100000.00"))
+        self.assertEqual(summary["active_installment"]["installment_number"], 1)
+
+    def test_underpayment_keeps_same_installment_active_and_future_rows_locked(self) -> None:
+        repayments = [
+            {
+                "id": 1,
+                "payment_date": date(2026, 5, 3),
+                "amount": Decimal("50000.00"),
+            }
+        ]
+
+        _, rows, summary = build_loan_installment_schedule(self._build_loan(), repayments)
+
+        self.assertEqual(rows[0]["status"], "partial")
+        self.assertEqual(rows[0]["paid_interest"], Decimal("30000.00"))
+        self.assertEqual(rows[0]["paid_principal"], Decimal("20000.00"))
+        self.assertEqual(rows[0]["remaining_total"], Decimal("13333.33"))
+        self.assertEqual(rows[0]["remaining_principal_component"], Decimal("13333.33"))
+        self.assertEqual(rows[1]["status"], "locked")
+        self.assertEqual(rows[2]["status"], "locked")
+        self.assertEqual(summary["active_installment"]["installment_number"], 1)
+        self.assertEqual(summary["remaining_total"], Decimal("140000.00"))
+        self.assertEqual(summary["remaining_principal"], Decimal("80000.00"))
+
+    def test_overpayment_flows_into_next_installment(self) -> None:
+        repayments = [
+            {
+                "id": 1,
+                "payment_date": date(2026, 5, 3),
+                "amount": Decimal("70000.00"),
+            }
+        ]
+
+        _, rows, summary = build_loan_installment_schedule(self._build_loan(), repayments)
+
+        self.assertEqual(rows[0]["status"], "paid")
+        self.assertEqual(rows[1]["status"], "partial")
+        self.assertEqual(rows[1]["paid_total"], Decimal("6666.67"))
+        self.assertEqual(rows[1]["paid_interest"], Decimal("6666.67"))
+        self.assertEqual(rows[1]["remaining_interest"], Decimal("23333.33"))
+        self.assertEqual(rows[1]["remaining_total"], Decimal("56666.66"))
+        self.assertEqual(rows[2]["status"], "locked")
+        self.assertEqual(summary["active_installment"]["installment_number"], 2)
+        self.assertEqual(summary["remaining_total"], Decimal("120000.00"))
+        self.assertEqual(summary["remaining_principal"], Decimal("66666.67"))
+
+    def test_allocate_amount_to_installments_distributes_in_sequence(self) -> None:
+        _, rows, _ = build_loan_installment_schedule(self._build_loan(), [])
+
+        allocation = allocate_amount_to_installments(rows, Decimal("70000.00"))
+
+        self.assertEqual(allocation["interest_amount"], Decimal("36666.67"))
+        self.assertEqual(allocation["principal_amount"], Decimal("33333.33"))
+        self.assertEqual(allocation["total_applied"], Decimal("70000.00"))
+        self.assertEqual(allocation["unallocated_amount"], Decimal("0.00"))
+        self.assertEqual(allocation["touched_installments"], [1, 2])

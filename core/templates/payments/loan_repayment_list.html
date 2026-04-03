@@ -114,6 +114,42 @@
             min-width: 180px;
           }
 
+          .loan-group-row.shown .group-toggle-icon {
+            transform: rotate(180deg);
+          }
+
+          .group-toggle-icon {
+            transition: transform 0.18s ease;
+          }
+
+          .loan-installments-panel {
+            background: linear-gradient(180deg, #fbfdff 0%, #f4f7fb 100%);
+            border-top: 1px solid #e2e8f0;
+            padding: 1rem 1.15rem;
+          }
+
+          .loan-installments-panel .table > :not(caption) > * > * {
+            background-color: transparent;
+          }
+
+          .loan-installments-panel .table thead th {
+            font-size: 0.73rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+          }
+
+          .loan-installments-panel .active-installment-row {
+            background-color: rgba(13, 110, 253, 0.06);
+          }
+
+          .loan-installments-panel .blocked-installment-row {
+            opacity: 0.82;
+          }
+
+          td.loan-installments-child-cell {
+            padding: 0 !important;
+          }
+
           .action-icon-btn {
             display: inline-flex;
             align-items: center;
@@ -168,7 +204,7 @@
                 <div class="col-md-3 col-sm-6 mb-3">
                   <div class="card shadow-sm border-0 h-100">
                     <div class="card-body py-3">
-                      <p class="text-sm text-muted mb-1">Saldo em dívida total (principal + juros em falta)</p>
+                      <p class="text-sm text-muted mb-1">Saldo total em aberto (contrato)</p>
                       <h5 class="mb-0">{{ kpi_total_outstanding|money }}</h5>
                     </div>
                   </div>
@@ -176,7 +212,7 @@
                 <div class="col-md-3 col-sm-6 mb-3">
                   <div class="card shadow-sm border-0 h-100">
                     <div class="card-body py-3">
-                      <p class="text-sm text-muted mb-1">Saldo médio em dívida (MT)</p>
+                      <p class="text-sm text-muted mb-1">Saldo médio em aberto (MT)</p>
                       <h5 class="mb-0">{{ kpi_avg_outstanding|money }}</h5>
                     </div>
                   </div>
@@ -186,7 +222,7 @@
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
                   <h6 class="mb-0">Acompanhamento de reembolsos de empréstimos</h6>
-                  <p class="text-sm text-muted mb-0">Use os filtros para alternar entre empréstimos com saldo em dívida e empréstimos já reembolsados. A tabela mostra também o plano do empréstimo, a prestação prevista e o próximo vencimento.</p>
+                  <p class="text-sm text-muted mb-0">Use os filtros para alternar entre processos com saldo em dívida e contratos já reembolsados. Cada processo aparece numa linha principal e as prestações ficam dentro de um colapso fechado por defeito.</p>
                 </div>
               </div>
 
@@ -198,34 +234,47 @@
                     <button type="button" class="btn btn-sm loan-status-filter" data-status="all">Todos</button>
                   </div>
                 </div>
-                <p class="text-sm text-muted mb-0" id="loanFilterCaption">A mostrar apenas empréstimos com saldo em dívida.</p>
+                <p class="text-sm text-muted mb-0" id="loanFilterCaption">A mostrar apenas processos de empréstimo com saldo em dívida.</p>
               </div>
 
               <div class="table-responsive">
                 <table id="loan-repayment-table" class="table table-bordered table-striped align-items-center mb-0" style="width:100%">
                   <thead>
                     <tr>
-                      <th>ID</th>
+                      <th>Loan</th>
                       <th>Cliente</th>
                       <th>Tipo de Empréstimo</th>
                       <th>Períodos</th>
-                      <th>Taxa de Juro</th>
-                      <th>Prestação Prevista (MT)</th>
-                      <th>Principal (MT)</th>
-                      <th>Principal em dívida (MT)</th>
-                      <th>Juros em falta (MT)</th>
-                      <th>Saldo em dívida (MT)</th>
-                      <th>Próximo vencimento</th>
+                      <th>Total do Contrato (MT)</th>
+                      <th>Total Pago (MT)</th>
+                      <th>Saldo em Aberto (MT)</th>
+                      <th>Próximo Pagamento</th>
+                      <th>Estado do Processo</th>
                       <th>Último pagamento</th>
-                      <th style="width: 210px;">Actions</th>
+                      <th style="width: 220px;">Actions</th>
                       <th>StatusCode</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% for loan in loans %}
-                      <tr data-loan-id="{{ loan.id }}" data-outstanding="{{ loan.outstanding_principal|unlocalize }}" data-interest-remaining="{{ loan.period_interest_remaining|unlocalize }}" data-interest-rate="{{ loan.interest_type.rate|default_if_none:'0.0000'|unlocalize }}" data-cycle-due="{{ loan.current_cycle_due|default_if_none:'' }}" data-member-name="{{ loan.member.first_name }} {{ loan.member.last_name }}" data-loan-type-label="{{ loan.loan_type.name|default:'—' }}" data-loan-periods="{{ loan.term_periods|default:0 }}" data-loan-period-label="{% if loan.period_type == 'daily' %}dias{% elif loan.period_type == 'monthly' %}meses{% else %}períodos{% endif %}" data-scheduled-payment="{{ loan.scheduled_payment_per_period|unlocalize }}" data-cycle-payment="{{ loan.payment_due_this_cycle|unlocalize }}">
-                        <td>{{ loan.id }}</td>
-                        <td data-order="{{ loan.outstanding_with_interest|default:0|floatformat:2 }}">
+                      <tr class="loan-group-row" data-loan-id="{{ loan.id }}">
+                        <td data-order="{{ loan.id|default:0 }}">
+                          <div class="d-flex align-items-start gap-2">
+                            <button
+                              type="button"
+                              class="btn btn-outline-secondary btn-xs action-icon-btn btn-toggle-installments"
+                              data-loan-id="{{ loan.id }}"
+                              title="Ver prestações"
+                              aria-label="Ver prestações">
+                              <i class="material-symbols-rounded group-toggle-icon">expand_more</i>
+                            </button>
+                            <div class="repayment-table-meta">
+                              <strong>#{{ loan.id }}</strong><br />
+                              <small class="text-muted">{{ loan.completed_installments }}/{{ loan.total_installments }} prestações liquidadas</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td data-order="{{ loan.member.first_name }} {{ loan.member.last_name }} {{ loan.id|default:0 }}">
                           {{ loan.member.first_name }} {{ loan.member.last_name }}
                           <br />
                           <small class="text-muted">
@@ -234,7 +283,18 @@
                             {% endif %}
                           </small>
                         </td>
-                        <td>{{ loan.loan_type.name|default:'—' }}</td>
+                        <td>
+                          <div class="repayment-table-meta">
+                            <strong>{{ loan.loan_type.name|default:'—' }}</strong><br />
+                            <small class="text-muted">
+                              {% if loan.interest_type %}
+                                {{ loan.interest_type.rate|floatformat:2 }}% / {{ loan.interest_type.get_period_type_display }}
+                              {% else %}
+                                —
+                              {% endif %}
+                            </small>
+                          </div>
+                        </td>
                         <td data-order="{{ loan.term_periods|default:0 }}">
                           <div class="repayment-table-meta">
                             <strong>{{ loan.term_periods|default:0 }}</strong>
@@ -247,49 +307,66 @@
                             {% endif %}
                           </div>
                         </td>
-                        <td>
-                          {% if loan.interest_type %}
-                            {{ loan.interest_type.rate|floatformat:2 }}% / {{ loan.interest_type.get_period_type_display }}
-                          {% else %}
-                            —
-                          {% endif %}
-                        </td>
-                        <td data-order="{{ loan.payment_due_this_cycle|default:0|floatformat:2 }}">
+                        <td data-order="{{ loan.total_contract_amount|default:0|unlocalize }}">
                           <div class="repayment-table-meta">
-                            <strong>{{ loan.payment_due_this_cycle|money }}</strong><br />
-                            <small class="text-muted">Plano: {{ loan.scheduled_payment_per_period|money }} / período</small>
+                            <strong>{{ loan.total_contract_amount|money }}</strong><br />
+                            <small class="text-muted">Principal: {{ loan.principal_amount|money }}</small>
                           </div>
                         </td>
-                        <td data-order="{{ loan.principal_amount|default:0|floatformat:2 }}">{{ loan.principal_amount|money }}</td>
-                        <td data-order="{{ loan.outstanding_principal|default:0|floatformat:2 }}">{{ loan.outstanding_principal|money }}</td>
-                        <td data-order="{{ loan.period_interest_remaining|default:0|floatformat:2 }}">{{ loan.period_interest_remaining|money }}</td>
-                        <td>
-                          {% if loan.outstanding_with_interest > 0 %}
-                            <span class="badge bg-danger">{{ loan.outstanding_with_interest|money }}</span>
+                        <td data-order="{{ loan.total_paid_amount|default:0|unlocalize }}">
+                          {% if loan.total_paid_amount > 0 %}
+                            {{ loan.total_paid_amount|money }}
+                          {% else %}
+                            <span class="text-muted">Sem pagamento</span>
+                          {% endif %}
+                        </td>
+                        <td data-order="{{ loan.remaining_total_to_repay|default:0|unlocalize }}">
+                          {% if loan.remaining_total_to_repay > 0 %}
+                            <span class="badge bg-danger">{{ loan.remaining_total_to_repay|money }}</span>
                           {% else %}
                             <span class="badge bg-success">{{ 0|money }}</span>
                           {% endif %}
                         </td>
-                        <td data-order="{{ loan.current_cycle_due|date:'Y-m-d' }}">
-                          {% if loan.current_cycle_due %}
-                            {{ loan.current_cycle_due|date:"d/m/Y" }}
-                            <br /><small class="text-muted">Até esta data</small>
-                            {% if loan.is_repaid %}
-                              <br /><span class="badge bg-success mt-1">Reembolsado</span>
-                            {% elif loan.current_cycle_due < today %}
+                        <td data-order="{{ loan.next_due_date|date:'Y-m-d' }}">
+                          {% if loan.active_installment %}
+                            <div class="repayment-table-meta">
+                              <strong>{{ loan.next_installment_amount|money }}</strong><br />
+                              <small class="text-muted">
+                                Prestação {{ loan.next_installment_number }} de {{ loan.total_installments }} ·
+                                {{ loan.next_due_date|date:"d/m/Y" }}
+                              </small>
+                            </div>
+                            {% if loan.is_next_installment_overdue %}
                               <br /><span class="badge bg-danger mt-1">Vencido</span>
                             {% endif %}
                           {% else %}
-                            —
+                            <span class="text-muted">Sem prestações em aberto</span>
                           {% endif %}
+                        </td>
+                        <td>
+                          {% if loan.is_repaid %}
+                            <span class="badge bg-success">Reembolsado</span>
+                          {% elif loan.active_installment and loan.active_installment.is_partial %}
+                            <span class="badge bg-warning text-dark">Parcial em curso</span>
+                          {% elif loan.is_next_installment_overdue %}
+                            <span class="badge bg-danger">Vencido</span>
+                          {% else %}
+                            <span class="badge bg-info text-dark">Em curso</span>
+                          {% endif %}
+                          <br />
+                          <small class="text-muted">
+                            {% if loan.active_installment %}
+                              Próxima prestação: {{ loan.next_installment_number }}/{{ loan.total_installments }}
+                            {% else %}
+                              Processo concluído
+                            {% endif %}
+                          </small>
                         </td>
                         <td>
                           {% if loan.last_repayment %}
                             {{ loan.last_repayment.payment_date|date:"d/m/Y" }}<br />
                             <small class="text-muted">
-                              {{ loan.last_repayment.amount|money_with_symbol }}
-                              (J: {{ loan.last_repayment.interest_amount|money }}
-                              · P: {{ loan.last_repayment.principal_amount|money }})
+                              {{ loan.last_repayment_amount|money_with_symbol }}
                             </small>
                           {% else %}
                             <span class="text-muted">Sem pagamentos</span>
@@ -314,24 +391,6 @@
                               aria-label="Baixar PDF">
                               <i class="material-symbols-rounded">picture_as_pdf</i>
                             </button>
-                            {% if loan.outstanding_with_interest > 0 %}
-                              <button
-                                type="button"
-                                class="btn btn-outline-success btn-xs action-icon-btn btn-open-repayment-modal"
-                                title="Registar reembolso"
-                                aria-label="Registar reembolso">
-                                <i class="material-symbols-rounded">payments</i>
-                              </button>
-                            {% else %}
-                              <button
-                                type="button"
-                                class="btn btn-outline-secondary btn-xs action-icon-btn"
-                                disabled
-                                title="Sem dívida"
-                                aria-label="Sem dívida">
-                                <i class="material-symbols-rounded">payments</i>
-                              </button>
-                            {% endif %}
                           </div>
                         </td>
                         <td>{{ loan.repayment_filter_status }}</td>
@@ -340,6 +399,132 @@
                   </tbody>
                 </table>
               </div>
+
+              {% for loan in loans %}
+                <template id="loan-installments-template-{{ loan.id }}">
+                  <div class="loan-installments-panel">
+                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-3">
+                      <div>
+                        <h6 class="mb-1">Plano de prestações do Loan #{{ loan.id }}</h6>
+                        <p class="text-sm text-muted mb-0">As prestações seguintes ficam bloqueadas até liquidar a actual. Se o cliente pagar acima do previsto, o excesso é aplicado automaticamente às prestações seguintes.</p>
+                      </div>
+                      <div class="text-lg-end">
+                        <span class="badge bg-light text-dark border">{{ loan.completed_installments }}/{{ loan.total_installments }} liquidadas</span><br />
+                        <small class="text-muted">Saldo aberto: {{ loan.remaining_total_to_repay|money }}</small>
+                      </div>
+                    </div>
+
+                    <div class="table-responsive">
+                      <table class="table table-sm align-middle mb-0 loan-installments-inner-table">
+                        <thead>
+                          <tr>
+                            <th>Prestação</th>
+                            <th>Prevista (MT)</th>
+                            <th>Pago (MT)</th>
+                            <th>Em falta (MT)</th>
+                            <th>Vencimento</th>
+                            <th>Estado</th>
+                            <th style="width: 80px;">Acção</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for row in loan.installment_rows %}
+                            <tr class="{% if row.is_active %}active-installment-row{% elif row.is_locked %}blocked-installment-row{% endif %}">
+                              <td>
+                                <strong>Prestação {{ row.installment_number }} de {{ loan.total_installments }}</strong><br />
+                                <small class="text-muted">{{ row.installment_label }}</small>
+                              </td>
+                              <td>
+                                {{ row.expected_payment|money }}<br />
+                                <small class="text-muted">J: {{ row.expected_interest|money }} · P: {{ row.expected_principal|money }}</small>
+                              </td>
+                              <td>
+                                {% if row.paid_total > 0 %}
+                                  {{ row.paid_total|money }}
+                                {% else %}
+                                  <span class="text-muted">Sem pagamento</span>
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if row.remaining_total > 0 %}
+                                  <span class="badge bg-warning text-dark">{{ row.remaining_total|money }}</span>
+                                {% else %}
+                                  <span class="badge bg-success">{{ 0|money }}</span>
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if row.due_date %}
+                                  {{ row.due_date|date:"d/m/Y" }}
+                                  {% if row.is_paid %}
+                                    <br /><span class="badge bg-success mt-1">Pago</span>
+                                  {% elif row.due_date < today %}
+                                    <br /><span class="badge bg-danger mt-1">Vencido</span>
+                                  {% endif %}
+                                {% else %}
+                                  —
+                                {% endif %}
+                              </td>
+                              <td>
+                                {% if row.status == 'paid' %}
+                                  <span class="badge bg-success">Pago</span>
+                                {% elif row.status == 'partial' %}
+                                  <span class="badge bg-warning text-dark">Parcial</span>
+                                {% elif row.status == 'current' %}
+                                  <span class="badge bg-info text-dark">Actual</span>
+                                {% else %}
+                                  <span class="badge bg-secondary">Bloqueado</span>
+                                {% endif %}
+                              </td>
+                              <td class="text-nowrap">
+                                {% if row.is_active and loan.remaining_total_to_repay > 0 %}
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-success btn-xs action-icon-btn btn-open-repayment-modal"
+                                    data-loan-id="{{ loan.id }}"
+                                    data-member-name="{{ loan.member.first_name }} {{ loan.member.last_name }}"
+                                    data-loan-type-label="{{ loan.loan_type.name|default:'—' }}"
+                                    data-loan-periods="{{ loan.term_periods|default:0 }}"
+                                    data-loan-period-label="{% if loan.period_type == 'daily' %}dias{% elif loan.period_type == 'monthly' %}meses{% else %}períodos{% endif %}"
+                                    data-loan-remaining-total="{{ loan.remaining_total_to_repay|unlocalize }}"
+                                    data-installment-number="{{ row.installment_number }}"
+                                    data-installment-label="{{ row.installment_label }}"
+                                    data-installment-expected="{{ row.expected_payment|unlocalize }}"
+                                    data-installment-paid="{{ row.paid_total|unlocalize }}"
+                                    data-installment-remaining="{{ row.remaining_total|unlocalize }}"
+                                    data-installment-interest-remaining="{{ row.remaining_interest|unlocalize }}"
+                                    data-installment-due="{{ row.due_date|date:'Y-m-d' }}"
+                                    title="Registar reembolso"
+                                    aria-label="Registar reembolso">
+                                    <i class="material-symbols-rounded">payments</i>
+                                  </button>
+                                {% elif row.is_paid %}
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary btn-xs action-icon-btn"
+                                    disabled
+                                    title="Prestação paga"
+                                    aria-label="Prestação paga">
+                                    <i class="material-symbols-rounded">check_circle</i>
+                                  </button>
+                                {% else %}
+                                  <button
+                                    type="button"
+                                    class="btn btn-outline-secondary btn-xs action-icon-btn"
+                                    disabled
+                                    title="Bloqueado até liquidar a prestação anterior"
+                                    aria-label="Bloqueado até liquidar a prestação anterior">
+                                    <i class="material-symbols-rounded">lock</i>
+                                  </button>
+                                {% endif %}
+                              </td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </template>
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -374,11 +559,11 @@
                 <label class="form-check-label" for="rep_type_interest_only">Liquidar apenas juros</label>
               </div>
               <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="repayment_type" id="rep_type_full" value="full" />
+                <input class="form-check-input" type="radio" name="repayment_type" id="rep_type_full" value="full" checked />
                 <label class="form-check-label" for="rep_type_full">Liquidar toda a conta</label>
               </div>
               <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="repayment_type" id="rep_type_partial" value="partial" checked />
+                <input class="form-check-input" type="radio" name="repayment_type" id="rep_type_partial" value="partial" />
                 <label class="form-check-label" for="rep_type_partial">Pagamento parcial</label>
               </div>
             </div>
@@ -407,7 +592,7 @@
               <div class="input-group input-group-outline">
                 <input type="number" step="0.01" class="form-control" name="amount" id="id_rep_amount" />
               </div>
-              <small class="text-muted" id="repaymentAmountHint">O valor será aplicado primeiro aos juros em falta deste ciclo e depois à amortização de principal.</small>
+              <small class="text-muted" id="repaymentAmountHint">O valor entra primeiro na prestação actual, liquidando juros e depois principal; qualquer excesso segue para as prestações seguintes.</small>
             </div>
 
             <div class="mb-3">
@@ -607,9 +792,9 @@
         return labels[value] || 'períodos';
       };
       const statusDescriptions = {
-        outstanding: 'A mostrar apenas empréstimos com saldo em dívida.',
-        repaid: 'A mostrar apenas empréstimos já reembolsados.',
-        all: 'A mostrar todos os empréstimos acompanhados na secção de reembolsos.'
+        outstanding: 'A mostrar apenas processos de empréstimo com saldo em dívida.',
+        repaid: 'A mostrar apenas contratos já reembolsados.',
+        all: 'A mostrar todos os processos acompanhados na secção de reembolsos.'
       };
       const updateFilterCaption = function (status) {
         const caption = document.getElementById('loanFilterCaption');
@@ -666,7 +851,7 @@
           [10, 25, 50, -1],
           [10, 25, 50, 'Todos']
         ],
-        order: [[0, 'desc']],
+        order: [[1, 'asc'], [0, 'desc']],
         dom: 'lBfrtip',
         buttons: [
           { extend: 'copy', text: 'Copiar', className: 'btn btn-sm btn-outline-secondary' },
@@ -680,12 +865,12 @@
         },
         columnDefs: [
           {
-            targets: 12,
+            targets: 10,
             orderable: false,
             searchable: false
           },
           {
-            targets: 13,
+            targets: 11,
             visible: false,
             searchable: true
           }
@@ -699,9 +884,9 @@
         $('.loan-status-filter[data-status="' + filterStatus + '"]').addClass('active')
 
         if (filterStatus === 'all') {
-          table.column(13).search('').draw()
+          table.column(11).search('').draw()
         } else {
-          table.column(13).search('^' + filterStatus + '$', true, false).draw()
+          table.column(11).search('^' + filterStatus + '$', true, false).draw()
         }
 
         updateFilterCaption(filterStatus)
@@ -726,64 +911,126 @@
       const initialUrl = new URL(window.location.href)
       applyStatusFilter(initialUrl.searchParams.get('repayment_status') || 'outstanding', { syncUrl: false })
     
-      let currentOutstanding = 0
-      let currentInterestRemaining = 0
-      let currentRate = 0
+      let currentLoanRemainingTotal = 0
+      let currentInstallmentNumber = 0
+      let currentInstallmentExpected = 0
+      let currentInstallmentPaid = 0
+      let currentInstallmentRemaining = 0
+      let currentInstallmentInterestRemaining = 0
       let currentDue = ''
       let currentLoanType = '—'
       let currentLoanPeriods = 0
       let currentLoanPeriodLabel = 'Período'
-      let currentScheduledPayment = 0
-      let currentCyclePayment = 0
+      let currentInstallmentLabel = ''
+
+      function getRepaymentContext(source) {
+        const trigger = $(source)
+
+        return {
+          loanId: trigger.data('loanId'),
+          memberName: trigger.data('memberName') || '',
+          loanRemainingTotal: parseFloat(trigger.attr('data-loan-remaining-total') || '0') || 0,
+          installmentNumber: parseInt(trigger.attr('data-installment-number') || '0', 10) || 0,
+          installmentLabel: trigger.attr('data-installment-label') || '',
+          installmentExpected: parseFloat(trigger.attr('data-installment-expected') || '0') || 0,
+          installmentPaid: parseFloat(trigger.attr('data-installment-paid') || '0') || 0,
+          installmentRemaining: parseFloat(trigger.attr('data-installment-remaining') || '0') || 0,
+          installmentInterestRemaining: parseFloat(trigger.attr('data-installment-interest-remaining') || '0') || 0,
+          due: trigger.attr('data-installment-due') || '',
+          loanType: trigger.data('loanTypeLabel') || '—',
+          loanPeriods: parseInt(trigger.data('loanPeriods') || '0', 10) || 0,
+          loanPeriodLabel: trigger.data('loanPeriodLabel') || 'Período'
+        }
+      }
+
+      function closeAllInstallmentPanels() {
+        table.rows().every(function () {
+          if (this.child.isShown()) {
+            $(this.node()).removeClass('shown')
+            this.child.hide()
+          }
+        })
+      }
+
+      function openRepaymentModal(source) {
+        const context = getRepaymentContext(source)
+
+        currentLoanRemainingTotal = context.loanRemainingTotal
+        currentInstallmentNumber = context.installmentNumber
+        currentInstallmentLabel = context.installmentLabel
+        currentInstallmentExpected = context.installmentExpected
+        currentInstallmentPaid = context.installmentPaid
+        currentInstallmentRemaining = context.installmentRemaining
+        currentInstallmentInterestRemaining = context.installmentInterestRemaining
+        currentDue = context.due
+        currentLoanType = context.loanType
+        currentLoanPeriods = context.loanPeriods
+        currentLoanPeriodLabel = context.loanPeriodLabel
+
+        $('#id_rep_loan_id').val(context.loanId)
+        $('#id_rep_company_account').val('').trigger('change')
+        $('#id_rep_payment_date').val(todayStr)
+        $('#id_rep_amount').val('')
+        $('#id_rep_method').val('cash').trigger('change')
+        $('#id_rep_attachment').val('')
+        $('#id_rep_notes').val('')
+
+        $('#rep_type_full').prop('checked', true)
+
+        $('#repaymentModalLabel').text('Registar Reembolso · Loan #' + context.loanId + ' · Prestação ' + context.installmentNumber + '/' + context.loanPeriods)
+        $('#repaymentModalSubtitle').text(context.memberName || '')
+
+        updateInfoBox()
+        applyRepaymentTypeToAmount()
+
+        const modalEl = document.getElementById('repaymentModal')
+        const bsModal = new bootstrap.Modal(modalEl)
+        bsModal.show()
+      }
     
       function updateInfoBox() {
-        const principal = currentOutstanding
-        const interestRemaining = currentInterestRemaining
-        const rate = currentRate
-        const totalDueNow = +(principal + interestRemaining).toFixed(2)
         const termSummary = currentLoanPeriods > 0
           ? `${currentLoanPeriods} ${currentLoanPeriodLabel}`
           : '—'
-        const paymentDueNow = currentCyclePayment > 0 ? currentCyclePayment : totalDueNow
     
         const html = `
           <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3">
             <div>
-              <div class="repayment-cycle-title">Resumo deste ciclo</div>
+              <div class="repayment-cycle-title">Resumo da prestação actual</div>
               <h6 class="mb-1">${currentLoanType || 'Empréstimo'}</h6>
-              <p class="text-sm text-muted mb-0">Plano contratado: ${termSummary}</p>
+              <p class="text-sm text-muted mb-0">Prestação ${currentInstallmentNumber} de ${currentLoanPeriods || 0} · ${currentInstallmentLabel || termSummary}</p>
             </div>
             ${currentDue ? `<span class="badge bg-light text-dark border">Vence em ${formatDate(currentDue)}</span>` : ''}
           </div>
           <div class="repayment-cycle-grid">
             <div class="repayment-cycle-stat">
-              <span class="repayment-cycle-stat-label">Prestação até o vencimento</span>
-              <span class="repayment-cycle-stat-value">${formatMoney(paymentDueNow)}</span>
+              <span class="repayment-cycle-stat-label">Valor previsto da prestação</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(currentInstallmentExpected)}</span>
             </div>
             <div class="repayment-cycle-stat">
-              <span class="repayment-cycle-stat-label">Prestação do plano</span>
-              <span class="repayment-cycle-stat-value">${formatMoney(currentScheduledPayment)}</span>
+              <span class="repayment-cycle-stat-label">Já pago nesta prestação</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(currentInstallmentPaid)}</span>
             </div>
             <div class="repayment-cycle-stat">
-              <span class="repayment-cycle-stat-label">Principal em dívida</span>
-              <span class="repayment-cycle-stat-value">${formatMoney(principal)}</span>
+              <span class="repayment-cycle-stat-label">Em falta nesta prestação</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(currentInstallmentRemaining)}</span>
             </div>
             <div class="repayment-cycle-stat">
-              <span class="repayment-cycle-stat-label">Juros em falta</span>
-              <span class="repayment-cycle-stat-value">${formatMoney(interestRemaining)}</span>
+              <span class="repayment-cycle-stat-label">Juros em falta nesta prestação</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(currentInstallmentInterestRemaining)}</span>
             </div>
             <div class="repayment-cycle-stat">
-              <span class="repayment-cycle-stat-label">Taxa do período</span>
-              <span class="repayment-cycle-stat-value">${formatPercent(rate)}</span>
+              <span class="repayment-cycle-stat-label">Plano contratado</span>
+              <span class="repayment-cycle-stat-value">${termSummary}</span>
             </div>
             <div class="repayment-cycle-stat">
-              <span class="repayment-cycle-stat-label">Saldo em dívida</span>
-              <span class="repayment-cycle-stat-value">${formatMoney(totalDueNow)}</span>
+              <span class="repayment-cycle-stat-label">Saldo total do empréstimo</span>
+              <span class="repayment-cycle-stat-value">${formatMoney(currentLoanRemainingTotal)}</span>
             </div>
           </div>
           <div class="repayment-cycle-note">
-            "Liquidar apenas juros" paga só os juros e renova o vencimento. "Liquidar toda a conta" fecha o empréstimo.
-            "Pagamento parcial" cobre os juros do ciclo e ainda reduz o principal.
+            O pagamento entra sempre primeiro nesta prestação. Se o valor ultrapassar o que falta nesta linha,
+            o excesso é aplicado automaticamente às prestações seguintes. Se pagar menos, as seguintes continuam bloqueadas.
           </div>
         `
         $('#repaymentInfoBox').html(html)
@@ -794,35 +1041,34 @@
         const amountField = $('#id_rep_amount')
         const hintField = $('#repaymentAmountHint')
     
-        const principal = currentOutstanding
-        const interestRemaining = currentInterestRemaining
-        const totalDueNow = +(principal + interestRemaining).toFixed(2)
+        const interestRemaining = currentInstallmentInterestRemaining
+        const installmentRemaining = currentInstallmentRemaining
+        const totalDueNow = currentLoanRemainingTotal
     
         if (type === 'interest_only') {
           amountField.val(interestRemaining.toFixed(2))
           amountField.prop('readonly', true)
           amountField.attr('min', interestRemaining.toFixed(2))
           amountField.attr('max', interestRemaining.toFixed(2))
-          hintField.text(`Será liquidado apenas o valor de juros em falta neste ciclo (${formatMoney(interestRemaining)}). ` + `O principal mantém-se igual e a validade é renovada.`)
+          hintField.text(`Será liquidado apenas o valor de juros ainda em falta nesta prestação (${formatMoney(interestRemaining)}).`)
         } else if (type === 'full') {
           amountField.val(totalDueNow.toFixed(2))
           amountField.prop('readonly', true)
           amountField.attr('min', totalDueNow.toFixed(2))
           amountField.attr('max', totalDueNow.toFixed(2))
-          hintField.text(`Será liquidado o valor total em dívida (principal + juros em falta: ${formatMoney(totalDueNow)}). ` + `O empréstimo será encerrado.`)
+          hintField.text(`Será liquidado todo o saldo remanescente do empréstimo (${formatMoney(totalDueNow)}).`)
         } else {
-          // partial
-          amountField.val('')
+          amountField.val(installmentRemaining > 0 ? installmentRemaining.toFixed(2) : '')
           amountField.prop('readonly', false)
-          amountField.attr('min', interestRemaining > 0 ? (interestRemaining + 0.01).toFixed(2) : '0.01')
+          amountField.attr('min', '0.01')
           amountField.attr('max', totalDueNow > 0.01 ? (totalDueNow - 0.01).toFixed(2) : totalDueNow.toFixed(2))
-          if (interestRemaining > 0) {
-            hintField.text('O valor parcial deve ser superior aos juros em falta ' + `(${formatMoney(interestRemaining)}) e inferior ao saldo total (${formatMoney(totalDueNow)}), para amortizar principal.`)
-          } else {
-            hintField.text(`Não há juros em falta neste ciclo. O valor parcial deve ser inferior ao saldo total (${formatMoney(totalDueNow)}).`)
-          }
+          hintField.text(`Pode pagar menos ou mais do que esta prestação (${formatMoney(installmentRemaining)}). Qualquer excesso seguirá para as prestações seguintes, desde que o total fique abaixo do saldo aberto (${formatMoney(totalDueNow)}).`)
         }
       }
+
+      table.on('draw', function () {
+        closeAllInstallmentPanels()
+      })
 
       $(document).on('click', '.btn-download-loan-pdf', async function (event) {
         event.preventDefault()
@@ -1129,51 +1375,30 @@
         })
       })
     
+      $(document).on('click', '.btn-toggle-installments', function () {
+        const button = $(this)
+        const tr = button.closest('tr')
+        const row = table.row(tr)
+        const loanId = button.data('loanId')
+        const template = document.getElementById('loan-installments-template-' + loanId)
+
+        if (!template) {
+          return
+        }
+
+        if (row.child.isShown()) {
+          tr.removeClass('shown')
+          row.child.hide()
+        } else {
+          tr.addClass('shown')
+          row.child('<div class="loan-installments-child-cell">' + template.innerHTML + '</div>').show()
+          row.child().find('td').addClass('loan-installments-child-cell')
+        }
+      })
+
       // abrir modal
       $(document).on('click', '.btn-open-repayment-modal', function () {
-        const tr = $(this).closest('tr')
-        const loanId = tr.data('loan-id')
-        const memberName = tr.data('member-name')
-        const outstanding = parseFloat(tr.data('outstanding') || '0') || 0
-        const interestRemaining = parseFloat(tr.data('interest-remaining') || '0') || 0
-        const rate = parseFloat(tr.data('interest-rate') || '0') || 0
-        const due = tr.data('cycle-due') || ''
-        const loanType = tr.data('loanTypeLabel') || '—'
-        const loanPeriods = parseInt(tr.data('loanPeriods') || '0', 10) || 0
-        const loanPeriodLabel = tr.data('loanPeriodLabel') || 'Período'
-        const scheduledPayment = parseFloat(tr.data('scheduledPayment') || '0') || 0
-        const cyclePayment = parseFloat(tr.data('cyclePayment') || '0') || 0
-    
-        currentOutstanding = outstanding
-        currentInterestRemaining = interestRemaining
-        currentRate = rate
-        currentDue = due
-        currentLoanType = loanType
-        currentLoanPeriods = loanPeriods
-        currentLoanPeriodLabel = loanPeriodLabel
-        currentScheduledPayment = scheduledPayment
-        currentCyclePayment = cyclePayment
-    
-        $('#id_rep_loan_id').val(loanId)
-        $('#id_rep_company_account').val('').trigger('change')
-        $('#id_rep_payment_date').val(todayStr)
-        $('#id_rep_amount').val('')
-        $('#id_rep_method').val('cash').trigger('change')
-        $('#id_rep_attachment').val('')
-        $('#id_rep_notes').val('')
-    
-        // default = parcial
-        $('#rep_type_partial').prop('checked', true)
-    
-        $('#repaymentModalLabel').text('Registar Reembolso · Loan #' + loanId)
-        $('#repaymentModalSubtitle').text(memberName || '')
-    
-        updateInfoBox()
-        applyRepaymentTypeToAmount()
-    
-        const modalEl = document.getElementById('repaymentModal')
-        const bsModal = new bootstrap.Modal(modalEl)
-        bsModal.show()
+        openRepaymentModal(this)
       })
     
       // mudar tipo de reembolso
