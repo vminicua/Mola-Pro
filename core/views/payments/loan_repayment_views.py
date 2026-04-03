@@ -143,7 +143,7 @@ def _build_repayment_validation_message(exc: RepaymentAllocationError):
 @login_required
 def loan_repayment_list(request):
     """
-    Lista empréstimos com status 'disbursed' e mostra:
+    Lista empréstimos em dívida e empréstimos já reembolsados/fechados e mostra:
     - principal em dívida (outstanding_principal)
     - juros do período (total e em falta) com base no ciclo actual
     - saldo em dívida = principal em dívida + juros em falta
@@ -154,7 +154,7 @@ def loan_repayment_list(request):
         Loan.objects
         .select_related("member", "loan_type", "interest_type", "approved_by")
         .prefetch_related("repayments", "repayments__company_account")
-        .filter(status="disbursed")
+        .filter(status__in=["disbursed", "closed"])
         .order_by("-id")
     )
 
@@ -179,6 +179,8 @@ def loan_repayment_list(request):
         loan.outstanding_with_interest = snapshot["outstanding_with_interest"]
         loan.scheduled_payment_per_period = snapshot["scheduled_payment_per_period"]
         loan.payment_due_this_cycle = snapshot["payment_due_this_cycle"]
+        loan.is_repaid = loan.status == "closed" or loan.outstanding_with_interest <= 0
+        loan.repayment_filter_status = "repaid" if loan.is_repaid else "outstanding"
 
         total_outstanding_all += loan.outstanding_with_interest
 
