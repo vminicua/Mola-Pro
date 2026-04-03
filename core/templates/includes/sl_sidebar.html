@@ -15,7 +15,12 @@
     <div class="collapse navbar-collapse w-auto" id="sidenav-collapse-main">
         <ul class="navbar-nav">
 
-            {# ========= DASHBOARD ========= #}
+            <li class="nav-item mt-2">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs text-secondary font-weight-bolder opacity-6 mb-2">
+                    {% trans "Principal" %}
+                </h6>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link text-dark {% if segment == 'dashboard' or request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
                    href="{% url 'core:dashboard' %}">
@@ -24,16 +29,12 @@
                 </a>
             </li>
 
-            {# ========= CLIENTES ========= #}
-            <li class="nav-item">
-                <a class="nav-link text-dark {% if segment == 'clients' or request.resolver_match.url_name == 'member_list' %}active{% endif %}"
-                   href="{% url 'core:member_list' %}">
-                    <i class="material-symbols-rounded opacity-5">groups</i>
-                    <span class="nav-link-text ms-1">{% trans "Clientes" %}</span>
-                </a>
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs text-secondary font-weight-bolder opacity-6 mb-2">
+                    {% trans "Operações" %}
+                </h6>
             </li>
 
-            {# ========= EMPRÉSTIMOS ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark
                    {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' %}active{% endif %}"
@@ -64,124 +65,32 @@
                 </div>
             </li>
 
-            {# ========= PAGAMENTOS ========= #}
             <li class="nav-item">
-                <a class="nav-link text-dark
-                   {% if segment == 'loan_disbursements' or segment == 'loan_repayments' %}active{% endif %}"
-                   data-bs-toggle="collapse" href="#menu-pagamentos" role="button"
-                   aria-expanded="false" aria-controls="menu-pagamentos">
-                    <i class="material-symbols-rounded opacity-5">payments</i>
-                    <span class="nav-link-text ms-2 ps-1">{% trans "Pagamentos" %}</span>
+                <a class="nav-link text-dark {% if segment == 'loan_disbursements' %}active{% endif %}"
+                   href="{% url 'core:loan_disbursement_list' %}">
+                    <i class="material-symbols-rounded opacity-5">upload</i>
+                    <span class="nav-link-text ms-1">{% trans "Desembolso" %}</span>
                 </a>
-                <div class="collapse
-                    {% if segment == 'loan_disbursements' or segment == 'loan_repayments' %}show{% endif %}"
-                     id="menu-pagamentos">
-                    <ul class="nav ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'loan_disbursements' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:loan_disbursement_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">upload</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Desembolso" %}</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'loan_repayments' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:loan_repayment_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">download</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Reembolso" %}</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
-            {# ========= CONTAS ========= #}
             <li class="nav-item">
-                <a class="nav-link text-dark
-                   {% if segment == 'client_accounts' or segment == 'company_accounts' %}active{% endif %}"
-                   data-bs-toggle="collapse" href="#menu-contas" role="button"
-                   aria-expanded="false" aria-controls="menu-contas">
-                    <i class="material-symbols-rounded opacity-5">account_balance_wallet</i>
-                    <span class="nav-link-text ms-2 ps-1">{% trans "Contas" %}</span>
+                <a class="nav-link text-dark {% if segment == 'loan_repayments' %}active{% endif %}"
+                   href="{% url 'core:loan_repayment_list' %}">
+                    <i class="material-symbols-rounded opacity-5">download</i>
+                    <span class="nav-link-text ms-1">{% trans "Reembolso" %}</span>
                 </a>
-                <div class="collapse
-                    {% if segment == 'client_accounts' or segment == 'company_accounts' %}show{% endif %}"
-                     id="menu-contas">
-                    <ul class="nav ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'client_accounts' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:client_account_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">account_circle</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Conta dos Clientes" %} </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'company_accounts' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:company_account_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">business</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Conta da Empresa" %} </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
-            {# ========= JUROS ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark
-                   {% if segment == 'interest_calculator' %}active{% endif %}"
-                   data-bs-toggle="collapse" href="#menu-juros" role="button"
-                   aria-expanded="false" aria-controls="menu-juros">
-                    <i class="material-symbols-rounded opacity-5">percent</i>
-                    <span class="nav-link-text ms-2 ps-1">{% trans "Juros" %}</span>
-                </a>
-                <div class="collapse
-                    {% if segment == 'interest_calculator' %}show{% endif %}"
-                     id="menu-juros">
-                    <ul class="nav ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'interest_calculator' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:interest_calculator' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">calculate</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Cálculo de Juros" %} </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            {# ========= TRANSAÇÕES ========= #}
-            <li class="nav-item">
-                <a class="nav-link text-dark {% if segment == 'transactions' %}active{% endif %}"
-                   data-bs-toggle="collapse" href="#menu-transaccoes" role="button"
-                   aria-expanded="false" aria-controls="menu-transaccoes">
-                    <i class="material-symbols-rounded opacity-5">swap_horiz</i>
-                    <span class="nav-link-text ms-2 ps-1">{% trans "Transacções" %}</span>
-                </a>
-                <div class="collapse {% if segment == 'transactions' %}show{% endif %}" id="menu-transaccoes">
-                    <ul class="nav ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'transactions' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:transaction_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">history</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Histórico" %} </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-
-            {# ========= DESPESAS & RENDIMENTOS ========= #}
-            <li class="nav-item">
-                <a class="nav-link text-dark
-                   {% if segment == 'expenses' or segment == 'incomes' or segment == 'expense_categories' or segment == 'income_categories' %}active{% endif %}"
+                   {% if segment == 'expenses' or segment == 'incomes' %}active{% endif %}"
                    data-bs-toggle="collapse" href="#menu-despesas" role="button"
                    aria-expanded="false" aria-controls="menu-despesas">
                     <i class="material-symbols-rounded opacity-5">receipt_long</i>
                     <span class="nav-link-text ms-2 ps-1">{% trans "Despesas & Rendimentos" %}</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'expenses' or segment == 'incomes' or segment == 'expense_categories' or segment == 'income_categories' %}show{% endif %}"
+                    {% if segment == 'expenses' or segment == 'incomes' %}show{% endif %}"
                      id="menu-despesas">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -198,24 +107,63 @@
                                 <span class="sidenav-normal ms-2 ps-1"> {% trans "Rendimentos" %} </span>
                             </a>
                         </li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark {% if segment == 'clients' or request.resolver_match.url_name == 'member_list' %}active{% endif %}"
+                   href="{% url 'core:member_list' %}">
+                    <i class="material-symbols-rounded opacity-5">groups</i>
+                    <span class="nav-link-text ms-1">{% trans "Clientes" %}</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark {% if segment == 'interest_calculator' %}active{% endif %}"
+                   href="{% url 'core:interest_calculator' %}">
+                    <i class="material-symbols-rounded opacity-5">percent</i>
+                    <span class="nav-link-text ms-1">{% trans "Juros" %}</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark {% if segment == 'transactions' %}active{% endif %}"
+                   href="{% url 'core:transaction_list' %}">
+                    <i class="material-symbols-rounded opacity-5">swap_horiz</i>
+                    <span class="nav-link-text ms-1">{% trans "Transacções" %}</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link text-dark
+                   {% if segment == 'reports' %}active{% endif %}"
+                   data-bs-toggle="collapse" href="#menu-relatorios" role="button"
+                   aria-expanded="false" aria-controls="menu-relatorios">
+                    <i class="material-symbols-rounded opacity-5">bar_chart</i>
+                    <span class="nav-link-text ms-2 ps-1">{% trans "Relatórios" %}</span>
+                </a>
+                <div class="collapse
+                    {% if segment == 'reports' %}show{% endif %}"
+                     id="menu-relatorios">
+                    <ul class="nav ms-4">
                         <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'expense_categories' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:expense_category_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Categoria de Despesas" %} </span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'income_categories' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:income_category_list' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder_open</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Categoria de Rendimentos" %} </span>
+                            <a class="nav-link text-dark {% if segment == 'reports' %}active fw-bold text-primary{% endif %}"
+                               href="{% url 'core:report_filters' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">receipt</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Gerar" %} </span>
                             </a>
                         </li>
                     </ul>
                 </div>
             </li>
-            {# ========= UTILIZADORES ========= #}
+
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs text-secondary font-weight-bolder opacity-6 mb-2">
+                    {% trans "Administração" %}
+                </h6>
+            </li>
+
             <li class="nav-item">
                 <a class="nav-link text-dark
                 {% if segment == 'users' or segment == 'user_permissions' %}active{% endif %}"
@@ -246,17 +194,16 @@
                 </div>
             </li>
 
-            {# ========= CONFIGURAÇÕES ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark
-                {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' %}active{% endif %}"
+                {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' or segment == 'client_accounts' or segment == 'company_accounts' or segment == 'expense_categories' or segment == 'income_categories' %}active{% endif %}"
                 data-bs-toggle="collapse" href="#menu-configuracoes" role="button"
                 aria-expanded="false" aria-controls="menu-configuracoes">
                     <i class="material-symbols-rounded opacity-5">tune</i>
                     <span class="nav-link-text ms-2 ps-1">{% trans "Configurações" %}</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' %}show{% endif %}"
+                    {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' or segment == 'client_accounts' or segment == 'company_accounts' or segment == 'expense_categories' or segment == 'income_categories' %}show{% endif %}"
                     id="menu-configuracoes">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -280,41 +227,44 @@
                                 <span class="sidenav-normal ms-2 ps-1"> {% trans "Tipos de Juros" %} </span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'client_accounts' %}active fw-bold text-primary{% endif %}"
+                               href="{% url 'core:client_account_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">account_circle</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Contas dos Clientes" %} </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'company_accounts' %}active fw-bold text-primary{% endif %}"
+                               href="{% url 'core:company_account_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">business</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Conta da Empresa" %} </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'expense_categories' %}active fw-bold text-primary{% endif %}"
+                               href="{% url 'core:expense_category_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Categoria de Despesas" %} </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'income_categories' %}active fw-bold text-primary{% endif %}"
+                               href="{% url 'core:income_category_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder_open</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Categoria de Rendimentos" %} </span>
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </li>
 
-            {# ========= PREFERÊNCIAS ========= #}
             <li class="nav-item">
                 <a class="nav-link text-dark {% if segment == 'preferences' %}active{% endif %}"
                    href="{% url 'core:preferences' %}">
                     <i class="material-symbols-rounded opacity-5">settings</i>
                     <span class="nav-link-text ms-1">{% trans "Preferências" %}</span>
                 </a>
-            </li>
-
-            {# ========= RELATÓRIOS ========= #}
-            <li class="nav-item">
-                <a class="nav-link text-dark
-                   {% if segment == 'report_portfolio' or segment == 'report_risk' or segment == 'report_payments' %}active{% endif %}"
-                   data-bs-toggle="collapse" href="#menu-relatorios" role="button"
-                   aria-expanded="false" aria-controls="menu-relatorios">
-                    <i class="material-symbols-rounded opacity-5">bar_chart</i>
-                    <span class="nav-link-text ms-2 ps-1">{% trans "Relatórios" %}</span>
-                </a>
-                <div class="collapse
-                    {% if segment == 'report_portfolio' or segment == 'report_risk' or segment == 'report_payments' %}show{% endif %}"
-                     id="menu-relatorios">
-                    <ul class="nav ms-4">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark {% if segment == 'report_payments' %}active fw-bold text-primary{% endif %}"
-                               href="{% url 'core:report_filters' %}">
-                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">receipt</i>
-                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Gerar" %} </span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </li>
 
         </ul>
