@@ -610,7 +610,27 @@
         applyStatusFilter($(this).data('status'));
       });
 
-      applyStatusFilter(new URLSearchParams(window.location.search).get('status') || 'all', { syncUrl: false });
+      const initialUrl = new URL(window.location.href);
+      const initialParams = initialUrl.searchParams;
+      applyStatusFilter(initialParams.get('status') || 'all', { syncUrl: false });
+
+      if (initialParams.get('created') === '1') {
+        const loanId = initialParams.get('loan_id');
+        Swal.fire({
+          icon: 'success',
+          title: 'Empréstimo guardado',
+          text: loanId
+            ? `O empréstimo #${loanId} foi criado com sucesso.`
+            : 'O empréstimo foi criado com sucesso.',
+          timer: 2600,
+          timerProgressBar: true,
+          showConfirmButton: false
+        });
+
+        initialUrl.searchParams.delete('created');
+        initialUrl.searchParams.delete('loan_id');
+        window.history.replaceState({}, '', initialUrl);
+      }
 
       // Clique em qualquer linha -> abrir modal com detalhes (mesmo esquema de Empréstimos Activos)
       $('#all-loans-table tbody').on('click', 'tr', function () {

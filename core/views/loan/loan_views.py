@@ -1,19 +1,16 @@
 from calendar import monthrange
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.dateparse import parse_date
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST, require_http_methods
-from weasyprint import HTML
 
-from core.loan_math import calculate_flat_loan_metrics
 from core.models import InterestType, Loan, LoanGuarantee, LoanGuarantor, LoanType, Member
 #============================================================================================================
 #============================================================================================================
@@ -93,87 +90,6 @@ def _build_guarantor_rows(post_data=None):
         }
         for index in range(total_rows)
     ]
-
-
-def _calculate_due_date(base_date, period_type, offset):
-    if not base_date:
-        return None
-
-    if period_type == "daily":
-        return base_date + timedelta(days=offset)
-
-    return _add_months(base_date, offset)
-
-
-def _build_loan_schedule_rows(loan):
-    metrics = calculate_flat_loan_metrics(
-        loan.principal_amount,
-        getattr(loan.interest_type, "rate", Decimal("0")) or Decimal("0"),
-        loan.term_periods,
-    )
-    base_payment = loan.payment_per_period or metrics["suggested_payment_per_period"]
-    remaining_principal = metrics["principal"]
-    remaining_total = metrics["total_to_repay"]
-    due_base = loan.first_payment_date
-
-    if not due_base and loan.release_date:
-        due_base = loan.release_date + timedelta(days=1) if loan.period_type == "daily" else _add_months(loan.release_date, 1)
-
-    rows = []
-    for installment_number in range(1, metrics["periods"] + 1):
-        if remaining_total <= Decimal("0.00"):
-            break
-
-        payment = remaining_total if installment_number == metrics["periods"] or remaining_total <= base_payment else base_payment
-        payment = Decimal(str(payment)).quantize(Decimal("0.01"))
-        interest = metrics["interest_per_period"]
-        principal_reduction = min(remaining_principal, max(payment - interest, Decimal("0.00"))).quantize(Decimal("0.01"))
-        principal_before = remaining_principal
-        remaining_principal = max(remaining_principal - principal_reduction, Decimal("0.00")).quantize(Decimal("0.01"))
-        remaining_total = max(remaining_total - payment, Decimal("0.00")).quantize(Decimal("0.01"))
-
-        note = _("Prestação regular.")
-        if payment <= interest:
-            note = _("Prestação abaixo dos juros do período; ajuste final aplicado depois.")
-        elif payment != base_payment or installment_number == metrics["periods"]:
-            note = _("Prestação ajustada para encerrar o empréstimo.")
-
-        rows.append({
-            "installment_number": installment_number,
-            "period_label": _("Dia {number}").format(number=installment_number)
-                if loan.period_type == "daily"
-                else _("Mês {number}").format(number=installment_number),
-            "due_date": _calculate_due_date(due_base, loan.period_type, installment_number - 1),
-            "principal_before": principal_before,
-            "interest": interest,
-            "payment": payment,
-            "principal_reduction": principal_reduction,
-            "remaining_principal": remaining_principal,
-            "note": note,
-        })
-
-    return metrics, rows
-
-
-def _build_loan_receipt_pdf_response(request, loan):
-    metrics, schedule_rows = _build_loan_schedule_rows(loan)
-    context = {
-        "loan": loan,
-        "member": loan.member,
-        "metrics": metrics,
-        "schedule_rows": schedule_rows,
-        "guarantees": loan.guarantees.all(),
-        "guarantors": loan.loan_guarantors.select_related("guarantor"),
-        "generated_at": timezone.localtime(),
-    }
-
-    html_string = render_to_string("loan/loan_receipt_pdf.html", context, request=request)
-    html = HTML(string=html_string, base_url=request.build_absolute_uri("/"))
-    pdf_bytes = html.write_pdf()
-
-    response = HttpResponse(pdf_bytes, content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="emprestimo_{loan.id}.pdf"'
-    return response
 
 
 @login_required
@@ -366,7 +282,7 @@ def new_loan(request):
                     amount=None,
                 )
 
-            return _build_loan_receipt_pdf_response(request, loan)
+            return redirect(f"{reverse('core:loan_list_all')}?status=pending&created=1&loan_id={loan.id}")
 
     return render(
         request,

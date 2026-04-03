@@ -40,7 +40,7 @@
               </div>
             </div>
 
-            <form id="newLoanForm" method="post" data-processing-download="true">
+            <form id="newLoanForm" method="post">
               {% csrf_token %}
 
               <div class="row g-4">
@@ -424,7 +424,7 @@
                   <div class="loan-step-panel d-none" data-step-panel="5">
                     <h6 class="mb-3">Passo 5 · Resumo</h6>
                     <p class="text-sm text-muted">
-                      Revise os dados finais. Ao guardar o empréstimo, o sistema vai descarregar um PDF com este resumo.
+                      Revise os dados finais. Ao guardar o empréstimo, será redireccionado para a lista de empréstimos.
                     </p>
 
                     <ul class="list-group mb-3">
@@ -460,7 +460,7 @@
 
                     <div class="alert alert-light border mb-0">
                       <small class="text-muted">
-                        O PDF será gerado com cliente, condições financeiras, garantias, avalistas e plano de pagamento.
+                        O empréstimo será guardado com cliente, condições financeiras, garantias, avalistas e plano de pagamento.
                       </small>
                     </div>
                   </div>
@@ -474,7 +474,7 @@
                       Próximo <i class="material-symbols-rounded ms-1">chevron_right</i>
                     </button>
                     <button type="submit" class="btn bg-gradient-success btn-sm d-none" id="btnSubmitWizard">
-                      <i class="material-symbols-rounded me-1">picture_as_pdf</i> Guardar e Baixar PDF
+                      <i class="material-symbols-rounded me-1">save</i> Guardar Empréstimo
                     </button>
                   </div>
 
