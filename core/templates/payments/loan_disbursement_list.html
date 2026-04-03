@@ -5,6 +5,32 @@
   <div class="container-fluid py-2">
     <div class="row">
       <div class="col-12 col-xl-10 mx-auto">
+        <style>
+          .loan-row-actions {
+            min-width: 180px;
+          }
+          .action-icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem;
+            height: 2rem;
+            padding: 0;
+            border-radius: 999px;
+            border-width: 1px;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+          }
+          .action-icon-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
+          }
+          .action-icon-btn .material-symbols-rounded {
+            font-size: 17px;
+            line-height: 1;
+          }
+        </style>
+
         <div class="card my-4">
           <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
             <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
@@ -35,7 +61,7 @@
                       <th>Número da conta a creditar</th>
                       <th>Requisitado por</th>
                       <th>Status</th>
-                      <th style="width: 160px;">Actions</th>
+                      <th style="width: 210px;">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -111,15 +137,44 @@
                         </td>
 
                         <!-- Botão de acção -->
-                        <td>
-                          {% if loan.disbursements.exists %}
-                            <button type="button" class="btn btn-outline-secondary btn-xs" disabled>Já desembolsado</button>
-                          {% else %}
-                            <button type="button" class="btn btn-outline-success btn-xs btn-open-disburse-modal">
-                              <i class="material-symbols-rounded" style="font-size:16px;">payments</i>
-                              Desembolsar
+                        <td class="text-nowrap loan-row-actions">
+                          <div class="d-flex flex-wrap gap-1 align-items-center">
+                            <button
+                              type="button"
+                              class="btn btn-outline-info btn-xs action-icon-btn btn-open-loan-details"
+                              data-loan-id="{{ loan.id }}"
+                              title="Ver detalhes do empréstimo"
+                              aria-label="Ver detalhes do empréstimo">
+                              <i class="material-symbols-rounded">visibility</i>
                             </button>
-                          {% endif %}
+                            <button
+                              type="button"
+                              class="btn btn-outline-danger btn-xs action-icon-btn btn-download-loan-pdf"
+                              data-loan-id="{{ loan.id }}"
+                              data-download-url="{% url 'core:download_loan_pdf' loan.id %}"
+                              title="Baixar PDF"
+                              aria-label="Baixar PDF">
+                              <i class="material-symbols-rounded">picture_as_pdf</i>
+                            </button>
+                            {% if loan.disbursements.exists %}
+                              <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-xs action-icon-btn"
+                                disabled
+                                title="Já desembolsado"
+                                aria-label="Já desembolsado">
+                                <i class="material-symbols-rounded">payments</i>
+                              </button>
+                            {% else %}
+                              <button
+                                type="button"
+                                class="btn btn-outline-success btn-xs action-icon-btn btn-open-disburse-modal"
+                                title="Desembolsar"
+                                aria-label="Desembolsar">
+                                <i class="material-symbols-rounded">payments</i>
+                              </button>
+                            {% endif %}
+                          </div>
                         </td>
                       </tr>
                     {% endfor %}
@@ -230,6 +285,89 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="loanDetailsModal" tabindex="-1" aria-labelledby="loanDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title" id="loanDetailsModalLabel">Detalhes do Empréstimo</h5>
+            <small class="text-muted" id="loanDetailsSubtitle"></small>
+          </div>
+          <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <ul class="nav nav-tabs mb-3" id="loanDetailsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="overview-tab" data-bs-toggle="tab"
+                      data-bs-target="#overview-pane" type="button" role="tab">
+                Resumo
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="member-tab" data-bs-toggle="tab"
+                      data-bs-target="#member-pane" type="button" role="tab">
+                Cliente & Contas
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="disbursement-tab" data-bs-toggle="tab"
+                      data-bs-target="#disbursement-pane" type="button" role="tab">
+                Desembolso
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="guarantors-tab" data-bs-toggle="tab"
+                      data-bs-target="#guarantors-pane" type="button" role="tab">
+                Fiadores
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="guarantees-tab" data-bs-toggle="tab"
+                      data-bs-target="#guarantees-pane" type="button" role="tab">
+                Garantias
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="overview-pane" role="tabpanel" aria-labelledby="overview-tab">
+              <div id="overview-content">
+                <p class="text-muted">A carregar detalhes do empréstimo...</p>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="member-pane" role="tabpanel" aria-labelledby="member-tab">
+              <div id="member-content">
+                <p class="text-muted">A carregar dados do cliente...</p>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="disbursement-pane" role="tabpanel" aria-labelledby="disbursement-tab">
+              <div id="disbursement-content">
+                <p class="text-muted">A carregar dados do desembolso...</p>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="guarantors-pane" role="tabpanel" aria-labelledby="guarantors-tab">
+              <div id="guarantors-content">
+                <p class="text-muted">A carregar fiadores...</p>
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="guarantees-pane" role="tabpanel" aria-labelledby="guarantees-tab">
+              <div id="guarantees-content">
+                <p class="text-muted">A carregar garantias...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block extra_js %}
@@ -245,6 +383,93 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const formatMoney = function (value, options) {
+        if (window.MolaLocale && typeof window.MolaLocale.formatMoney === 'function') {
+          return window.MolaLocale.formatMoney(value, options);
+        }
+
+        const numericValue = Number(value || 0);
+        return options && options.symbol === false
+          ? numericValue.toFixed(2)
+          : 'MT ' + numericValue.toFixed(2);
+      };
+      const formatDate = function (value, options) {
+        if (!value) {
+          return '—';
+        }
+
+        if (window.MolaLocale && typeof window.MolaLocale.formatDate === 'function') {
+          return window.MolaLocale.formatDate(value, options);
+        }
+
+        const includeTime = options && options.includeTime;
+        const dateValue = new Date(value);
+        if (Number.isNaN(dateValue.getTime())) {
+          return value;
+        }
+
+        const day = String(dateValue.getDate()).padStart(2, '0');
+        const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+        const year = dateValue.getFullYear();
+        const datePart = `${day}/${month}/${year}`;
+
+        if (!includeTime) {
+          return datePart;
+        }
+
+        const hours = String(dateValue.getHours()).padStart(2, '0');
+        const minutes = String(dateValue.getMinutes()).padStart(2, '0');
+        return `${datePart} ${hours}:${minutes}`;
+      };
+      const formatLoanStatus = function (value) {
+        const labels = {
+          pending: 'Pendente',
+          approved: 'Aprovado',
+          disbursed: 'Desembolsado',
+          closed: 'Fechado',
+          cancelled: 'Cancelado'
+        };
+
+        return labels[value] || value || '—';
+      };
+      const formatPeriodType = function (value) {
+        const labels = {
+          monthly: 'meses',
+          daily: 'dias'
+        };
+
+        return labels[value] || 'períodos';
+      };
+      const triggerBrowserDownload = function (blob, filename) {
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = downloadUrl;
+        anchor.download = filename;
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+        window.setTimeout(function () {
+          window.URL.revokeObjectURL(downloadUrl);
+        }, 1000);
+      };
+      const getPdfFilename = function (headerValue, fallback) {
+        if (!headerValue) {
+          return fallback;
+        }
+
+        const utfMatch = headerValue.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utfMatch && utfMatch[1]) {
+          return decodeURIComponent(utfMatch[1]);
+        }
+
+        const asciiMatch = headerValue.match(/filename=\"?([^\"]+)\"?/i);
+        if (asciiMatch && asciiMatch[1]) {
+          return asciiMatch[1];
+        }
+
+        return fallback;
+      };
+
       const table = $('#loans-disbursement-table').DataTable({
         pageLength: 10,
         lengthMenu: [
@@ -254,63 +479,364 @@
         order: [[0, 'desc']],
         dom: 'lBfrtip',
         buttons: [
-          { extend: 'copy', text: 'Copy', className: 'btn btn-sm btn-primary' },
-          { extend: 'csv', text: 'CSV', className: 'btn btn-sm btn-success' },
-          { extend: 'excel', text: 'Excel', className: 'btn btn-sm btn-warning' },
-          { extend: 'pdf', text: 'PDF', className: 'btn btn-sm btn-danger' },
-          { extend: 'print', text: 'Print', className: 'btn btn-sm btn-info' }
+          { extend: 'copy', text: 'Copiar', className: 'btn btn-sm btn-outline-secondary' },
+          { extend: 'csv', text: 'CSV', className: 'btn btn-sm btn-outline-primary' },
+          { extend: 'excel', text: 'Excel', className: 'btn btn-sm btn-outline-success' },
+          { extend: 'pdf', text: 'PDF', className: 'btn btn-sm btn-outline-danger' },
+          { extend: 'print', text: 'Imprimir', className: 'btn btn-sm btn-outline-dark' }
         ],
         language: {
           url: '{{ brand_preferences.datatables_language_url }}'
         }
-      })
+      });
     
-      // data default = hoje
-      const today = new Date()
-      const yyyy = today.getFullYear()
-      const mm = String(today.getMonth() + 1).padStart(2, '0')
-      const dd = String(today.getDate()).padStart(2, '0')
-      const todayStr = `${yyyy}-${mm}-${dd}`
-      $('#id_disb_date').val(todayStr)
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      $('#id_disb_date').val(todayStr);
+
+      $(document).on('click', '.btn-download-loan-pdf', async function (event) {
+        event.preventDefault();
+
+        const button = $(this);
+        const downloadUrl = button.attr('data-download-url');
+        const loanId = button.data('loan-id');
+        const originalHtml = button.html();
+
+        button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+
+        try {
+          const response = await fetch(downloadUrl, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+          });
+          const contentType = response.headers.get('content-type') || '';
+
+          if (!response.ok || !contentType.includes('application/pdf')) {
+            let message = 'Falha ao gerar o PDF do empréstimo.';
+            try {
+              const errorData = await response.json();
+              if (errorData && errorData.message) {
+                message = errorData.message;
+              }
+            } catch (parseError) {
+              // Ignorar resposta não JSON.
+            }
+
+            throw new Error(message);
+          }
+
+          const blob = await response.blob();
+          const filename = getPdfFilename(
+            response.headers.get('content-disposition'),
+            'emprestimo_' + loanId + '.pdf'
+          );
+
+          triggerBrowserDownload(blob, filename);
+
+          Swal.fire({
+            icon: 'success',
+            title: 'PDF pronto',
+            text: `O PDF do empréstimo #${loanId} foi baixado com sucesso.`,
+            timer: 2200,
+            timerProgressBar: true,
+            showConfirmButton: false
+          });
+        } catch (error) {
+          Swal.fire('Erro', error.message || 'Falha ao gerar o PDF do empréstimo.', 'error');
+        } finally {
+          button.prop('disabled', false).html(originalHtml);
+        }
+      });
+
+      $(document).on('click', '.btn-open-loan-details', function (event) {
+        event.preventDefault();
+
+        const loanId = $(this).data('loan-id');
+        if (!loanId) {
+          return;
+        }
+
+        $('#loanDetailsModalLabel').text('Detalhes do Empréstimo #' + loanId);
+        $('#loanDetailsSubtitle').text('');
+        $('#overview-content').html('<p class="text-muted">A carregar detalhes do empréstimo...</p>');
+        $('#member-content').html('<p class="text-muted">A carregar dados do cliente...</p>');
+        $('#disbursement-content').html('<p class="text-muted">A carregar dados do desembolso...</p>');
+        $('#guarantors-content').html('<p class="text-muted">A carregar fiadores...</p>');
+        $('#guarantees-content').html('<p class="text-muted">A carregar garantias...</p>');
+
+        const modalEl = document.getElementById('loanDetailsModal');
+        const bsModal = new bootstrap.Modal(modalEl);
+        bsModal.show();
+
+        $.ajax({
+          url: "{% url 'core:loan_details_any_status' 0 %}".replace('/0/', '/' + loanId + '/'),
+          type: 'GET',
+          success: function (data) {
+            if (!data || !data.loan) {
+              $('#overview-content').html('<p class="text-danger">Não foi possível carregar os detalhes.</p>');
+              return;
+            }
+
+            const loan = data.loan;
+            const member = data.member;
+            const disb = data.disbursement;
+            const clientAccounts = data.client_accounts || [];
+            const guarantors = data.guarantors || [];
+            const guarantees = data.guarantees || [];
+
+            $('#loanDetailsSubtitle').text(
+              (member && member.name ? member.name : '') + ' · Empréstimo #' + loan.id
+            );
+
+            let overviewHtml = `
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="mb-2">Resumo do empréstimo</h6>
+                  <ul class="list-unstyled mb-3">
+                    <li><strong>Tipo:</strong> ${loan.loan_type || '—'}</li>
+                    <li><strong>Tipo de juro:</strong> ${loan.interest_type || '—'}</li>
+                    <li><strong>Principal:</strong> ${loan.principal_amount != null ? formatMoney(loan.principal_amount) : '—'}</li>
+                    <li><strong>Juros:</strong> ${loan.total_interest != null ? formatMoney(loan.total_interest) : '—'}</li>
+                    <li><strong>A reembolsar:</strong> ${loan.total_to_repay != null ? formatMoney(loan.total_to_repay) : '—'}</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="mb-2">Termos</h6>
+                  <ul class="list-unstyled mb-3">
+                    <li><strong>Período:</strong> ${loan.term_periods || '—'} ${formatPeriodType(loan.period_type)}</li>
+                    <li><strong>Prestação por período:</strong> ${loan.payment_per_period != null ? formatMoney(loan.payment_per_period) : '—'}</li>
+                    <li><strong>Data início:</strong> ${formatDate(loan.release_date)}</li>
+                    <li><strong>1ª prestação:</strong> ${formatDate(loan.first_payment_date)}</li>
+                    <li><strong>Método de desembolso:</strong> ${loan.disburse_method || '—'}</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="row mt-2">
+                <div class="col-md-6">
+                  <h6 class="mb-2">Workflow</h6>
+                  <ul class="list-unstyled mb-0">
+                    <li><strong>Criado por:</strong> ${loan.created_by || '—'}</li>
+                    <li><strong>Aprovado por:</strong> ${loan.approved_by || '—'}</li>
+                    <li><strong>Criado em:</strong> ${formatDate(loan.created_at, { includeTime: true })}</li>
+                    <li><strong>Status actual:</strong> ${formatLoanStatus(loan.status)}</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="mb-2">Notas & Objectivo</h6>
+                  <p><strong>Objectivo:</strong><br>${loan.purpose || '—'}</p>
+                  <p><strong>Observações:</strong><br>${loan.remarks || '—'}</p>
+                </div>
+              </div>
+            `;
+            $('#overview-content').html(overviewHtml);
+
+            let memberHtml = `
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="mb-2">Dados do cliente</h6>
+                  <ul class="list-unstyled mb-3">
+                    <li><strong>Nome:</strong> ${(member && member.name) || '—'}</li>
+                    <li><strong>Telefone:</strong> ${(member && member.phone) || '—'}</li>
+                    <li><strong>Telefone alternativo:</strong> ${(member && member.alt_phone) || '—'}</li>
+                    <li><strong>Email:</strong> ${(member && member.email) || '—'}</li>
+                    <li><strong>Cidade:</strong> ${(member && member.city) || '—'}</li>
+                    <li><strong>Endereço:</strong> ${(member && member.address) || '—'}</li>
+                    <li><strong>Profissão:</strong> ${(member && member.profession) || '—'}</li>
+                    <li><strong>Gestor de conta:</strong> ${(member && member.manager) || '—'}</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="mb-2">Contas do cliente</h6>
+            `;
+
+            if (clientAccounts.length === 0) {
+              memberHtml += `<p class="text-muted">Nenhuma conta activa registada para este cliente.</p>`;
+            } else {
+              memberHtml += `
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Tipo</th>
+                        <th>Nome</th>
+                        <th>Número</th>
+                        <th>Saldo (MT)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+              `;
+              clientAccounts.forEach(function (ca) {
+                memberHtml += `
+                  <tr>
+                    <td>${ca.account_type || '—'}</td>
+                    <td>${ca.account_type_name || '—'}</td>
+                    <td>${ca.identifier || '—'}</td>
+                    <td>${ca.balance != null ? formatMoney(ca.balance, { symbol: false }) : '—'}</td>
+                  </tr>
+                `;
+              });
+              memberHtml += `
+                    </tbody>
+                  </table>
+                </div>
+              `;
+            }
+
+            memberHtml += `
+                </div>
+              </div>
+            `;
+            $('#member-content').html(memberHtml);
+
+            let disbHtml = `
+              <h6 class="mb-3">Dados do último desembolso</h6>
+            `;
+            if (!disb || !disb.exists) {
+              disbHtml += `<p class="text-muted">Nenhum desembolso registado.</p>`;
+            } else {
+              disbHtml += `
+                <ul class="list-unstyled mb-3">
+                  <li><strong>Valor desembolsado:</strong> ${disb.amount != null ? formatMoney(disb.amount) : '—'}</li>
+                  <li><strong>Data:</strong> ${formatDate(disb.date)}</li>
+                  <li><strong>Método:</strong> ${disb.method || '—'}</li>
+                  <li><strong>Conta da empresa:</strong> ${disb.company_account || '—'}</li>
+                  <li><strong>Nº conta da empresa:</strong> ${disb.company_account_identifier || '—'}</li>
+                  <li><strong>Notas:</strong><br>${disb.notes || '—'}</li>
+                </ul>
+              `;
+              if (disb.attachment_url) {
+                disbHtml += `
+                  <p>
+                    <a href="${disb.attachment_url}" target="_blank" class="btn btn-sm btn-outline-primary">
+                      Ver comprovativo
+                    </a>
+                  </p>
+                `;
+              }
+            }
+            $('#disbursement-content').html(disbHtml);
+
+            let guarantorsHtml = `<h6 class="mb-3">Fiadores</h6>`;
+            if (guarantors.length === 0) {
+              guarantorsHtml += `<p class="text-muted">Nenhum fiador registado para este empréstimo.</p>`;
+            } else {
+              guarantorsHtml += `
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Nº Conta / Ref.</th>
+                        <th>Montante (MT)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+              `;
+              guarantors.forEach(function (g) {
+                guarantorsHtml += `
+                  <tr>
+                    <td>${g.name}</td>
+                    <td>${g.phone || '—'}</td>
+                    <td>${g.account_number || '—'}</td>
+                    <td>${g.amount != null ? formatMoney(g.amount, { symbol: false }) : '—'}</td>
+                  </tr>
+                `;
+              });
+              guarantorsHtml += `
+                    </tbody>
+                  </table>
+                </div>
+              `;
+            }
+            $('#guarantors-content').html(guarantorsHtml);
+
+            let guaranteesHtml = `<h6 class="mb-3">Garantias</h6>`;
+            if (guarantees.length === 0) {
+              guaranteesHtml += `<p class="text-muted">Nenhuma garantia registada para este empréstimo.</p>`;
+            } else {
+              guaranteesHtml += `
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <thead>
+                      <tr>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Serial</th>
+                        <th>Preço estimado (MT)</th>
+                        <th>Descrição</th>
+                        <th>Anexo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+              `;
+              guarantees.forEach(function (gg) {
+                guaranteesHtml += `
+                  <tr>
+                    <td>${gg.name}</td>
+                    <td>${gg.guarantee_type || '—'}</td>
+                    <td>${gg.serial_number || '—'}</td>
+                    <td>${gg.estimated_price != null ? formatMoney(gg.estimated_price, { symbol: false }) : '—'}</td>
+                    <td>${gg.description || '—'}</td>
+                    <td>
+                      ${gg.attachment_url
+                        ? `<a href="${gg.attachment_url}" target="_blank" class="btn btn-xs btn-outline-primary">Ver</a>`
+                        : '—'}
+                    </td>
+                  </tr>
+                `;
+              });
+              guaranteesHtml += `
+                    </tbody>
+                  </table>
+                </div>
+              `;
+            }
+            $('#guarantees-content').html(guaranteesHtml);
+          },
+          error: function () {
+            $('#overview-content').html('<p class="text-danger">Erro ao carregar detalhes do empréstimo.</p>');
+          }
+        });
+      });
     
-      // abrir modal de desembolso
       $(document).on('click', '.btn-open-disburse-modal', function () {
-        const tr = $(this).closest('tr')
-        const loanId = tr.data('loan-id')
-        const principal = tr.data('principal')
-        const clientAccName = tr.data('client-account-name') || ''
-        const clientAccNumber = tr.data('client-account-number') || ''
+        const tr = $(this).closest('tr');
+        const loanId = tr.data('loan-id');
+        const principal = tr.data('principal');
+        const clientAccName = tr.data('client-account-name') || '';
+        const clientAccNumber = tr.data('client-account-number') || '';
     
-        $('#id_disb_loan_id').val(loanId)
-        $('#id_disb_company_account').val('').trigger('change')
-        $('#id_disb_date').val(todayStr)
-        $('#id_disb_amount').val(principal)
-        $('#id_disb_method').val('cash').trigger('change')
-        $('#id_disb_attachment').val('')
-        $('#id_disb_notes').val('')
+        $('#id_disb_loan_id').val(loanId);
+        $('#id_disb_company_account').val('').trigger('change');
+        $('#id_disb_date').val(todayStr);
+        $('#id_disb_amount').val(principal);
+        $('#id_disb_method').val('cash').trigger('change');
+        $('#id_disb_attachment').val('');
+        $('#id_disb_notes').val('');
     
-        // Pré-preencher nome e número de conta do cliente (se existir conta principal)
-        $('#id_client_account_name').val(clientAccName)
-        $('#id_client_account_number').val(clientAccNumber)
+        $('#id_client_account_name').val(clientAccName);
+        $('#id_client_account_number').val(clientAccNumber);
     
-        $('#disburseLoanModal').modal('show')
-      })
+        $('#disburseLoanModal').modal('show');
+      });
     
-      // submeter desembolso
       $('#disburseLoanForm').on('submit', function (e) {
-        e.preventDefault()
+        e.preventDefault();
     
-        const loanId = $('#id_disb_loan_id').val()
-        const companyAccount = $('#id_disb_company_account').val()
-        const disbDate = $('#id_disb_date').val()
-        const amount = $('#id_disb_amount').val().trim()
+        const loanId = $('#id_disb_loan_id').val();
+        const companyAccount = $('#id_disb_company_account').val();
+        const disbDate = $('#id_disb_date').val();
+        const amount = $('#id_disb_amount').val().trim();
     
         if (!companyAccount || !disbDate || !amount) {
-          Swal.fire('Validação', 'Preencha conta, data e valor do desembolso.', 'warning')
-          return
+          Swal.fire('Validação', 'Preencha conta, data e valor do desembolso.', 'warning');
+          return;
         }
     
-        const formData = new FormData(this)
+        const formData = new FormData(this);
     
         $.ajax({
           url: "{% url 'core:register_disbursement' 0 %}".replace('/0/', '/' + loanId + '/'),
@@ -321,23 +847,23 @@
           headers: { 'X-CSRFToken': '{{ csrf_token }}' },
           success: function (resp) {
             if (resp.success) {
-              $('#disburseLoanModal').modal('hide')
+              $('#disburseLoanModal').modal('hide');
               Swal.fire({
                 icon: 'success',
                 title: 'Desembolso registado',
                 text: resp.message,
                 timer: 2000,
                 showConfirmButton: false
-              }).then(() => window.location.reload())
+              }).then(() => window.location.reload());
             } else {
-              Swal.fire('Erro', resp.message || 'Falha ao registar desembolso.', 'error')
+              Swal.fire('Erro', resp.message || 'Falha ao registar desembolso.', 'error');
             }
           },
           error: function (xhr) {
-            Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao registar desembolso.', 'error')
+            Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao registar desembolso.', 'error');
           }
-        })
-      })
-    })
+        });
+      });
+    });
   </script>
 {% endblock %}
