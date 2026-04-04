@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import os
 
 from django.contrib.auth.decorators import login_required
@@ -22,6 +23,7 @@ def loan_document_list(request):
     approved_documents = 0
     active_documents = 0
     loans_with_documents = set()
+    loan_groups_map = OrderedDict()
 
     for document in documents:
         document.file_name = os.path.basename(document.file.name)
@@ -29,6 +31,19 @@ def loan_document_list(request):
             document.uploaded_by.get_full_name() if document.uploaded_by else ""
         ) or getattr(document.uploaded_by, "username", "—")
         loans_with_documents.add(document.loan_id)
+
+        loan_group = loan_groups_map.get(document.loan_id)
+        if loan_group is None:
+            loan_group = {
+                "loan": document.loan,
+                "documents": [],
+                "documents_count": 0,
+                "latest_document": document,
+            }
+            loan_groups_map[document.loan_id] = loan_group
+
+        loan_group["documents"].append(document)
+        loan_group["documents_count"] += 1
 
         if document.loan.status == "approved":
             approved_documents += 1
@@ -40,7 +55,7 @@ def loan_document_list(request):
         "loan/loan_document_list.html",
         {
             "segment": "loan_documents",
-            "documents": documents,
+            "loan_groups": list(loan_groups_map.values()),
             "kpi_total_documents": len(documents),
             "kpi_loans_with_documents": len(loans_with_documents),
             "kpi_approved_documents": approved_documents,

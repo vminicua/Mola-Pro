@@ -12,6 +12,18 @@
           border: none;
           box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         }
+        .document-table-meta {
+          line-height: 1.35;
+        }
+        .loan-row-actions {
+          min-width: 120px;
+        }
+        .loan-group-row.shown .group-toggle-icon {
+          transform: rotate(180deg);
+        }
+        .group-toggle-icon {
+          transition: transform 0.18s ease;
+        }
         .doc-status-pill,
         .doc-late-pill {
           display: inline-flex;
@@ -36,6 +48,22 @@
         .doc-late-disabled {
           background: #eceff1;
           color: #455a64;
+        }
+        .loan-documents-panel {
+          background: linear-gradient(180deg, #fbfdff 0%, #f4f7fb 100%);
+          border-top: 1px solid #e2e8f0;
+          padding: 1rem 1.15rem;
+        }
+        .loan-documents-panel .table > :not(caption) > * > * {
+          background-color: transparent;
+        }
+        .loan-documents-panel .table thead th {
+          font-size: 0.73rem;
+          letter-spacing: 0.03em;
+          text-transform: uppercase;
+        }
+        td.loan-documents-child-cell {
+          padding: 0 !important;
         }
         .doc-file-card {
           display: flex;
@@ -62,6 +90,22 @@
           font-size: 0.8rem;
           color: #6b7280;
           word-break: break-word;
+        }
+        .action-icon-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2rem;
+          height: 2rem;
+          padding: 0;
+          border-radius: 999px;
+          border-width: 1px;
+          box-shadow: 0 6px 14px rgba(15, 23, 42, 0.08);
+          transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+        }
+        .action-icon-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 10px 18px rgba(15, 23, 42, 0.14);
         }
       </style>
 
@@ -113,7 +157,7 @@
               <div>
                 <h6 class="mb-0">Documentos carregados na aprovação e nos empréstimos activos</h6>
                 <p class="text-sm text-muted mb-0">
-                  Visualize contratos e outros anexos de empréstimos aprovados e desembolsados.
+                  Cada empréstimo aparece numa linha principal e os contratos/anexos ficam dentro de um colapso fechado por defeito.
                 </p>
               </div>
             </div>
@@ -126,61 +170,71 @@
                     <th>Cliente</th>
                     <th>Estado</th>
                     <th>Juros de mora</th>
-                    <th>Documento</th>
-                    <th>Tipo</th>
-                    <th>Carregado por</th>
-                    <th>Data</th>
-                    <th>Acções</th>
+                    <th>Total de anexos</th>
+                    <th>Último anexo</th>
+                    <th style="width: 120px;">Acções</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {% for document in documents %}
-                    <tr>
-                      <td>
-                        <strong>#{{ document.loan.id }}</strong>
-                        <br>
-                        <small class="text-muted">{{ document.loan.loan_type.name|default:"Sem tipo" }}</small>
+                  {% for group in loan_groups %}
+                    <tr class="loan-group-row" data-loan-id="{{ group.loan.id }}">
+                      <td data-order="{{ group.loan.id|default:0 }}">
+                        <div class="d-flex align-items-start gap-2">
+                          <button
+                            type="button"
+                            class="btn btn-outline-secondary btn-xs action-icon-btn btn-toggle-documents"
+                            data-loan-id="{{ group.loan.id }}"
+                            title="Ver documentos"
+                            aria-label="Ver documentos">
+                            <i class="material-symbols-rounded group-toggle-icon">expand_more</i>
+                          </button>
+                          <div class="document-table-meta">
+                            <strong>#{{ group.loan.id }}</strong><br>
+                            <small class="text-muted">{{ group.loan.loan_type.name|default:"Sem tipo" }}</small>
+                          </div>
+                        </div>
                       </td>
-                      <td>
-                        {{ document.loan.member.first_name }} {{ document.loan.member.last_name }}
+                      <td data-order="{{ group.loan.member.first_name }} {{ group.loan.member.last_name }} {{ group.loan.id|default:0 }}">
+                        {{ group.loan.member.first_name }} {{ group.loan.member.last_name }}
                         <br>
                         <small class="text-muted">
-                          {{ document.loan.member.phone }}{% if document.loan.member.city %} · {{ document.loan.member.city }}{% endif %}
+                          {{ group.loan.member.phone }}{% if group.loan.member.city %} · {{ group.loan.member.city }}{% endif %}
                         </small>
                       </td>
                       <td>
-                        {% if document.loan.status == "approved" %}
+                        {% if group.loan.status == "approved" %}
                           <span class="doc-status-pill doc-status-approved">Aprovado</span>
                         {% else %}
                           <span class="doc-status-pill doc-status-disbursed">Activo</span>
                         {% endif %}
                       </td>
                       <td>
-                        {% if document.loan.late_interest_enabled %}
+                        {% if group.loan.late_interest_enabled %}
                           <span class="doc-late-pill doc-late-enabled">Activado</span>
                         {% else %}
                           <span class="doc-late-pill doc-late-disabled">Desactivado</span>
                         {% endif %}
                       </td>
-                      <td>
-                        <div class="doc-file-card">
-                          <span class="doc-file-icon">
-                            <i class="material-symbols-rounded">description</i>
-                          </span>
-                          <div>
-                            <div class="doc-file-name">{{ document.name }}</div>
-                            <div class="doc-file-meta">{{ document.file_name }}</div>
-                          </div>
+                      <td data-order="{{ group.documents_count|default:0 }}">
+                        <div class="document-table-meta">
+                          <strong>{{ group.documents_count }}</strong><br>
+                          <small class="text-muted">documento{{ group.documents_count|pluralize:"s" }}</small>
                         </div>
                       </td>
-                      <td>{{ document.document_type|default:"Documento" }}</td>
-                      <td>{{ document.uploaded_by_display }}</td>
-                      <td data-order="{{ document.created_at|date:'Y-m-d H:i:s' }}">
-                        {{ document.created_at|date:"d/m/Y H:i" }}
+                      <td data-order="{{ group.latest_document.created_at|date:'Y-m-d H:i:s' }}">
+                        <div class="document-table-meta">
+                          <strong>{{ group.latest_document.created_at|date:"d/m/Y H:i" }}</strong><br>
+                          <small class="text-muted">{{ group.latest_document.name }}</small>
+                        </div>
                       </td>
-                      <td class="text-nowrap">
-                        <a href="{{ document.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
-                          Abrir
+                      <td class="text-nowrap loan-row-actions">
+                        <a
+                          href="{{ group.latest_document.file.url }}"
+                          target="_blank"
+                          class="btn btn-outline-primary btn-xs action-icon-btn"
+                          title="Abrir último anexo"
+                          aria-label="Abrir último anexo">
+                          <i class="material-symbols-rounded">description</i>
                         </a>
                       </td>
                     </tr>
@@ -188,6 +242,66 @@
                 </tbody>
               </table>
             </div>
+
+            {% for group in loan_groups %}
+              <template id="loan-documents-template-{{ group.loan.id }}">
+                <div class="loan-documents-panel">
+                  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-3">
+                    <div>
+                      <h6 class="mb-1">Documentos do Empréstimo #{{ group.loan.id }}</h6>
+                      <p class="text-sm text-muted mb-0">
+                        Contratos e outros anexos associados a este processo.
+                      </p>
+                    </div>
+                    <div class="text-lg-end">
+                      <span class="badge bg-light text-dark border">{{ group.documents_count }} anexo{{ group.documents_count|pluralize:"s" }}</span><br>
+                      <small class="text-muted">Último upload: {{ group.latest_document.created_at|date:"d/m/Y H:i" }}</small>
+                    </div>
+                  </div>
+
+                  <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th>Documento</th>
+                          <th>Tipo</th>
+                          <th>Carregado por</th>
+                          <th>Data</th>
+                          <th style="width: 90px;">Acção</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for document in group.documents %}
+                          <tr>
+                            <td>
+                              <div class="doc-file-card">
+                                <span class="doc-file-icon">
+                                  <i class="material-symbols-rounded">description</i>
+                                </span>
+                                <div>
+                                  <div class="doc-file-name">{{ document.name }}</div>
+                                  <div class="doc-file-meta">{{ document.file_name }}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td>{{ document.document_type|default:"Documento" }}</td>
+                            <td>{{ document.uploaded_by_display }}</td>
+                            <td data-order="{{ document.created_at|date:'Y-m-d H:i:s' }}">
+                              {{ document.created_at|date:"d/m/Y H:i" }}
+                            </td>
+                            <td class="text-nowrap">
+                              <a href="{{ document.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                Abrir
+                              </a>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </template>
+            {% endfor %}
           </div>
         </div>
       </div>
@@ -210,10 +324,10 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      $('#loan-documents-table').DataTable({
+      const table = $('#loan-documents-table').DataTable({
         pageLength: 25,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
-        order: [[7, 'desc']],
+        order: [[5, 'desc'], [0, 'desc']],
         dom: 'lBfrtip',
         buttons: [
           { extend: 'copy', text: 'Copiar', className: 'btn btn-sm btn-outline-secondary' },
@@ -224,6 +338,34 @@
         ],
         language: {
           url: "{{ brand_preferences.datatables_language_url }}"
+        },
+        columnDefs: [
+          {
+            targets: 6,
+            orderable: false,
+            searchable: false
+          }
+        ]
+      });
+
+      $(document).on('click', '.btn-toggle-documents', function () {
+        const button = $(this);
+        const tr = button.closest('tr');
+        const row = table.row(tr);
+        const loanId = button.data('loanId');
+        const template = document.getElementById('loan-documents-template-' + loanId);
+
+        if (!template) {
+          return;
+        }
+
+        if (row.child.isShown()) {
+          tr.removeClass('shown');
+          row.child.hide();
+        } else {
+          tr.addClass('shown');
+          row.child('<div class="loan-documents-child-cell">' + template.innerHTML + '</div>').show();
+          row.child().find('td').addClass('loan-documents-child-cell');
         }
       });
     });
