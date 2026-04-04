@@ -1,0 +1,231 @@
+{% extends "layouts/sl_base.html" %}
+{% load static core_i18n %}
+
+{% block content %}
+<div class="container-fluid py-2">
+  <div class="row">
+    <div class="col-12 col-xl-11 mx-auto">
+
+      <style>
+        .doc-kpi-card {
+          border-radius: 0.9rem;
+          border: none;
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+        .doc-status-pill,
+        .doc-late-pill {
+          display: inline-flex;
+          align-items: center;
+          border-radius: 999px;
+          padding: 0.28rem 0.72rem;
+          font-size: 0.76rem;
+          font-weight: 700;
+        }
+        .doc-status-approved {
+          background: #e3f2fd;
+          color: #0d47a1;
+        }
+        .doc-status-disbursed {
+          background: #e8f5e9;
+          color: #1b5e20;
+        }
+        .doc-late-enabled {
+          background: #ffebee;
+          color: #b71c1c;
+        }
+        .doc-late-disabled {
+          background: #eceff1;
+          color: #455a64;
+        }
+        .doc-file-card {
+          display: flex;
+          align-items: flex-start;
+          gap: 0.75rem;
+        }
+        .doc-file-icon {
+          width: 2.4rem;
+          height: 2.4rem;
+          border-radius: 0.85rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(15, 23, 42, 0.06);
+          color: var(--mola-pro-primary-active);
+          flex-shrink: 0;
+        }
+        .doc-file-name {
+          font-weight: 700;
+          color: #1f2937;
+          word-break: break-word;
+        }
+        .doc-file-meta {
+          font-size: 0.8rem;
+          color: #6b7280;
+          word-break: break-word;
+        }
+      </style>
+
+      <div class="card my-4">
+        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+          <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
+            <h6 class="text-white text-capitalize ps-3">Contratos & Documentos de Empréstimos</h6>
+          </div>
+        </div>
+
+        <div class="card-body px-0 pb-2">
+          <div class="p-4">
+            <div class="row g-3 mb-4">
+              <div class="col-md-3 col-sm-6">
+                <div class="card doc-kpi-card h-100">
+                  <div class="card-body py-3">
+                    <p class="text-sm text-muted mb-1">Total de documentos</p>
+                    <h4 class="mb-0">{{ kpi_total_documents }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="card doc-kpi-card h-100">
+                  <div class="card-body py-3">
+                    <p class="text-sm text-muted mb-1">Empréstimos com documentos</p>
+                    <h4 class="mb-0">{{ kpi_loans_with_documents }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="card doc-kpi-card h-100">
+                  <div class="card-body py-3">
+                    <p class="text-sm text-muted mb-1">Docs em aprovados</p>
+                    <h4 class="mb-0">{{ kpi_approved_documents }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3 col-sm-6">
+                <div class="card doc-kpi-card h-100">
+                  <div class="card-body py-3">
+                    <p class="text-sm text-muted mb-1">Docs em activos</p>
+                    <h4 class="mb-0">{{ kpi_active_documents }}</h4>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h6 class="mb-0">Documentos carregados na aprovação e nos empréstimos activos</h6>
+                <p class="text-sm text-muted mb-0">
+                  Visualize contratos e outros anexos de empréstimos aprovados e desembolsados.
+                </p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table id="loan-documents-table" class="table table-bordered table-striped align-items-center mb-0" style="width:100%">
+                <thead>
+                  <tr>
+                    <th>Empréstimo</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Juros de mora</th>
+                    <th>Documento</th>
+                    <th>Tipo</th>
+                    <th>Carregado por</th>
+                    <th>Data</th>
+                    <th>Acções</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for document in documents %}
+                    <tr>
+                      <td>
+                        <strong>#{{ document.loan.id }}</strong>
+                        <br>
+                        <small class="text-muted">{{ document.loan.loan_type.name|default:"Sem tipo" }}</small>
+                      </td>
+                      <td>
+                        {{ document.loan.member.first_name }} {{ document.loan.member.last_name }}
+                        <br>
+                        <small class="text-muted">
+                          {{ document.loan.member.phone }}{% if document.loan.member.city %} · {{ document.loan.member.city }}{% endif %}
+                        </small>
+                      </td>
+                      <td>
+                        {% if document.loan.status == "approved" %}
+                          <span class="doc-status-pill doc-status-approved">Aprovado</span>
+                        {% else %}
+                          <span class="doc-status-pill doc-status-disbursed">Activo</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if document.loan.late_interest_enabled %}
+                          <span class="doc-late-pill doc-late-enabled">Activado</span>
+                        {% else %}
+                          <span class="doc-late-pill doc-late-disabled">Desactivado</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="doc-file-card">
+                          <span class="doc-file-icon">
+                            <i class="material-symbols-rounded">description</i>
+                          </span>
+                          <div>
+                            <div class="doc-file-name">{{ document.name }}</div>
+                            <div class="doc-file-meta">{{ document.file_name }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>{{ document.document_type|default:"Documento" }}</td>
+                      <td>{{ document.uploaded_by_display }}</td>
+                      <td data-order="{{ document.created_at|date:'Y-m-d H:i:s' }}">
+                        {{ document.created_at|date:"d/m/Y H:i" }}
+                      </td>
+                      <td class="text-nowrap">
+                        <a href="{{ document.file.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                          Abrir
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {% include "includes/sl_footer.html" %}
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      $('#loan-documents-table').DataTable({
+        pageLength: 25,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Todos"]],
+        order: [[7, 'desc']],
+        dom: 'lBfrtip',
+        buttons: [
+          { extend: 'copy', text: 'Copiar', className: 'btn btn-sm btn-outline-secondary' },
+          { extend: 'csv', text: 'CSV', className: 'btn btn-sm btn-outline-primary' },
+          { extend: 'excel', text: 'Excel', className: 'btn btn-sm btn-outline-success' },
+          { extend: 'pdf', text: 'PDF', className: 'btn btn-sm btn-outline-danger' },
+          { extend: 'print', text: 'Imprimir', className: 'btn btn-sm btn-outline-dark' }
+        ],
+        language: {
+          url: "{{ brand_preferences.datatables_language_url }}"
+        }
+      });
+    });
+  </script>
+{% endblock extra_js %}

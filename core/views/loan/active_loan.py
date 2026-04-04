@@ -109,6 +109,7 @@ def active_loan_details(request, loan_id):
             "payment_per_period": float(payment_per_period) if payment_per_period is not None else None,
             "total_to_repay": float(total_to_repay),
             "total_interest": float(total_interest),
+            "late_interest_enabled": bool(loan.late_interest_enabled),
             "release_date": loan.release_date.isoformat() if loan.release_date else None,
             "first_payment_date": loan.first_payment_date.isoformat() if loan.first_payment_date else None,
             "disburse_method": loan.disburse_method,

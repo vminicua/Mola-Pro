@@ -1,8 +1,10 @@
 from calendar import monthrange
 from datetime import date, timedelta
 from decimal import Decimal
+from pathlib import Path
 
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
@@ -13,7 +15,7 @@ from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST, require_http_methods
 
 from core.loan_math import calculate_flat_loan_metrics
-from core.models import InterestType, Loan, LoanGuarantee, LoanGuarantor, LoanType, Member
+from core.models import InterestType, Loan, LoanDocument, LoanGuarantee, LoanGuarantor, LoanType, Member
 #============================================================================================================
 #============================================================================================================
 
@@ -163,6 +165,28 @@ def _pdf_error_response(request, loan, message, status):
 
 def _can_manage_pending_loans(user):
     return bool(user and user.is_authenticated and (user.is_superuser or user.groups.filter(id=1).exists()))
+
+
+def _is_truthy_value(raw_value):
+    return str(raw_value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _build_loan_document_name(filename):
+    document_name = Path(filename or "").stem.replace("_", " ").replace("-", " ").strip()
+    return (document_name or _("Documento do empréstimo"))[:180]
+
+
+def _infer_loan_document_type(filename):
+    lowered_name = (filename or "").lower()
+    extension = Path(filename or "").suffix.lower()
+
+    if "contrat" in lowered_name:
+        return _("Contrato")
+
+    if extension in {".jpg", ".jpeg", ".png", ".gif", ".webp"}:
+        return _("Imagem")
+
+    return _("Outro documento")
 
 
 @login_required
@@ -453,12 +477,46 @@ def confirm_loan(request, loan_id):
             status=400,
         )
 
-    loan.status = "approved"
-    loan.approved_by = request.user         
-    loan.save(update_fields=["status", "approved_by"])
+    late_interest_enabled = _is_truthy_value(request.POST.get("late_interest_enabled"))
+    document_files = request.FILES.getlist("documents[]")
+
+    with transaction.atomic():
+        loan.status = "approved"
+        loan.approved_by = request.user
+        loan.late_interest_enabled = late_interest_enabled
+        loan.save(update_fields=["status", "approved_by", "late_interest_enabled"])
+
+        documents_count = 0
+        for document_file in document_files:
+            if not document_file:
+                continue
+
+            LoanDocument.objects.create(
+                loan=loan,
+                name=_build_loan_document_name(document_file.name),
+                document_type=_infer_loan_document_type(document_file.name),
+                file=document_file,
+                uploaded_by=request.user if request.user.is_authenticated else None,
+            )
+            documents_count += 1
+
+    message_parts = [
+        _("Empréstimo confirmado. Agora pode ser desembolsado na secção Desembolso.")
+    ]
+    if late_interest_enabled:
+        message_parts.append(_("Juros de mora activados para este empréstimo."))
+    if documents_count == 1:
+        message_parts.append(_("1 documento anexado."))
+    elif documents_count > 1:
+        message_parts.append(_("{count} documentos anexados.").format(count=documents_count))
 
     return JsonResponse(
-        {"success": True, "message": _("Empréstimo confirmado. Agora pode ser desembolsado na secção Desembolso.")}
+        {
+            "success": True,
+            "message": " ".join(message_parts),
+            "late_interest_enabled": late_interest_enabled,
+            "documents_count": documents_count,
+        }
     )
 
 

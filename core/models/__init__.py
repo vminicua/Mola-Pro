@@ -16,6 +16,7 @@ from .loanguarantee import LoanGuarantee
 from .loanpaymentrequest import LoanPaymentRequest
 from .loandisbursement import LoanDisbursement
 from .loanrepayment import LoanRepayment
+from .loandocument import LoanDocument
 
 __all__ = [
     'Member',
@@ -35,4 +36,5 @@ __all__ = [
     'LoanPaymentRequest',
     'LoanDisbursement',
     'LoanRepayment',
+    'LoanDocument',
 ]

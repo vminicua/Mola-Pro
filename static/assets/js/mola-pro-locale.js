@@ -86,12 +86,23 @@
       'Desactivar conta do cliente?': 'Disable client account?',
       'Activar conta do cliente?': 'Enable client account?',
       'Confirmar Empréstimo?': 'Confirm loan?',
+      'Aprovar Empréstimo?': 'Approve loan?',
       'Rejeitar Empréstimo?': 'Reject loan?',
       'O empréstimo será aprovado e poderá ser desembolsado.': 'The loan will be approved and can then be disbursed.',
+      'O empréstimo será aprovado e poderá seguir para desembolso.': 'The loan will be approved and can proceed to disbursement.',
+      'Habilitar juros de mora para este empréstimo': 'Enable late interest for this loan',
+      'Arraste contratos e outros documentos aqui': 'Drag contracts and other documents here',
+      'ou clique para seleccionar vários ficheiros': 'or click to select multiple files',
+      'PDF, imagens e documentos Office': 'PDF, images, and Office documents',
+      'Nenhum documento seleccionado ainda.': 'No document selected yet.',
+      'Remover documento': 'Remove document',
+      'Activados': 'Enabled',
+      'Desactivados': 'Disabled',
       'Esta acção irá marcar o empréstimo como rejeitado/cancelado.': 'This action will mark the loan as rejected/cancelled.',
       'Sim, desactivar': 'Yes, disable',
       'Sim, activar': 'Yes, enable',
       'Sim, confirmar': 'Yes, confirm',
+      'Sim, aprovar': 'Yes, approve',
       'Sim, rejeitar': 'Yes, reject'
     }
   };

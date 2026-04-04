@@ -57,6 +57,7 @@ class Loan(models.Model):
 
     purpose = models.CharField(max_length=255, null=True, blank=True)
     attachment = models.FileField(upload_to="loans/%Y/%m/", null=True, blank=True)
+    late_interest_enabled = models.BooleanField(default=False)
     remarks = models.TextField(null=True, blank=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")

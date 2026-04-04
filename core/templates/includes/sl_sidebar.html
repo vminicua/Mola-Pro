@@ -37,14 +37,14 @@
 
             <li class="nav-item">
                 <a class="nav-link text-dark
-                   {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' %}active{% endif %}"
+                   {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' or segment == 'loan_documents' %}active{% endif %}"
                    data-bs-toggle="collapse" href="#menu-emprestimos" role="button"
                    aria-expanded="false" aria-controls="menu-emprestimos">
                     <i class="material-symbols-rounded opacity-5">request_quote</i>
                     <span class="nav-link-text ms-2 ps-1">{% trans "Empréstimos" %}</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' %}show{% endif %}"
+                    {% if segment == 'loans_new' or segment == 'loans_active' or segment == 'loans_pending' or segment == 'loans_all' or segment == 'loan_documents' %}show{% endif %}"
                      id="menu-emprestimos">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -59,6 +59,13 @@
                                href="{% url 'core:loan_list_all' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">view_list</i>
                                 <span class="sidenav-normal ms-2 ps-1"> {% trans "Empréstimos" %} </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'loan_documents' %}active fw-bold text-primary{% endif %}"
+                               href="{% url 'core:loan_document_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">folder_open</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Contratos & Documentos" %} </span>
                             </a>
                         </li>
                     </ul>

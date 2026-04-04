@@ -16,6 +16,7 @@ from core.views.payments.loan_disbursement_views import loan_disbursement_list, 
 from core.views.loan.active_loan import active_loans_list, active_loan_details
 from core.views.payments.loan_repayment_views import loan_repayment_list, register_repayment
 from core.views.loan.all_loan_list_views import loan_list_all, loan_details_any_status
+from core.views.loan.loan_document_views import loan_document_list
 from core.views.user.user_views import user_list, group_list, toggle_user_active, update_user_groups, create_user, update_user, create_group
 from core.views.reports.report_views import report_filters, generate_report_pdf
 from core.views.preferences_view import (
@@ -111,6 +112,7 @@ urlpatterns = [
      path("loans/active/<int:loan_id>/details/", active_loan_details, name="active_loan_details"),
      
      path("loans/all/", loan_list_all, name="loan_list_all"),
+     path("loans/documents/", loan_document_list, name="loan_document_list"),
      path("loans/<int:loan_id>/details/", loan_details_any_status, name="loan_details_any_status",),
 
 

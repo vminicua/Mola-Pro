@@ -113,6 +113,94 @@
           font-size: 17px;
           line-height: 1;
         }
+        .late-interest-note {
+          display: inline-flex;
+          align-items: center;
+          border-radius: 999px;
+          padding: 0.22rem 0.7rem;
+          background: #ffebee;
+          color: #b71c1c;
+          font-size: 0.72rem;
+          font-weight: 700;
+        }
+        .loan-approval-dropzone {
+          border: 2px dashed rgba(15, 23, 42, 0.14);
+          border-radius: 1rem;
+          padding: 1.2rem 1rem;
+          text-align: center;
+          background: linear-gradient(180deg, #fbfdff 0%, #f6f9fc 100%);
+          cursor: pointer;
+          transition: all 0.18s ease;
+        }
+        .loan-approval-dropzone:hover,
+        .loan-approval-dropzone.is-dragover {
+          border-color: var(--mola-pro-primary-active);
+          background: rgba(255, 255, 255, 0.98);
+          box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        }
+        .loan-approval-dropzone-icon {
+          width: 3rem;
+          height: 3rem;
+          margin: 0 auto 0.75rem;
+          border-radius: 1rem;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(15, 23, 42, 0.06);
+          color: var(--mola-pro-primary-active);
+        }
+        .loan-approval-dropzone-icon .material-symbols-rounded {
+          font-size: 1.7rem;
+        }
+        .loan-approval-file-list {
+          display: grid;
+          gap: 0.5rem;
+        }
+        .loan-approval-file-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 0.75rem;
+          padding: 0.75rem 0.9rem;
+          border-radius: 0.9rem;
+          background: #f8fafc;
+          border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .loan-approval-file-info {
+          min-width: 0;
+        }
+        .loan-approval-file-name {
+          font-weight: 700;
+          color: #1f2937;
+          word-break: break-word;
+        }
+        .loan-approval-file-meta {
+          font-size: 0.78rem;
+          color: #6b7280;
+        }
+        .loan-approval-file-remove {
+          width: 2rem;
+          height: 2rem;
+          border: 0;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(220, 38, 38, 0.08);
+          color: #dc2626;
+          flex-shrink: 0;
+        }
+        .loan-approval-file-remove .material-symbols-rounded {
+          font-size: 1rem;
+        }
+        .loan-approval-empty {
+          padding: 0.85rem 1rem;
+          border-radius: 0.9rem;
+          background: #f8fafc;
+          color: #64748b;
+          text-align: center;
+          border: 1px dashed rgba(15, 23, 42, 0.08);
+        }
       </style>
 
       <div class="card my-4">
@@ -314,6 +402,11 @@
                           <span class="status-pill status-cancelled">Cancelado</span>
                         {% else %}
                           <span class="badge bg-secondary">—</span>
+                        {% endif %}
+                        {% if loan.late_interest_enabled %}
+                          <div class="mt-2">
+                            <span class="late-interest-note">Juros de mora activo</span>
+                          </div>
                         {% endif %}
                       </td>
 
@@ -589,6 +682,184 @@
 
         return labels[value] || value || '—';
       };
+      const translateText = function (value) {
+        if (window.MolaLocale && typeof window.MolaLocale.translate === 'function') {
+          return window.MolaLocale.translate(value);
+        }
+
+        return value;
+      };
+      const formatLateInterestStatus = function (value) {
+        return value ? translateText('Activados') : translateText('Desactivados');
+      };
+      const escapeHtml = function (value) {
+        return String(value || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      };
+      const formatFileSize = function (value) {
+        const totalBytes = Number(value || 0);
+        if (!Number.isFinite(totalBytes) || totalBytes <= 0) {
+          return '0 KB';
+        }
+
+        if (totalBytes >= 1024 * 1024) {
+          return (totalBytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        return (totalBytes / 1024).toFixed(1) + ' KB';
+      };
+      const approvalFileState = {
+        items: []
+      };
+      const renderApprovalFiles = function (container) {
+        if (!container) {
+          return;
+        }
+
+        if (!approvalFileState.items.length) {
+          container.innerHTML = '<div class="loan-approval-empty">' + escapeHtml(translateText('Nenhum documento seleccionado ainda.')) + '</div>';
+          return;
+        }
+
+        container.innerHTML = approvalFileState.items.map(function (file, index) {
+          return `
+            <div class="loan-approval-file-item">
+              <div class="loan-approval-file-info">
+                <div class="loan-approval-file-name">${escapeHtml(file.name)}</div>
+                <div class="loan-approval-file-meta">${escapeHtml(formatFileSize(file.size))}</div>
+              </div>
+              <button
+                type="button"
+                class="loan-approval-file-remove"
+                data-remove-index="${index}"
+                aria-label="${escapeHtml(translateText('Remover documento'))}">
+                <i class="material-symbols-rounded">close</i>
+              </button>
+            </div>
+          `;
+        }).join('');
+      };
+      const addApprovalFiles = function (fileList, container) {
+        if (!fileList || !fileList.length) {
+          renderApprovalFiles(container);
+          return;
+        }
+
+        Array.from(fileList).forEach(function (file) {
+          const alreadyExists = approvalFileState.items.some(function (existingFile) {
+            return existingFile.name === file.name
+              && existingFile.size === file.size
+              && existingFile.lastModified === file.lastModified;
+          });
+
+          if (!alreadyExists) {
+            approvalFileState.items.push(file);
+          }
+        });
+
+        renderApprovalFiles(container);
+      };
+      const buildApprovalLoanHtml = function () {
+        return `
+          <div class="text-start">
+            <p class="text-sm text-muted mb-3">${translateText('O empréstimo será aprovado e poderá seguir para desembolso.')}</p>
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" id="swalLateInterestEnabled">
+              <label class="form-check-label fw-semibold" for="swalLateInterestEnabled">
+                ${translateText('Habilitar juros de mora para este empréstimo')}
+              </label>
+            </div>
+            <div class="loan-approval-dropzone" id="loanApprovalDropzone" tabindex="0">
+              <input
+                type="file"
+                class="d-none"
+                id="loanApprovalDocumentsInput"
+                multiple
+                accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx">
+              <div class="loan-approval-dropzone-icon">
+                <i class="material-symbols-rounded">upload_file</i>
+              </div>
+              <div class="fw-semibold mb-1">${translateText('Arraste contratos e outros documentos aqui')}</div>
+              <div class="text-sm text-muted mb-1">${translateText('ou clique para seleccionar vários ficheiros')}</div>
+              <small class="text-muted">${translateText('PDF, imagens e documentos Office')}</small>
+            </div>
+            <div id="loanApprovalDocumentsList" class="loan-approval-file-list mt-3"></div>
+          </div>
+        `;
+      };
+      const initializeLoanApprovalPopup = function (popup) {
+        approvalFileState.items = [];
+
+        const dropzone = popup.querySelector('#loanApprovalDropzone');
+        const input = popup.querySelector('#loanApprovalDocumentsInput');
+        const listContainer = popup.querySelector('#loanApprovalDocumentsList');
+
+        renderApprovalFiles(listContainer);
+
+        if (!dropzone || !input || !listContainer) {
+          return;
+        }
+
+        const preventDefaults = function (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        };
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function (eventName) {
+          dropzone.addEventListener(eventName, preventDefaults);
+        });
+
+        ['dragenter', 'dragover'].forEach(function (eventName) {
+          dropzone.addEventListener(eventName, function () {
+            dropzone.classList.add('is-dragover');
+          });
+        });
+
+        ['dragleave', 'drop'].forEach(function (eventName) {
+          dropzone.addEventListener(eventName, function () {
+            dropzone.classList.remove('is-dragover');
+          });
+        });
+
+        dropzone.addEventListener('click', function () {
+          input.click();
+        });
+
+        dropzone.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            input.click();
+          }
+        });
+
+        dropzone.addEventListener('drop', function (event) {
+          addApprovalFiles(event.dataTransfer.files, listContainer);
+        });
+
+        input.addEventListener('change', function () {
+          addApprovalFiles(input.files, listContainer);
+          input.value = '';
+        });
+
+        listContainer.addEventListener('click', function (event) {
+          const removeButton = event.target.closest('[data-remove-index]');
+          if (!removeButton) {
+            return;
+          }
+
+          const index = Number(removeButton.getAttribute('data-remove-index'));
+          if (Number.isNaN(index)) {
+            return;
+          }
+
+          approvalFileState.items.splice(index, 1);
+          renderApprovalFiles(listContainer);
+        });
+      };
       const formatPeriodType = function (value) {
         const labels = {
           monthly: 'meses',
@@ -798,38 +1069,71 @@
         event.stopPropagation();
 
         const loanId = $(this).data('loan-id');
+        const approvalUrl = "{% url 'core:confirm_loan' 0 %}".replace('/0/', '/' + loanId + '/');
 
         Swal.fire({
           title: 'Aprovar Empréstimo?',
-          text: 'O empréstimo será aprovado e poderá seguir para desembolso.',
+          html: buildApprovalLoanHtml(),
           icon: 'question',
           showCancelButton: true,
           confirmButtonText: 'Sim, aprovar',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (!result.isConfirmed) return;
+          cancelButtonText: 'Cancelar',
+          focusConfirm: false,
+          showLoaderOnConfirm: true,
+          allowOutsideClick: function () {
+            return !Swal.isLoading();
+          },
+          didOpen: function () {
+            initializeLoanApprovalPopup(Swal.getPopup());
+          },
+          preConfirm: function () {
+            const popup = Swal.getPopup();
+            const formData = new FormData();
+            const lateInterestInput = popup.querySelector('#swalLateInterestEnabled');
 
-          $.ajax({
-            url: "{% url 'core:confirm_loan' 0 %}".replace('/0/', '/' + loanId + '/'),
-            type: 'POST',
-            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
-            success: function (resp) {
-              if (resp.success) {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'Aprovado',
-                  text: resp.message,
-                  timer: 2000,
-                  showConfirmButton: false
-                }).then(() => window.location.reload());
-              } else {
-                Swal.fire('Erro', resp.message || 'Falha ao aprovar empréstimo.', 'error');
-              }
-            },
-            error: function (xhr) {
-              Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao aprovar empréstimo.', 'error');
-            }
-          });
+            formData.append(
+              'late_interest_enabled',
+              lateInterestInput && lateInterestInput.checked ? '1' : '0'
+            );
+
+            approvalFileState.items.forEach(function (file) {
+              formData.append('documents[]', file, file.name);
+            });
+
+            return new Promise(function (resolve) {
+              $.ajax({
+                url: approvalUrl,
+                type: 'POST',
+                headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (resp) {
+                  if (resp && resp.success) {
+                    resolve(resp);
+                    return;
+                  }
+
+                  Swal.showValidationMessage(resp.message || 'Falha ao aprovar empréstimo.');
+                  resolve(false);
+                },
+                error: function (xhr) {
+                  Swal.showValidationMessage(xhr.responseJSON?.message || 'Falha ao aprovar empréstimo.');
+                  resolve(false);
+                }
+              });
+            });
+          }
+        }).then((result) => {
+          if (!result.isConfirmed || !result.value || !result.value.success) return;
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Aprovado',
+            text: result.value.message,
+            timer: 2600,
+            showConfirmButton: false
+          }).then(() => window.location.reload());
         });
       });
 
@@ -938,6 +1242,7 @@
                     <li><strong>Prestação por período:</strong> ${loan.payment_per_period != null ? formatMoney(loan.payment_per_period) : '—'}</li>
                     <li><strong>Data início:</strong> ${formatDate(loan.release_date)}</li>
                     <li><strong>1ª prestação:</strong> ${formatDate(loan.first_payment_date)}</li>
+                    <li><strong>Juros de mora:</strong> ${formatLateInterestStatus(loan.late_interest_enabled)}</li>
                     <li><strong>Método de desembolso:</strong> ${loan.disburse_method || '—'}</li>
                   </ul>
                 </div>
