@@ -17,6 +17,7 @@ from .loanpaymentrequest import LoanPaymentRequest
 from .loandisbursement import LoanDisbursement
 from .loanrepayment import LoanRepayment
 from .loandocument import LoanDocument
+from .lateinterestsetting import LateInterestSetting
 
 __all__ = [
     'Member',
@@ -37,4 +38,5 @@ __all__ = [
     'LoanDisbursement',
     'LoanRepayment',
     'LoanDocument',
+    'LateInterestSetting',
 ]

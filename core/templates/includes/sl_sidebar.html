@@ -203,14 +203,14 @@
 
             <li class="nav-item">
                 <a class="nav-link text-dark
-                {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' or segment == 'client_accounts' or segment == 'company_accounts' or segment == 'expense_categories' or segment == 'income_categories' %}active{% endif %}"
+                {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' or segment == 'late_interest_settings' or segment == 'client_accounts' or segment == 'company_accounts' or segment == 'expense_categories' or segment == 'income_categories' %}active{% endif %}"
                 data-bs-toggle="collapse" href="#menu-configuracoes" role="button"
                 aria-expanded="false" aria-controls="menu-configuracoes">
                     <i class="material-symbols-rounded opacity-5">tune</i>
                     <span class="nav-link-text ms-2 ps-1">{% trans "Configurações" %}</span>
                 </a>
                 <div class="collapse
-                    {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' or segment == 'client_accounts' or segment == 'company_accounts' or segment == 'expense_categories' or segment == 'income_categories' %}show{% endif %}"
+                    {% if segment == 'loan_types' or segment == 'account_types' or segment == 'interest_types' or segment == 'late_interest_settings' or segment == 'client_accounts' or segment == 'company_accounts' or segment == 'expense_categories' or segment == 'income_categories' %}show{% endif %}"
                     id="menu-configuracoes">
                     <ul class="nav ms-4">
                         <li class="nav-item">
@@ -232,6 +232,13 @@
                             href="{% url 'core:interest_type_list' %}">
                                 <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">percent</i>
                                 <span class="sidenav-normal ms-2 ps-1"> {% trans "Tipos de Juros" %} </span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark {% if segment == 'late_interest_settings' %}active fw-bold text-primary{% endif %}"
+                            href="{% url 'core:late_interest_settings_list' %}">
+                                <i class="material-symbols-rounded opacity-5" style="font-size: 18px;">schedule</i>
+                                <span class="sidenav-normal ms-2 ps-1"> {% trans "Juros de Mora" %} </span>
                             </a>
                         </li>
                         <li class="nav-item">

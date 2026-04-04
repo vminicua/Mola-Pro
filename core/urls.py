@@ -9,6 +9,7 @@ from core.views.expense.expense_view import expense_list, create_expense, downlo
 from core.views.income.income_view import income_category_list, create_income_category, income_list, create_income, download_income_attachment, update_income_category, toggle_income_category_status
 from core.views.transaction.transaction_view import transaction_list
 from core.views.interest.interest_view import interest_type_list, create_interest_type, interest_calculator, update_interest_type, toggle_interest_type_status
+from core.views.interest.late_interest_view import late_interest_settings_list, update_late_interest_setting
 from core.views.loan.loan_views import download_loan_pdf, new_loan
 from core.views.loan.loan_type_views import loan_type_list, create_loan_type, update_loan_type, toggle_loan_type
 from core.views.loan.loan_views import pending_loans_list, confirm_loan, reject_loan
@@ -91,6 +92,8 @@ urlpatterns = [
     path("interest/calculator/", interest_calculator, name="interest_calculator"),
     path("interest/types/update/", update_interest_type,name="update_interest_type",),
     path("interest/types/toggle-status/", toggle_interest_type_status,name="toggle_interest_type_status",),
+    path("interest/late-fees/", late_interest_settings_list, name="late_interest_settings_list"),
+    path("interest/late-fees/update/", update_late_interest_setting, name="update_late_interest_setting"),
 
     
     

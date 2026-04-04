@@ -1,0 +1,189 @@
+{% extends 'layouts/sl_base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container-fluid py-2">
+    <div class="row">
+      <div class="col-12">
+        <div class="card my-4">
+          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+            <div class="shadow-dark border-radius-lg pt-4 pb-3" style="background-color: var(--mola-pro-primary-active);">
+              <h6 class="text-white text-capitalize ps-3">Juros de Mora</h6>
+            </div>
+          </div>
+
+          <div class="card-body px-0 pb-2">
+            <div class="p-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <h6 class="mb-0">Configuração de Juros de Mora</h6>
+                  <p class="text-sm text-muted mb-0">
+                    Defina a percentagem de juros de mora para contratos diários e mensais. Estas taxas serão usadas quando o empréstimo tiver juros de mora activados.
+                  </p>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table id="late-interest-settings-table" class="table table-bordered table-striped align-items-center mb-0" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Período</th>
+                      <th>Percentagem (%)</th>
+                      <th>Última actualização</th>
+                      <th style="width: 120px;">Acções</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in late_interest_settings %}
+                      <tr
+                        data-id="{{ item.id }}"
+                        data-period-type="{{ item.period_type }}"
+                        data-rate="{{ item.rate }}"
+                      >
+                        <td>{{ item.id }}</td>
+                        <td>
+                          <strong>{{ item.get_period_type_display }}</strong><br>
+                          <small class="text-muted">
+                            {% if item.period_type == 'daily' %}
+                              Aplicado a empréstimos diários
+                            {% else %}
+                              Aplicado a empréstimos mensais
+                            {% endif %}
+                          </small>
+                        </td>
+                        <td>{{ item.rate|floatformat:4 }}</td>
+                        <td>
+                          {% if item.updated_at %}
+                            {{ item.updated_at|date:"d/m/Y H:i" }}
+                          {% else %}
+                            —
+                          {% endif %}
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-sm btn-outline-primary btn-edit-late-interest">
+                            <i class="material-symbols-rounded" style="font-size:18px;">edit</i>
+                          </button>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {% include 'includes/sl_footer.html' %}
+  </div>
+
+  <div class="modal fade" id="editLateInterestModal" tabindex="-1" aria-labelledby="editLateInterestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="editLateInterestForm">
+          {% csrf_token %}
+          <input type="hidden" name="id" id="edit_late_interest_id">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editLateInterestModalLabel">Editar Juros de Mora</h5>
+            <button type="button" class="btn-close text-dark" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Período</label>
+              <div class="input-group input-group-outline">
+                <input type="text" class="form-control" id="edit_late_interest_period_label" disabled>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Percentagem de juros de mora (%) *</label>
+              <div class="input-group input-group-outline">
+                <input type="number" step="0.0001" min="0" class="form-control" name="rate" id="edit_late_interest_rate" placeholder="Ex: 5 para 5%">
+              </div>
+              <small class="text-muted">Exemplo: 5 significa 5% de juros de mora para o período configurado.</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn bg-gradient-dark">Actualizar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      $('#late-interest-settings-table').DataTable({
+        paging: false,
+        info: false,
+        searching: false,
+        order: [[0, 'asc']],
+        language: {
+          url: '{{ brand_preferences.datatables_language_url }}'
+        }
+      })
+
+      const editModalEl = document.getElementById('editLateInterestModal')
+      const editModal = new bootstrap.Modal(editModalEl)
+
+      const periodLabels = {
+        daily: 'Diário',
+        monthly: 'Mensal'
+      }
+
+      $('#late-interest-settings-table').on('click', '.btn-edit-late-interest', function () {
+        const row = $(this).closest('tr')
+        const id = row.data('id')
+        const periodType = row.data('period-type')
+        const rate = row.data('rate')
+
+        $('#edit_late_interest_id').val(id)
+        $('#edit_late_interest_period_label').val(periodLabels[periodType] || periodType)
+        $('#edit_late_interest_rate').val(rate)
+
+        editModal.show()
+      })
+
+      $('#editLateInterestForm').on('submit', function (e) {
+        e.preventDefault()
+
+        const rate = $('#edit_late_interest_rate').val().trim()
+        if (!rate) {
+          Swal.fire('Validação', 'A percentagem de juros de mora é obrigatória.', 'warning')
+          return
+        }
+
+        $.ajax({
+          url: "{% url 'core:update_late_interest_setting' %}",
+          type: 'POST',
+          data: $(this).serialize(),
+          headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+          success: function (resp) {
+            if (resp.success) {
+              editModal.hide()
+              Swal.fire({
+                icon: 'success',
+                title: 'Actualizado',
+                text: resp.message,
+                timer: 2200,
+                showConfirmButton: false
+              }).then(() => window.location.reload())
+            } else {
+              Swal.fire('Erro', resp.message || 'Falha ao actualizar juros de mora.', 'error')
+            }
+          },
+          error: function (xhr) {
+            Swal.fire('Erro', xhr.responseJSON?.message || 'Falha ao actualizar juros de mora.', 'error')
+          }
+        })
+      })
+    })
+  </script>
+{% endblock %}
